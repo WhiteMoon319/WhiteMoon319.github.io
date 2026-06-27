@@ -1,0 +1,622 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    color: #fff7e8;
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    background: #07080d;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    width: 100%;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 56px;
+    background: rgba(7, 8, 13, 0.82);
+    border-bottom: 1px solid rgba(255, 89, 31, 0.26);
+    backdrop-filter: blur(16px);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+}
+
+.brand img {
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 18px rgba(255, 89, 31, 0.34));
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 15px;
+}
+
+.nav a {
+    position: relative;
+    padding: 26px 0;
+}
+
+.nav a::after,
+.nav a.active::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    height: 2px;
+    background: linear-gradient(90deg, #ff3d1f, #ffc15a);
+    transform: translateX(-50%);
+    transition: width 0.22s ease;
+}
+
+.nav a::after {
+    width: 0;
+}
+
+.nav a:hover::after,
+.nav a.active::after {
+    width: 100%;
+}
+
+.join-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 126px;
+    height: 40px;
+    color: #130804;
+    font-size: 14px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffc15a, #ff3d1f);
+    border-radius: 999px;
+    box-shadow: 0 12px 34px rgba(255, 61, 31, 0.34);
+}
+
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 128px 8vw 84px;
+    background:
+        radial-gradient(circle at 76% 35%, rgba(255, 61, 31, 0.36), transparent 23%),
+        radial-gradient(circle at 18% 24%, rgba(255, 193, 90, 0.22), transparent 24%),
+        linear-gradient(115deg, rgba(7, 8, 13, 0.96) 0%, rgba(17, 22, 35, 0.82) 42%, rgba(80, 21, 14, 0.54) 100%),
+        url("../img/logo.webp") 76% 52% / min(42vw, 520px) no-repeat,
+        #07080d;
+}
+
+.hero::before,
+.page-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(7, 8, 13, 0.94) 0%, rgba(7, 8, 13, 0.52) 55%, rgba(7, 8, 13, 0.3) 100%),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 98px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 98px),
+        linear-gradient(180deg, transparent 70%, #07080d 100%);
+}
+
+.hero::after,
+.page-hero::after {
+    content: "YHG";
+    position: absolute;
+    right: 5vw;
+    bottom: 7vh;
+    color: rgba(255, 255, 255, 0.035);
+    font-size: clamp(120px, 20vw, 320px);
+    font-weight: 900;
+    letter-spacing: -0.08em;
+    line-height: 0.8;
+}
+
+.hero-content,
+.page-hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 740px;
+}
+
+.eyebrow {
+    margin-bottom: 18px;
+    color: #ffc15a;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.32em;
+}
+
+.hero h1,
+.page-hero h1 {
+    font-size: clamp(50px, 8vw, 102px);
+    line-height: 0.98;
+    letter-spacing: 0.08em;
+    text-shadow: 0 18px 40px rgba(0, 0, 0, 0.48);
+}
+
+.hero h1 strong,
+.page-hero h1 strong {
+    color: #ff4b24;
+    font-style: normal;
+}
+
+.hero p,
+.page-hero p {
+    max-width: 650px;
+    margin-top: 28px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 18px;
+    line-height: 1.9;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 40px;
+}
+
+.primary-btn,
+.ghost-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 172px;
+    height: 54px;
+    border-radius: 4px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.primary-btn {
+    color: #150704;
+    background: linear-gradient(135deg, #ffc15a, #ff3d1f);
+    box-shadow: 0 20px 40px rgba(255, 61, 31, 0.34);
+}
+
+.ghost-btn {
+    color: #fff4dc;
+    border: 1px solid rgba(255, 193, 90, 0.58);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 680px;
+    margin-top: 56px;
+}
+
+.stat-card {
+    padding: 18px 20px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 3px solid #ff4b24;
+}
+
+.stat-card b {
+    display: block;
+    color: #ffc15a;
+    font-size: 26px;
+    line-height: 1;
+}
+
+.stat-card span {
+    display: block;
+    margin-top: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+}
+
+.page-hero {
+    position: relative;
+    min-height: 58vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 128px 8vw 80px;
+    background:
+        radial-gradient(circle at 78% 30%, rgba(255, 61, 31, 0.32), transparent 25%),
+        linear-gradient(115deg, rgba(7, 8, 13, 0.96), rgba(28, 18, 22, 0.82)),
+        url("../img/logo.webp") 82% 52% / min(34vw, 430px) no-repeat,
+        #07080d;
+}
+
+.section {
+    padding: 98px 8vw;
+}
+
+.section-title {
+    max-width: 860px;
+    margin: 0 auto 44px;
+    text-align: center;
+}
+
+.section-title span {
+    display: block;
+    margin-bottom: 12px;
+    color: #ff4b24;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.28em;
+}
+
+.section-title h2 {
+    color: #fff7e8;
+    font-size: clamp(32px, 4vw, 48px);
+    letter-spacing: 0.12em;
+}
+
+.section-title p {
+    margin-top: 18px;
+    color: rgba(255, 255, 255, 0.68);
+    line-height: 1.85;
+}
+
+.about {
+    background: radial-gradient(circle at 12% 8%, rgba(255, 193, 90, 0.16), transparent 26%), linear-gradient(180deg, #07080d, #10131d);
+}
+
+.systems,
+.list-section {
+    background: linear-gradient(180deg, #10131d, #080910), radial-gradient(circle at 90% 0, rgba(255, 61, 31, 0.2), transparent 28%);
+}
+
+.spirit {
+    position: relative;
+    background: linear-gradient(180deg, rgba(8, 9, 16, 0.72), rgba(8, 9, 16, 0.94)), radial-gradient(circle at 50% 20%, rgba(255, 61, 31, 0.3), transparent 30%), #080910;
+}
+
+.philosophy {
+    background: radial-gradient(circle at 10% 80%, rgba(255, 193, 90, 0.14), transparent 24%), linear-gradient(180deg, #080910, #111522);
+}
+
+.vision {
+    text-align: center;
+    background: radial-gradient(circle at 50% 0, rgba(255, 61, 31, 0.2), transparent 30%), #07080d;
+}
+
+.about-card,
+.vision-card,
+.content-card {
+    position: relative;
+    max-width: 1080px;
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 46px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
+}
+
+.about-card::before,
+.content-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #ff3d1f, #ffc15a, transparent);
+}
+
+.about-card p,
+.vision-card p,
+.content-card p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 17px;
+    line-height: 2;
+}
+
+.system-grid,
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+
+.system-card,
+.grid-card {
+    min-height: 260px;
+    padding: 30px;
+    background: linear-gradient(150deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    transition: transform 0.22s ease, border-color 0.22s ease;
+}
+
+.system-card:hover,
+.grid-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255, 193, 90, 0.58);
+}
+
+.number,
+.meta {
+    color: rgba(255, 193, 90, 0.72);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+}
+
+.system-card h3,
+.grid-card h3 {
+    margin-top: 20px;
+    color: #fff;
+    font-size: 26px;
+    letter-spacing: 0.08em;
+}
+
+.system-card p,
+.grid-card p {
+    margin-top: 16px;
+    color: rgba(255, 255, 255, 0.68);
+    line-height: 1.8;
+}
+
+.spirit-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, 360px) 1fr;
+    gap: 34px;
+    align-items: stretch;
+}
+
+.spirit-slogan {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 420px;
+    padding: 36px;
+    background: linear-gradient(180deg, rgba(255, 61, 31, 0.84), rgba(88, 16, 10, 0.78)), url("../img/logo.webp") center / 76% no-repeat;
+    border-radius: 24px;
+    box-shadow: 0 26px 70px rgba(255, 61, 31, 0.22);
+}
+
+.spirit-slogan h2 {
+    font-size: 42px;
+    line-height: 1.18;
+    letter-spacing: 0.12em;
+}
+
+.spirit-slogan p {
+    color: rgba(255, 255, 255, 0.86);
+    line-height: 1.8;
+}
+
+.spirit-list {
+    display: grid;
+    gap: 18px;
+}
+
+.spirit-item {
+    padding: 28px 30px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+}
+
+.spirit-item h3 {
+    color: #ffc15a;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+}
+
+.spirit-item p {
+    margin-top: 12px;
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.8;
+}
+
+.philosophy-grid,
+.two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.statement {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 34px;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    background: linear-gradient(180deg, transparent 10%, rgba(7, 8, 13, 0.84) 100%), linear-gradient(135deg, rgba(255, 61, 31, 0.46), rgba(255, 193, 90, 0.14));
+}
+
+.statement h3 {
+    color: #fff;
+    font-size: 30px;
+    letter-spacing: 0.1em;
+}
+
+.statement p {
+    margin-top: 16px;
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.85;
+}
+
+.motto {
+    display: inline-block;
+    margin-top: 28px;
+    color: #ffc15a;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.profile-card {
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 24px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: radial-gradient(circle at 50% 18%, rgba(255, 193, 90, 0.26), transparent 22%), linear-gradient(160deg, rgba(255, 61, 31, 0.3), rgba(14, 16, 25, 0.96));
+}
+
+.profile-card h3 {
+    font-size: 28px;
+    letter-spacing: 0.12em;
+}
+
+.profile-card p {
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.68);
+    line-height: 1.7;
+}
+
+.timeline {
+    display: grid;
+    gap: 18px;
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.timeline-item {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 24px;
+    padding: 28px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.timeline-item time {
+    color: #ffc15a;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+}
+
+.timeline-item h3 {
+    color: #fff;
+    font-size: 24px;
+}
+
+.timeline-item p {
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.68);
+    line-height: 1.8;
+}
+
+footer {
+    padding: 34px 8vw;
+    color: rgba(255, 255, 255, 0.46);
+    text-align: center;
+    background: #030407;
+    font-size: 13px;
+}
+
+@media (max-width: 980px) {
+    .site-header {
+        padding: 0 24px;
+    }
+
+    .nav {
+        display: none;
+    }
+
+    .hero {
+        background: radial-gradient(circle at 70% 34%, rgba(255, 61, 31, 0.26), transparent 28%), linear-gradient(115deg, rgba(7, 8, 13, 0.96) 0%, rgba(17, 22, 35, 0.82) 100%), url("../img/logo.webp") 85% 48% / 360px no-repeat, #07080d;
+    }
+
+    .system-grid,
+    .card-grid,
+    .spirit-layout,
+    .philosophy-grid,
+    .two-column,
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .site-header {
+        height: 62px;
+    }
+
+    .brand span {
+        display: none;
+    }
+
+    .join-btn {
+        min-width: 104px;
+        height: 36px;
+        font-size: 13px;
+    }
+
+    .hero,
+    .page-hero {
+        padding: 102px 22px 62px;
+    }
+
+    .hero p,
+    .page-hero p,
+    .vision-card p {
+        font-size: 16px;
+    }
+
+    .hero-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .section {
+        padding: 70px 22px;
+    }
+
+    .about-card,
+    .content-card,
+    .vision-card,
+    .spirit-slogan,
+    .statement {
+        padding: 28px;
+    }
+
+    .spirit-slogan {
+        min-height: 320px;
+    }
+
+    .timeline-item {
+        grid-template-columns: 1fr;
+    }
+}
