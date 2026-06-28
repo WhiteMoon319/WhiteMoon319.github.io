@@ -1035,10 +1035,10 @@ a {
 
 .profile-card {
     position: relative;
-    min-height: 384px;
+    min-height: 360px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: flex-start;
     overflow: hidden;
     padding: 26px;
     border: 1px solid var(--line-2);
@@ -1056,19 +1056,6 @@ a {
         linear-gradient(180deg, transparent, var(--surface)),
         radial-gradient(60% 40% at 50% 18%, var(--spring-soft), transparent 60%),
         linear-gradient(155deg, rgba(101, 163, 13, 0.14), rgba(251, 191, 36, 0.08));
-}
-
-/* portrait silhouette */
-.profile-card::before {
-    content: "";
-    position: absolute;
-    top: 34px;
-    left: 50%;
-    width: 84px;
-    height: 112px;
-    border-radius: 50% 50% 45% 45%;
-    background: linear-gradient(180deg, rgba(58, 45, 30, 0.08), rgba(58, 45, 30, 0.02));
-    transform: translateX(-50%);
 }
 
 /* top gradient bar */
@@ -1124,24 +1111,21 @@ a {
 }
 
 .profile-pic {
-    position: absolute;
-    top: 22px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(62%, 180px);
+    display: block;
+    width: clamp(130px, 56%, 180px);
     aspect-ratio: 5 / 6;
     height: auto;
+    margin: 2px auto 20px;
     object-fit: cover;
     object-position: center top;
     border: 1px solid var(--line-2);
     border-radius: 16px;
     box-shadow: var(--shadow);
-    z-index: 1;
     transition: transform 0.28s var(--ease);
 }
 
 .profile-card:hover .profile-pic {
-    transform: translateX(-50%) translateY(-3px);
+    transform: translateY(-3px);
 }
 
 /* ===================== Timeline ===================== */
