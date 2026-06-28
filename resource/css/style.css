@@ -1035,7 +1035,7 @@ a {
 
 .profile-card {
     position: relative;
-    min-height: 310px;
+    min-height: 384px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -1121,6 +1121,26 @@ a {
 
 .profile-card:nth-child(even) .meta {
     color: var(--spring);
+}
+
+.profile-pic {
+    position: absolute;
+    top: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 160px;
+    height: 192px;
+    object-fit: cover;
+    object-position: center top;
+    border: 1px solid var(--line-2);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    z-index: 1;
+    transition: transform 0.28s var(--ease);
+}
+
+.profile-card:hover .profile-pic {
+    transform: translateX(-50%) translateY(-3px);
 }
 
 /* ===================== Timeline ===================== */
@@ -1236,6 +1256,19 @@ a {
     border-radius: 48% 48% 42% 42%;
     background: linear-gradient(180deg, rgba(58, 45, 30, 0.08), rgba(58, 45, 30, 0.02));
     transform: translateX(-50%);
+}
+
+.member-portrait-pic {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 300px;
+    margin-bottom: auto;
+    object-fit: cover;
+    object-position: center top;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
 }
 
 .member-portrait-content {
