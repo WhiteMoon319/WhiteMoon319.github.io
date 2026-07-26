@@ -32,8 +32,8 @@ export async function onRequest(context) {
     if (!email || !code || !username || !password) {
       return new Response(JSON.stringify({ error: '请填写完整信息' }), { status: 400, headers });
     }
-    if (password.length < 6) {
-      return new Response(JSON.stringify({ error: '密码至少6位' }), { status: 400, headers });
+    if (password.length < 8) {
+      return new Response(JSON.stringify({ error: '密码至少8位' }), { status: 400, headers });
     }
     if (username.length < 2 || username.length > 20) {
       return new Response(JSON.stringify({ error: '用户名2~20个字符' }), { status: 400, headers });
@@ -65,6 +65,7 @@ export async function onRequest(context) {
 
     return new Response(JSON.stringify({ ok: true, message: '注册成功' }), { status: 201, headers });
   } catch (e) {
+    console.error(e);
     return new Response(JSON.stringify({ error: '服务器错误' }), { status: 500, headers });
   }
 }

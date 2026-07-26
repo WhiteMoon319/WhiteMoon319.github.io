@@ -67,6 +67,7 @@ export async function onRequest(context) {
       }
     });
   } catch (e) {
+    console.error(e);
     return new Response(JSON.stringify({ error: '服务器错误' }), { status: 500, headers });
   }
 }

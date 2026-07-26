@@ -110,6 +110,7 @@ async function handleCreate(request, env, headers) {
 
     return new Response(JSON.stringify({ ok: true, slug, status }), { status: 201, headers });
   } catch (e) {
+    console.error(e);
     return new Response(JSON.stringify({ error: '服务器错误' }), { status: 500, headers });
   }
 }

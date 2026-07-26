@@ -2,6 +2,15 @@
  * YHG Auth — 全局导航栏认证状态
  * 在页面加载时检查登录状态，更新导航栏右侧的认证区域
  */
+
+/** 转义 HTML 防止 XSS */
+window.escapeHtml = function(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(String(str)));
+  return div.innerHTML;
+};
+
 (async function() {
   try {
     const resp = await fetch('/api/auth/me');
@@ -38,7 +47,7 @@
               width:6px;height:6px;border-radius:50%;
               background:var(--spring-2);box-shadow:0 0 5px var(--spring-glow);
             "></span>
-            ${u.username}
+            ${escapeHtml(u.username)}
           </a>
           <span style="width:1px;height:14px;background:var(--line);flex-shrink:0;"></span>
           <span class="auth-logout" style="

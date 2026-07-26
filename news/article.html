@@ -86,6 +86,7 @@
 
     <script defer src="../resource/js/auth.js"></script>
     <script>
+        function escapeHtml(s) { if (!s) return ''; var d = document.createElement('div'); d.appendChild(document.createTextNode(String(s))); return d.innerHTML; }
         (async function() {
             const slug = new URLSearchParams(window.location.search).get('slug');
             if (!slug) {
@@ -116,13 +117,13 @@
 
             const el = document.getElementById('articleContent');
             el.innerHTML = `
-                <h1>${a.title}</h1>
+                <h1>${escapeHtml(a.title)}</h1>
                 <div class="article-meta">
-                    <span>✍ ${a.username}</span>
+                    <span>✍ ${escapeHtml(a.username)}</span>
                     <span>📅 ${created}</span>
                     <span id="likeDisplay">❤ ${a.like_count || 0}</span>
                 </div>
-                <div class="article-body">${a.content.replace(/\n/g, '<br>')}</div>
+                <div class="article-body">${escapeHtml(a.content).replace(/\n/g, '<br>')}</div>
                 <div class="article-actions">
                     <button class="like-btn ${a.liked_by_me ? 'liked' : ''}" id="likeBtn">
                         <span class="heart">${a.liked_by_me ? '❤' : '♡'}</span>
@@ -215,18 +216,18 @@
                 let html = '';
                 data.comments.forEach(c => {
                     const time = c.created_at ? new Date(c.created_at + 'Z').toLocaleString('zh-CN') : '';
-                    const avatarHtml = c.avatar ? `<img src="${c.avatar}" alt="">` : '👤';
+                    const avatarHtml = c.avatar ? `<img src="${escapeHtml(c.avatar)}" alt="">` : '👤';
                     const canDel = currentUser && (currentUser.id === c.user_id || currentUser.role === 'admin' || currentUser.role === 'sub_admin');
                     html += `
                         <div class="comment-item">
                             <div class="comment-avatar">${avatarHtml}</div>
                             <div class="comment-body">
                                 <div>
-                                    <span class="comment-author">${c.username}</span>
+                                    <span class="comment-author">${escapeHtml(c.username)}</span>
                                     <span class="comment-time">${time}</span>
                                     ${canDel ? `<button class="comment-del" onclick="deleteComment('${slug}', ${c.id})">删除</button>` : ''}
                                 </div>
-                                <div class="comment-text">${c.content}</div>
+                                <div class="comment-text">${escapeHtml(c.content)}</div>
                             </div>
                         </div>
                     `;

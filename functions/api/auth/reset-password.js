@@ -45,6 +45,7 @@ export async function onRequest(context) {
 
     return new Response(JSON.stringify({ ok: true, message: '密码已重置' }), { status: 200, headers });
   } catch (e) {
+    console.error(e);
     return new Response(JSON.stringify({ error: '服务器错误' }), { status: 500, headers });
   }
 }

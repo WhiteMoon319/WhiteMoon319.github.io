@@ -62,6 +62,7 @@
 
     <script defer src="../resource/js/auth.js"></script>
     <script>
+    function escapeHtml(s) { if (!s) return ''; var d = document.createElement('div'); d.appendChild(document.createTextNode(String(s))); return d.innerHTML; }
     (async function() {
         const params = new URLSearchParams(window.location.search);
         const slug = params.get('slug');
@@ -113,9 +114,9 @@
                 <section class="page-hero member-hero">
                     <div class="embers" aria-hidden="true">${'<i></i>'.repeat(12)}</div>
                     <div class="page-hero-content">
-                        <div class="eyebrow reveal in" data-delay="1">${p.role.toUpperCase()} · ${p.titles || '选手'}</div>
-                        <h1 class="reveal in" data-delay="2">${p.id_name}</h1>
-                        <p class="reveal in" data-delay="3" style="max-width:600px;">${p.bio || '暂无简介'}</p>
+                        <div class="eyebrow reveal in" data-delay="1">${escapeHtml(p.role.toUpperCase())} · ${escapeHtml(p.titles || '选手')}</div>
+                        <h1 class="reveal in" data-delay="2">${escapeHtml(p.id_name)}</h1>
+                        <p class="reveal in" data-delay="3" style="max-width:600px;">${escapeHtml(p.bio || '暂无简介')}</p>
                         ${canEdit ? `<div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;" class="reveal in" data-delay="4">
                             <a class="primary-btn" href="edit.html?slug=${slug}" style="text-decoration:none;">✏ 编辑资料</a>
                             <a class="ghost-btn" href="${slug}/">查看原始页面</a>
@@ -127,21 +128,21 @@
                     <div class="member-layout">
                         <aside class="member-portrait reveal" data-delay="2">
                             <div class="member-portrait-content">
-                                <img class="member-portrait-pic" src="${picUrl}" alt="${p.name}" onerror="this.src='../resource/img/default_members_pic.webp'">
-                                <div class="role">${p.id_name} / ${p.role}</div>
-                                <h2>${p.name}</h2>
-                                <p>${p.bio || ''}</p>
+                                <img class="member-portrait-pic" src="${picUrl}" alt="${escapeHtml(p.name)}" onerror="this.src='../resource/img/default_members_pic.webp'">
+                                <div class="role">${escapeHtml(p.id_name)} / ${escapeHtml(p.role)}</div>
+                                <h2>${escapeHtml(p.name)}</h2>
+                                <p>${escapeHtml(p.bio || '')}</p>
                             </div>
                         </aside>
                         <div class="member-info">
                             <article class="info-panel reveal" data-delay="3">
                                 <h3>基础资料</h3>
                                 <div class="info-grid">
-                                    <div class="info-cell"><span>姓名</span><b>${p.name}</b></div>
-                                    <div class="info-cell"><span>ID</span><b>${p.id_name}</b></div>
-                                    <div class="info-cell"><span>年龄</span><b>${p.age || '—'}</b></div>
-                                    <div class="info-cell"><span>分路</span><b>${p.role}</b></div>
-                                    <div class="info-cell"><span>荣誉</span><b>${p.titles || '—'}</b></div>
+                                    <div class="info-cell"><span>姓名</span><b>${escapeHtml(p.name)}</b></div>
+                                    <div class="info-cell"><span>ID</span><b>${escapeHtml(p.id_name)}</b></div>
+                                    <div class="info-cell"><span>年龄</span><b>${escapeHtml(p.age || '—')}</b></div>
+                                    <div class="info-cell"><span>分路</span><b>${escapeHtml(p.role)}</b></div>
+                                    <div class="info-cell"><span>荣誉</span><b>${escapeHtml(p.titles || '—')}</b></div>
                                     <div class="info-cell"><span>资料更新</span><b>${updated}</b></div>
                                 </div>
                             </article>
@@ -149,9 +150,9 @@
                                 <h3>属性</h3>
                                 <div class="attribute-grid">${statsHtml}</div>
                             </article>
-                            ${p.personality ? `<article class="info-panel reveal" data-delay="5"><h3>性格</h3><p>${p.personality}</p></article>` : ''}
-                            ${p.experience ? `<article class="info-panel reveal" data-delay="6"><h3>经历</h3><p>${p.experience}</p></article>` : ''}
-                            ${p.anchor ? `<article class="info-panel reveal" data-delay="7"><h3>锚点</h3><p>${p.anchor}</p></article>` : ''}
+                            ${p.personality ? `<article class="info-panel reveal" data-delay="5"><h3>性格</h3><p>${escapeHtml(p.personality)}</p></article>` : ''}
+                            ${p.experience ? `<article class="info-panel reveal" data-delay="6"><h3>经历</h3><p>${escapeHtml(p.experience)}</p></article>` : ''}
+                            ${p.anchor ? `<article class="info-panel reveal" data-delay="7"><h3>锚点</h3><p>${escapeHtml(p.anchor)}</p></article>` : ''}
                             <a class="back-link" href="../members/">返回队员阵容</a>
                         </div>
                     </div>

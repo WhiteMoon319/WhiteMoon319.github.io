@@ -68,6 +68,7 @@
         let currentPage = 1;
         let currentQuery = '';
 
+        function escapeHtml(s) { if (!s) return ''; var d = document.createElement('div'); d.appendChild(document.createTextNode(String(s))); return d.innerHTML; }
         (async function() {
             try {
                 const meResp = await fetch('/api/auth/me');
@@ -114,12 +115,15 @@
                     let html = '';
                     data.articles.forEach((a, i) => {
                         const date = a.created_at ? new Date(a.created_at + 'Z').toLocaleDateString('zh-CN') : '';
-                        const summary = a.summary || a.content.replace(/<[^>]+>/g,'').substring(0, 60) + '…';
+                        const safeTitle = escapeHtml(a.title);
+                        const safeAuthor = escapeHtml(a.username);
+                        const raw = a.summary || a.content;
+                        const summary = escapeHtml(raw.replace(/<[^>]+>/g,'').substring(0, 60)) + '…';
                         const likes = a.like_count ? '❤ ' + a.like_count : '';
                         const delay = Math.min(i + 3, 6);
                         html += '<a class="grid-card reveal" data-delay="' + delay + '" href="article.html?slug=' + a.slug + '">'
-                            + '<div class="meta">' + date + ' · ' + a.username + (likes ? ' · ' + likes : '') + '</div>'
-                            + '<h3>' + a.title + '</h3>'
+                            + '<div class="meta">' + date + ' · ' + safeAuthor + (likes ? ' · ' + likes : '') + '</div>'
+                            + '<h3>' + safeTitle + '</h3>'
                             + '<p>' + summary + '</p>'
                             + '</a>';
                     });
