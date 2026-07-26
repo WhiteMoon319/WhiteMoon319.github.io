@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛事赛程 - YHG电子竞技战队</title>
+    <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="../resource/img/logo.webp">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="zh_CN">
+    <meta property="og:title" content="赛事赛程 - YHG电子竞技战队">
+    <meta property="og:description" content="YHG 战队近期赛程与历史战绩。">
+    <meta property="og:url" content="https://yhg-7su.pages.dev/matches/">
+    <meta property="og:image" content="https://yhg-7su.pages.dev/resource/img/logo.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../resource/css/style.css">
+    <style>
+        .match-card { background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); padding: 24px; margin-bottom: 16px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
+        .match-card .date { font-family: var(--mono); font-size: 12px; color: var(--faint); letter-spacing: 0.05em; min-width: 100px; }
+        .match-card .vs { flex: 1; min-width: 150px; }
+        .match-card .vs h3 { font-family: var(--display); font-size: 18px; color: var(--text); margin: 0; }
+        .match-card .vs .opponent { font-size: 14px; color: var(--dim); }
+        .match-card .result { text-align: center; min-width: 70px; } 
+        .match-card .result .badge { display: inline-block; padding: 3px 14px; border-radius: 99px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; }
+        .match-card .result .badge.win { background: #e8f5e9; color: #2e7d32; }
+        .match-card .result .badge.lose { background: #fce4ec; color: #c62828; }
+        .match-card .result .badge.draw { background: #fff3e0; color: #e65100; }
+        .match-card .score { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--text); min-width: 60px; text-align: center; }
+        .match-card .desc { width: 100%; font-size: 13px; color: var(--dim); line-height: 1.6; padding-top: 12px; border-top: 1px solid var(--line); }
+        .match-placeholder { text-align: center; padding: 60px 20px; color: var(--dim); }
+        .match-list { max-width: 720px; margin: 0 auto; padding: 0 22px 80px; }
+        @media (max-width: 480px) { .match-card { flex-direction: column; align-items: flex-start; } .match-card .result { align-self: flex-start; } }
+    </style>
+    <script defer src="../resource/js/auth.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="../"><img src="../resource/img/logo.webp" alt="YHG"><span>YHG</span></a>
+        <nav class="nav">
+            <a href="../">HOME</a><a href="../about/">ABOUT</a><a href="../members/">ROSTER</a><a class="active" href="./">MATCHES</a><a href="../news/">NEWS</a>
+        </nav>
+        <div id="authWidget"></div>
+    </header>
+
+    <main>
+        <section class="page-hero">
+            <div class="embers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="page-hero-content">
+                <div class="eyebrow reveal in" data-delay="1">MATCH CENTER</div>
+                <h1 class="reveal in" data-delay="2">赛事<strong>赛程</strong></h1>
+                <p class="reveal in" data-delay="3">YHG 战队近期赛程与历史战绩</p>
+            </div>
+        </section>
+
+        <section class="section list-section">
+            <div class="section-title reveal" data-delay="1">
+                <span>SCHEDULE & RESULTS</span>
+                <h2>比赛记录</h2>
+            </div>
+            <div class="match-list reveal" data-delay="2" id="matchList">
+                <div class="match-placeholder">加载中…</div>
+            </div>
+        </section>
+    </main>
+
+    <footer><p>© 2026 YHG ESPORTS · Honor of Kings esports team</p></footer>
+
+    <script>
+    (async function() {
+        const list = document.getElementById('matchList');
+        try {
+            const resp = await fetch('/api/matches');
+            const data = await resp.json();
+            const matches = data.matches || [];
+
+            if (matches.length === 0) {
+                list.innerHTML = '<div class="match-placeholder"><p>暂无比赛记录</p></div>';
+                return;
+            }
+
+            let html = '';
+            matches.forEach((m, i) => {
+                const badge = m.result === 'win' ? '<span class="badge win">胜</span>' :
+                    m.result === 'lose' ? '<span class="badge lose">负</span>' :
+                    m.result === 'draw' ? '<span class="badge draw">平</span>' : '';
+                const delay = Math.min(i + 3, 6);
+                html += `
+                    <div class="match-card reveal" data-delay="${delay}">
+                        <div class="date">${m.match_date}</div>
+                        <div class="vs">
+                            <h3>${m.title}</h3>
+                            <div class="opponent">vs ${m.opponent}</div>
+                        </div>
+                        ${m.score ? '<div class="score">'+m.score+'</div>' : ''}
+                        <div class="result">${badge}</div>
+                        ${m.description ? '<div class="desc">'+m.description+'</div>' : ''}
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+            // 动态加载完成后观察新 reveal 元素
+            document.querySelectorAll('.match-card.reveal:not(.in)').forEach(el => revealIO.observe(el));
+        } catch(e) {
+            list.innerHTML = '<div class="match-placeholder"><p>加载失败</p></div>';
+        }
+    })();
+
+    const revealIO = new IntersectionObserver((entries) => {
+      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
+    </script>
+</body>
+</html>

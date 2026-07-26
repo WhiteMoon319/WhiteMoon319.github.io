@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战队新闻 - YHG电子竞技战队</title>
+    <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="../resource/img/logo.webp">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="zh_CN">
+    <meta property="og:title" content="战队新闻 - YHG电子竞技战队">
+    <meta property="og:description" content="YHG 战队公告、赛事战报、招新信息与训练动态。">
+    <meta property="og:url" content="https://yhg-7su.pages.dev/news/">
+    <meta property="og:image" content="https://yhg-7su.pages.dev/resource/img/logo.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="../resource/css/style.css">
+    <style>
+        .search-bar { display:flex; gap:10px; margin-bottom:24px; align-items:center; flex-wrap:wrap; }
+        .search-bar input { flex:1; min-width:180px; padding:10px 16px; font-size:14px; border:1px solid var(--line-2); border-radius:var(--r-sm); background:var(--bg); color:var(--text); outline:none; }
+        .search-bar input:focus { border-color:var(--fire-2); }
+        .search-bar .srch-btn { padding:10px 20px; font-size:13px; font-weight:700; color:#fff; background:var(--flame-grad); border:none; border-radius:var(--r-sm); cursor:pointer; }
+        .search-bar .srch-btn:hover { opacity:0.9; }
+        .pagination { display:flex; gap:8px; justify-content:center; align-items:center; margin-top:32px; flex-wrap:wrap; }
+        .pagination .page-btn { padding:8px 14px; font-size:13px; border:1px solid var(--line-2); border-radius:var(--r-sm); background:var(--surface); color:var(--text); cursor:pointer; text-decoration:none; }
+        .pagination .page-btn:hover { border-color:var(--fire-2); }
+        .pagination .page-btn.active { background:var(--flame-grad); color:#fff; border-color:transparent; }
+        .pagination .page-btn:disabled { opacity:0.4; cursor:not-allowed; }
+        .page-info { font-size:13px; color:var(--dim); margin:0 8px; }
+    </style>
+  <script defer src="../resource/js/auth.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="../">
+            <img src="../resource/img/logo.webp" alt="YHG战队标识"><span>YHG</span>
+        </a>
+        <nav class="nav">
+            <a href="../">HOME</a><a href="../about/">ABOUT</a><a href="../members/">ROSTER</a><a href="../matches/">MATCHES</a><a class="active" href="./">NEWS</a>
+        </nav>
+        <div id="authWidget"></div>
+    </header>
+    <main>
+        <section class="page-hero">
+            <div class="embers"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="page-hero-content">
+                <div class="eyebrow reveal in" data-delay="1">TEAM NEWS</div>
+                <h1 class="reveal in" data-delay="2">战队<strong>新闻</strong></h1>
+                <p class="reveal in" data-delay="3">发布战队公告、赛事战报、招新信息与训练动态。</p>
+            </div>
+        </section>
+        <section class="section list-section">
+            <div class="section-title reveal" data-delay="1">
+                <span>LATEST</span>
+                <h2>最新动态</h2>
+                <div id="newsAction" style="margin-top:16px;"></div>
+            </div>
+            <div class="search-bar reveal" data-delay="2">
+                <input type="text" id="searchInput" placeholder="搜索文章…" onkeydown="if(event.key==='Enter')loadNews(1)">
+                <button class="srch-btn" onclick="loadNews(1)">搜索</button>
+            </div>
+            <div class="card-grid" id="newsGrid">
+                <p style="grid-column:1/-1;text-align:center;color:var(--dim);padding:40px 0;">加载中…</p>
+            </div>
+            <div class="pagination" id="pagination"></div>
+        </section>
+
+        <script>
+        let currentPage = 1;
+        let currentQuery = '';
+
+        (async function() {
+            try {
+                const meResp = await fetch('/api/auth/me');
+                if (meResp.ok) {
+                    document.getElementById('newsAction').innerHTML = '<a class="primary-btn" href="write.html" style="text-decoration:none;">✏ 写文章</a>';
+                }
+            } catch(e) {}
+            // 从 URL 参数恢复搜索
+            const up = new URLSearchParams(window.location.search);
+            const q = up.get('q');
+            const p = parseInt(up.get('page')) || 1;
+            if (q) { document.getElementById('searchInput').value = q; currentQuery = q; }
+            currentPage = p;
+            loadNews(currentPage);
+        })();
+
+        function updateUrl() {
+            const params = new URLSearchParams();
+            if (currentQuery) params.set('q', currentQuery);
+            if (currentPage > 1) params.set('page', currentPage);
+            const qs = params.toString();
+            const newUrl = window.location.pathname + (qs ? '?' + qs : '');
+            window.history.replaceState(null, '', newUrl);
+        }
+
+        async function loadNews(page) {
+            const grid = document.getElementById('newsGrid');
+            const pagi = document.getElementById('pagination');
+            currentQuery = document.getElementById('searchInput').value.trim();
+            currentPage = page;
+            updateUrl();
+
+            grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--dim);padding:40px 0;">加载中…</p>';
+            pagi.innerHTML = '';
+
+            try {
+                let url = '/api/news?page=' + page + '&limit=6';
+                if (currentQuery) url += '&q=' + encodeURIComponent(currentQuery);
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error();
+                const data = await resp.json();
+
+                if (data.articles && data.articles.length > 0) {
+                    let html = '';
+                    data.articles.forEach((a, i) => {
+                        const date = a.created_at ? new Date(a.created_at + 'Z').toLocaleDateString('zh-CN') : '';
+                        const summary = a.summary || a.content.replace(/<[^>]+>/g,'').substring(0, 60) + '…';
+                        const likes = a.like_count ? '❤ ' + a.like_count : '';
+                        const delay = Math.min(i + 3, 6);
+                        html += '<a class="grid-card reveal" data-delay="' + delay + '" href="article.html?slug=' + a.slug + '">'
+                            + '<div class="meta">' + date + ' · ' + a.username + (likes ? ' · ' + likes : '') + '</div>'
+                            + '<h3>' + a.title + '</h3>'
+                            + '<p>' + summary + '</p>'
+                            + '</a>';
+                    });
+                    grid.innerHTML = html;
+                    document.querySelectorAll('#newsGrid .reveal:not(.in)').forEach(el => revealIO.observe(el));
+                } else {
+                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--dim);padding:40px 0;">'
+                        + (currentQuery ? '没有找到匹配的文章' : '暂无文章，快来写下第一篇吧！') + '</p>';
+                }
+
+                // 分页导航
+                if (data.totalPages > 1) {
+                    let phtml = '';
+                    if (currentPage > 1) {
+                        phtml += '<button class="page-btn" onclick="loadNews(' + (currentPage-1) + ')">← 上一页</button>';
+                    }
+                    for (let i = Math.max(1, currentPage-2); i <= Math.min(data.totalPages, currentPage+2); i++) {
+                        phtml += '<button class="page-btn' + (i === currentPage ? ' active' : '') + '" onclick="loadNews(' + i + ')">' + i + '</button>';
+                    }
+                    if (currentPage < data.totalPages) {
+                        phtml += '<button class="page-btn" onclick="loadNews(' + (currentPage+1) + ')">下一页 →</button>';
+                    }
+                    phtml += '<span class="page-info">' + data.total + ' 篇</span>';
+                    pagi.innerHTML = phtml;
+                }
+            } catch(e) {
+                grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--dim);padding:40px 0;">加载失败</p>';
+            }
+        }
+
+        const revealIO = new IntersectionObserver((entries) => {
+          entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
+        </script>
+    </main>
+    <footer><p>© 2026 YHG电子竞技战队. Honor of Kings esports team official site demo.</p></footer>
+</body>
+</html>

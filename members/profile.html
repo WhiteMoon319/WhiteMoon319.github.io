@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选手资料 - YHG电子竞技战队</title>
+    <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="../resource/img/logo.webp">
+    <link rel="stylesheet" href="../resource/css/style.css">
+    <style>
+        .page-hero.member-hero { min-height: 66vh; }
+        .loading { text-align:center; padding:80px 0; color:var(--dim); }
+        .member-layout { display:grid; grid-template-columns:minmax(260px,360px) 1fr; gap:28px; align-items:start; }
+        .member-portrait { position:sticky; top:88px; overflow:hidden; min-height:520px; padding:34px; border:1px solid var(--line-hot); border-radius:var(--r-lg); background:linear-gradient(180deg,rgba(255,255,255,0.5),var(--surface)),radial-gradient(60% 40% at 50% 24%,var(--fire-soft),transparent 60%),linear-gradient(155deg,rgba(251,191,36,0.20),rgba(239,68,68,0.12)); box-shadow:var(--shadow),0 0 40px var(--fire-glow); }
+        .member-portrait::before { content:""; position:absolute; inset:16px; border:1px solid var(--line); border-radius:calc(var(--r-lg) - 8px); pointer-events:none; }
+        .member-portrait-pic { position:relative; z-index:2; width:100%; height:300px; object-fit:cover; object-position:center top; border:1px solid var(--line-2); border-radius:var(--r); box-shadow:var(--shadow); }
+        .member-portrait-content { position:relative; z-index:1; min-height:452px; display:flex; flex-direction:column; justify-content:flex-end; }
+        .member-portrait .role { color:var(--fire); font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; }
+        .member-portrait h2 { margin-top:12px; color:var(--text); font-family:var(--display); font-size:clamp(30px,3vw,40px); letter-spacing:-0.01em; }
+        .member-portrait p { margin-top:10px; color:var(--dim); line-height:1.8; }
+        .member-info { display:grid; gap:20px; }
+        .info-panel { position:relative; overflow:hidden; padding:30px; border:1px solid var(--line-2); border-radius:var(--r-lg); background:var(--surface); box-shadow:var(--shadow-sm); }
+        .info-panel::before { content:""; position:absolute; right:0; top:0; width:22px; height:22px; background:var(--flame-grad); clip-path:polygon(100% 0,100% 100%,0 0); opacity:0.9; }
+        .info-panel h3 { position:relative; z-index:1; color:var(--fire); font-family:var(--display); font-size:19px; letter-spacing:0.06em; text-transform:uppercase; }
+        .info-panel p { margin-top:14px; color:var(--dim); line-height:1.95; }
+        .info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+        .info-cell { padding:16px 18px; border:1px solid var(--line); border-top:2px solid var(--fire-2); border-radius:var(--r-sm); background:var(--surface-2); }
+        .info-cell:nth-child(even) { border-top-color:var(--spring-2); }
+        .info-cell span { display:block; color:var(--faint); font-family:var(--mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; }
+        .info-cell b { display:block; margin-top:8px; color:var(--text); font-size:17px; font-weight:700; line-height:1.35; }
+        .attribute-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:20px; }
+        .attribute { padding:16px 18px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--surface-2); }
+        .attribute span { display:flex; justify-content:space-between; color:var(--dim); font-family:var(--mono); font-weight:700; font-size:13px; letter-spacing:0.04em; }
+        .attribute span b { color:var(--fire); }
+        .attribute i { display:block; height:7px; margin-top:12px; overflow:hidden; border-radius:4px; background:rgba(58,45,30,0.08); }
+        .attribute i::before { content:""; display:block; width:var(--value,50%); height:100%; border-radius:4px; background:var(--flame-grad); box-shadow:0 0 8px var(--fire-glow); }
+        .back-link { display:inline-flex; align-items:center; gap:10px; color:var(--fire); font-family:var(--mono); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 0.25s var(--ease),gap 0.25s var(--ease); }
+        .back-link::before { content:"←"; transition:transform 0.25s; }
+        .back-link:hover { gap:14px; }
+        @media (max-width:860px) { .member-layout { grid-template-columns:1fr; } .member-portrait { position:relative; top:auto; min-height:380px; } .info-grid, .attribute-grid { grid-template-columns:1fr; } }
+        @media (max-width:640px) { .member-portrait { padding:24px; } .info-panel { padding:24px; } }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="../" aria-label="返回首页"><img src="../resource/img/logo.webp" alt="YHG"><span>YHG</span></a>
+        <nav class="nav" aria-label="主导航">
+            <a href="../">HOME</a>
+            <a href="../about/">ABOUT</a>
+            <a class="active" href="../members/">ROSTER</a>
+            <a href="../matches/">MATCHES</a>
+            <a href="../news/">NEWS</a>
+        </nav>
+        <div id="authWidget" style="cursor:default;">选手</div>
+    </header>
+
+    <main id="mainContent">
+        <div class="loading" style="padding:160px 0;">加载选手资料…</div>
+    </main>
+
+    <footer><p>© 2026 YHG ESPORTS</p></footer>
+
+    <script defer src="../resource/js/auth.js"></script>
+    <script>
+    (async function() {
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get('slug');
+        const main = document.getElementById('mainContent');
+
+        if (!slug) {
+            main.innerHTML = '<section class="section"><p style="text-align:center;color:var(--dim);">缺少选手标识</p></section>';
+            return;
+        }
+
+        try {
+            const resp = await fetch('/api/players/' + slug);
+            if (!resp.ok) throw new Error('404');
+            const data = await resp.json();
+            const p = data.player;
+
+            let stats = {};
+            try { stats = JSON.parse(p.stats || '{}'); } catch(e) {}
+
+            const statKeys = ['智商', '情商', '实力', '颜值', '素质', '运气'];
+            const maxValues = { '实力': 20, '智商': 20, '情商': 20, '颜值': 20, '素质': 20, '运气': 20 };
+
+            let statsHtml = '';
+            statKeys.forEach(k => {
+                const val = stats[k] || 0;
+                const max = maxValues[k] || 20;
+                const pct = Math.min(100, Math.round((val / max) * 100));
+                statsHtml += `<div class="attribute"><span>${k} <b>${val}</b></span><i style="--value:${pct}%"></i></div>`;
+            });
+
+            // 判断是否是 admin / 绑定的用户
+            let canEdit = false;
+            try {
+                const meResp = await fetch('/api/auth/me');
+                if (meResp.ok) {
+                    const meData = await meResp.json();
+                    const adminResp = await fetch('/api/admin/check');
+                    canEdit = adminResp.ok || meData.user.player_slug === slug;
+                }
+            } catch(e) {}
+
+            const picPath = 'members_pic.webp';
+            const picUrl = `../resource/img/${slug}/${picPath}`;
+
+            // 时间
+            const updated = p.updated_at ? new Date(p.updated_at + 'Z').toLocaleDateString('zh-CN') : '';
+
+            main.innerHTML = `
+                <section class="page-hero member-hero">
+                    <div class="embers" aria-hidden="true">${'<i></i>'.repeat(12)}</div>
+                    <div class="page-hero-content">
+                        <div class="eyebrow reveal in" data-delay="1">${p.role.toUpperCase()} · ${p.titles || '选手'}</div>
+                        <h1 class="reveal in" data-delay="2">${p.id_name}</h1>
+                        <p class="reveal in" data-delay="3" style="max-width:600px;">${p.bio || '暂无简介'}</p>
+                        ${canEdit ? `<div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;" class="reveal in" data-delay="4">
+                            <a class="primary-btn" href="edit.html?slug=${slug}" style="text-decoration:none;">✏ 编辑资料</a>
+                            <a class="ghost-btn" href="${slug}/">查看原始页面</a>
+                        </div>` : `<div style="margin-top:16px;"><a class="ghost-btn" href="${slug}/">查看详情</a></div>`}
+                    </div>
+                </section>
+
+                <section class="section list-section">
+                    <div class="member-layout">
+                        <aside class="member-portrait reveal" data-delay="2">
+                            <div class="member-portrait-content">
+                                <img class="member-portrait-pic" src="${picUrl}" alt="${p.name}" onerror="this.src='../resource/img/default_members_pic.webp'">
+                                <div class="role">${p.id_name} / ${p.role}</div>
+                                <h2>${p.name}</h2>
+                                <p>${p.bio || ''}</p>
+                            </div>
+                        </aside>
+                        <div class="member-info">
+                            <article class="info-panel reveal" data-delay="3">
+                                <h3>基础资料</h3>
+                                <div class="info-grid">
+                                    <div class="info-cell"><span>姓名</span><b>${p.name}</b></div>
+                                    <div class="info-cell"><span>ID</span><b>${p.id_name}</b></div>
+                                    <div class="info-cell"><span>年龄</span><b>${p.age || '—'}</b></div>
+                                    <div class="info-cell"><span>分路</span><b>${p.role}</b></div>
+                                    <div class="info-cell"><span>荣誉</span><b>${p.titles || '—'}</b></div>
+                                    <div class="info-cell"><span>资料更新</span><b>${updated}</b></div>
+                                </div>
+                            </article>
+                            <article class="info-panel reveal" data-delay="4">
+                                <h3>属性</h3>
+                                <div class="attribute-grid">${statsHtml}</div>
+                            </article>
+                            ${p.personality ? `<article class="info-panel reveal" data-delay="5"><h3>性格</h3><p>${p.personality}</p></article>` : ''}
+                            ${p.experience ? `<article class="info-panel reveal" data-delay="6"><h3>经历</h3><p>${p.experience}</p></article>` : ''}
+                            ${p.anchor ? `<article class="info-panel reveal" data-delay="7"><h3>锚点</h3><p>${p.anchor}</p></article>` : ''}
+                            <a class="back-link" href="../members/">返回队员阵容</a>
+                        </div>
+                    </div>
+                </section>
+            `;
+
+            document.title = p.id_name + ' - YHG电子竞技战队';
+            document.querySelectorAll('.member-info .reveal:not(.in)').forEach(el => revealIO.observe(el));
+            document.querySelectorAll('.member-portrait.reveal:not(.in)').forEach(el => revealIO.observe(el));
+
+        } catch(e) {
+            main.innerHTML = '<section class="section"><p style="text-align:center;color:var(--dim);padding:80px 0;">选手资料加载失败</p></section>';
+        }
+    })();
+
+    const revealIO = new IntersectionObserver((entries) => {
+      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
+    </script>
+</body>
+</html>

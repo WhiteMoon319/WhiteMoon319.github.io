@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理面板 - YHG电子竞技战队</title>
+    <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="../resource/img/logo.webp">
+    <link rel="stylesheet" href="../resource/css/style.css">
+    <style>
+        .admin-wrap { max-width: 960px; margin: 0 auto; padding: 120px 22px 80px; }
+        .admin-card { background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); overflow: hidden; position: relative; }
+        .admin-card::before { content:""; position:absolute; top:0; left:0; right:0; height:3px; background: var(--flame-grad); }
+        .admin-header { padding: 32px 36px 20px; border-bottom: 1px solid var(--line); }
+        .admin-header h1 { font-family: var(--display); font-size: 28px; color: var(--text); margin: 0; }
+        .admin-header p { color: var(--dim); font-size: 14px; margin: 6px 0 0; }
+        .admin-tabs { display: flex; gap: 2px; padding: 0 36px; background: var(--surface-2); }
+        .admin-tab { padding: 14px 22px; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--dim); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; background: transparent; border-top: none; border-left: none; border-right: none; }
+        .admin-tab:hover { color: var(--fire); }
+        .admin-tab.active { color: var(--fire); border-bottom-color: var(--fire); }
+        .admin-body { padding: 28px 36px 36px; min-height: 200px; }
+        .admin-placeholder { text-align: center; padding: 60px 0; color: var(--dim); }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .admin-table th, .admin-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+        .admin-table th { font-family: var(--mono); font-size: 11px; color: var(--faint); letter-spacing: 0.08em; text-transform: uppercase; }
+        .admin-table td { color: var(--text); }
+        .admin-badge { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; }
+        .admin-badge.admin { background: var(--fire-soft); color: var(--fire); }
+        .admin-badge.user { background: var(--spring-soft); color: var(--spring); }
+        .admin-badge.sub_admin { background: #e8f5e9; color: #2e7d32; }
+        .admin-btn { padding: 6px 14px; font-family: var(--mono); font-size: 11px; font-weight: 700; border-radius: var(--r-sm); cursor: pointer; border: 1px solid var(--line-2); background: transparent; color: var(--dim); transition: all 0.2s; }
+        .admin-btn:hover { border-color: var(--fire); color: var(--fire); }
+        .admin-btn.danger:hover { border-color: var(--flame); color: var(--flame); }
+        .admin-btn.primary { background: var(--flame-grad); color: #fff; border: none; }
+        .admin-btn.primary:hover { filter: brightness(1.05); }
+        .admin-loading { text-align: center; padding: 40px; color: var(--dim); }
+        .admin-select { padding: 6px 10px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--bg); color: var(--text); font-size: 13px; }
+        @media (max-width: 640px) {
+            .admin-header, .admin-body { padding: 24px 20px; }
+            .admin-tabs { padding: 0 20px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+            .admin-tab { white-space: nowrap; flex-shrink: 0; padding: 14px 16px; font-size: 11px; }
+            .admin-table { font-size: 12px; }
+            .admin-table th, .admin-table td { padding: 8px 6px; }
+        }
+        /* Toast 提示 */
+        .admin-toast { position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; max-width: 360px; }
+        .admin-toast-item { pointer-events: auto; padding: 12px 20px; border-radius: var(--r-sm); font-size: 13px; font-weight: 600; color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.2); animation: toastIn 0.25s ease, toastOut 0.3s ease 2.5s forwards; }
+        .admin-toast-item.ok { background: #2e7d32; }
+        .admin-toast-item.err { background: #c62828; }
+        .admin-toast-item.info { background: #1565c0; }
+        @keyframes toastIn { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes toastOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(40px); } }
+    </style>
+</head>
+<body>
+    <div class="admin-toast" id="toastContainer"></div>
+    <header class="site-header">
+        <a class="brand" href="../" aria-label="返回首页">
+            <img src="../resource/img/logo.webp" alt="YHG战队标识">
+            <span>YHG</span>
+        </a>
+        <nav class="nav" aria-label="主导航">
+            <a href="../">HOME</a>
+            <a href="../about/">ABOUT</a>
+            <a href="../members/">ROSTER</a>
+            <a href="../matches/">MATCHES</a>
+            <a href="../news/">NEWS</a>
+        </nav>
+        <div id="authWidget" style="cursor:default;">管理</div>
+    </header>
+
+    <main>
+        <div class="admin-wrap">
+            <div class="admin-card" id="adminApp">
+                <div class="admin-header">
+                    <h1>管理面板</h1>
+                    <p id="adminStatus">验证身份中…</p>
+                </div>
+                <div class="admin-tabs" id="adminTabs" style="display:none;">
+                    <button class="admin-tab active" data-tab="users">用户管理</button>
+                    <button class="admin-tab" data-tab="articles">文章管理</button>
+                    <button class="admin-tab" data-tab="bindings">选手绑定</button>
+                    <button class="admin-tab" data-tab="players">选手管理</button>
+                    <button class="admin-tab" data-tab="matches">赛事管理</button>
+                    <button class="admin-tab" data-tab="home">首页管理</button>
+                </div>
+                <div class="admin-body" id="adminBody">
+                    <div class="admin-loading">加载中…</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer><p>© 2026 YHG ESPORTS</p></footer>
+
+    <script defer src="../resource/js/auth.js"></script>
+    <script>
+    // 当前登录用户的角色
+    let currentRole = null;
+
+    (async function() {
+        // 验证管理员
+        const checkResp = await fetch('/api/admin/check');
+        if (!checkResp.ok) {
+            document.getElementById('adminStatus').textContent = '需要管理员权限';
+            document.getElementById('adminBody').innerHTML = '<div class="admin-placeholder"><p>你没有管理员权限。</p><p style="margin-top:12px;"><a href="../login.html" style="color:var(--fire);">去登录</a></p></div>';
+            return;
+        }
+        const checkData = await checkResp.json();
+        currentRole = checkData.user.role;
+
+        const roleLabel = currentRole === 'admin' ? '超级管理员' : '副管理员';
+        document.getElementById('adminStatus').innerHTML = `已登录 · <span class="admin-badge ${currentRole}" style="background:var(--spring-soft, #e8f5e9);color:var(--spring, #2e7d32);">${roleLabel}</span>`;
+        document.getElementById('adminTabs').style.display = 'flex';
+        loadTab('users');
+
+        // Tab 切换
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                loadTab(tab.dataset.tab);
+            });
+        });
+    })();
+
+    function showToast(msg, type) {
+        const container = document.getElementById('toastContainer');
+        const el = document.createElement('div');
+        el.className = 'admin-toast-item ' + (type || 'ok');
+        el.textContent = msg;
+        container.appendChild(el);
+        setTimeout(() => { if (el.parentNode) el.remove(); }, 3000);
+    }
+
+    async function loadTab(tab) {
+        const body = document.getElementById('adminBody');
+        if (tab === 'users') await loadUsers(body);
+        else if (tab === 'articles') await loadArticles(body);
+        else if (tab === 'bindings') await loadBindings(body);
+        else if (tab === 'players') await loadPlayers(body);
+        else if (tab === 'matches') await loadMatches(body);
+        else if (tab === 'home') await loadHome(body);
+    }
+
+    // === 角色徽标 ===
+    function roleBadgeHtml(role) {
+        if (role === 'admin') return '<span class="admin-badge admin">超级管理员</span>';
+        if (role === 'sub_admin') return '<span class="admin-badge sub_admin" style="background:var(--spring-soft,#e8f5e9);color:var(--spring,#2e7d32);">副管理员</span>';
+        return '<span class="admin-badge user">用户</span>';
+    }
+
+    // === 用户管理 ===
+    async function loadUsers(body) {
+        body.innerHTML = '<div class="admin-loading">加载用户…</div>';
+        try {
+            const resp = await fetch('/api/admin/users');
+            const data = await resp.json();
+            if (!data.ok) { body.innerHTML = '<p>加载失败</p>'; return; }
+
+            let html = '<table class="admin-table"><thead><tr><th>ID</th><th>邮箱</th><th>用户名</th><th>角色</th><th>等级</th><th>绑定选手</th><th>注册时间</th><th>操作</th></tr></thead><tbody>';
+            data.users.forEach(u => {
+                const buttons = [];
+                // 升等级（Lv.1 → Lv.2，仅 admin 可操作）
+                if (currentRole === 'admin' && u.role === 'user' && u.level < 2) {
+                    buttons.push(`<button class="admin-btn" onclick="setLevel(${u.id}, 2)">升 Lv.2</button>`);
+                }
+                // 仅超级管理员可删除用户
+                if (currentRole === 'admin' && u.role !== 'admin' && u.role !== 'sub_admin' && u.id !== 1) {
+                    buttons.push(`<button class="admin-btn danger" onclick="deleteUser(${u.id})">删除</button>`);
+                }
+                // 仅超级管理员可提升副管理员
+                if (currentRole === 'admin' && u.role === 'user') {
+                    buttons.push(`<button class="admin-btn" onclick="promoteSubAdmin(${u.id})">升副管</button>`);
+                }
+                html += `<tr>
+                    <td>${u.id}</td>
+                    <td>${u.email}</td>
+                    <td>${u.username}</td>
+                    <td>${roleBadgeHtml(u.role)}</td>
+                    <td><span class="admin-badge" style="background:var(--spring-soft,#e8f5e9);color:var(--spring,#2e7d32);">Lv.${u.level||1}</span></td>
+                    <td style="font-size:12px;color:var(--dim);">${(u.bound_players || []).join(', ') || '—'}</td>
+                    <td style="font-size:12px;color:var(--dim);">${u.created_at ? new Date(u.created_at+'Z').toLocaleDateString('zh-CN') : ''}</td>
+                    <td>${buttons.join(' ')}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            body.innerHTML = html;
+        } catch(e) {
+            body.innerHTML = '<p style="color:var(--flame);">加载失败</p>';
+        }
+    }
+
+    async function deleteUser(id) {
+        if (!confirm('确定删除该用户？所有关联会话和绑定也会被清理。')) return;
+        const resp = await fetch('/api/admin/users/' + id, { method: 'DELETE' });
+        const data = await resp.json();
+        showToast(data.ok ? '已删除' : (data.error || '删除失败'), data.ok ? 'ok' : 'err');
+        loadTab('users');
+    }
+
+    async function promoteSubAdmin(id) {
+        const username = prompt('设置该用户为副管理员？输入用户名确认：');
+        if (!username) return;
+        const resp = await fetch('/api/admin/users/' + id + '/role', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role: 'sub_admin' })
+        });
+        const data = await resp.json();
+        showToast(data.ok ? '已提升为副管理员' : (data.error || '设置失败'), data.ok ? 'ok' : 'err');
+        loadTab('users');
+    }
+
+    async function setLevel(id, level) {
+        const label = level === 2 ? 'Lv.2（可发文）' : 'Lv.1';
+        if (!confirm('确定将该用户提升为 ' + label + '？')) return;
+        const resp = await fetch('/api/admin/users/' + id + '/level', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level })
+        });
+        const data = await resp.json();
+        showToast(data.ok ? '等级已更新为 ' + label : (data.error || '设置失败'), data.ok ? 'ok' : 'err');
+        loadTab('users');
+    }
+
+    // === 文章管理（含审核） ===
+    async function loadArticles(body) {
+        body.innerHTML = '<div class="admin-loading">加载文章…</div>';
+        try {
+            const resp = await fetch('/api/admin/articles');
+            const data = await resp.json();
+            if (!data.ok) { body.innerHTML = '<p>加载失败</p>'; return; }
+
+            if (!data.articles || data.articles.length === 0) {
+                body.innerHTML = '<div class="admin-placeholder"><p>暂无文章</p></div>';
+                return;
+            }
+
+            let html = '<table class="admin-table"><thead><tr><th>标题</th><th>作者</th><th>状态</th><th>时间</th><th>操作</th></tr></thead><tbody>';
+            data.articles.forEach(a => {
+                let statusBadge = '';
+                if (a.status === 'approved') statusBadge = '<span class="admin-badge" style="background:#e8f5e9;color:#2e7d32;">已通过</span>';
+                else if (a.status === 'pending') statusBadge = '<span class="admin-badge" style="background:#fff8e1;color:#e65100;">待审核</span>';
+                else if (a.status === 'rejected') statusBadge = '<span class="admin-badge" style="background:#fce4ec;color:#c62828;">已驳回</span>';
+                else statusBadge = `<span class="admin-badge">${a.status}</span>`;
+
+                let actions = `<button class="admin-btn danger" onclick="deleteArticle('${a.slug}')">删除</button>`;
+                if (a.status === 'pending') {
+                    actions = `<button class="admin-btn" onclick="approveArticle('${a.slug}')" style="background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7;">通过</button> ` +
+                              `<button class="admin-btn" onclick="rejectArticle('${a.slug}')" style="color:#c62828;border-color:#ef9a9a;">驳回</button> ` +
+                              actions;
+                }
+
+                html += `<tr>
+                    <td><a href="../news/article.html?slug=${a.slug}" style="color:var(--text);text-decoration:none;">${a.title}</a></td>
+                    <td style="color:var(--dim);">${a.username}</td>
+                    <td>${statusBadge}</td>
+                    <td style="font-size:12px;color:var(--dim);">${a.created_at ? new Date(a.created_at+'Z').toLocaleDateString('zh-CN') : ''}</td>
+                    <td style="white-space:nowrap;">${actions}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            body.innerHTML = html;
+        } catch(e) {
+            body.innerHTML = '<p style="color:var(--flame);">加载失败</p>';
+        }
+    }
+
+    async function approveArticle(slug) {
+        const resp = await fetch('/api/admin/articles/' + slug + '/status', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'approved' })
+        });
+        const data = await resp.json();
+        showToast(data.ok ? '已通过审核' : (data.error || '操作失败'), data.ok ? 'ok' : 'err');
+        if (data.ok) loadTab('articles');
+    }
+
+    async function rejectArticle(slug) {
+        const resp = await fetch('/api/admin/articles/' + slug + '/status', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'rejected' })
+        });
+        const data = await resp.json();
+        showToast(data.ok ? '已驳回' : (data.error || '操作失败'), data.ok ? 'ok' : 'err');
+        if (data.ok) loadTab('articles');
+    }
+
+    async function deleteArticle(slug) {
+        if (!confirm('确定删除该文章？')) return;
+        const resp = await fetch('/api/admin/articles/' + slug, { method: 'DELETE' });
+        const data = await resp.json();
+        showToast(data.ok ? '已删除' : (data.error || '删除失败'), data.ok ? 'ok' : 'err');
+        loadTab('articles');
+    }
+
+    // === 选手绑定（多选） ===
+    async function loadBindings(body) {
+        body.innerHTML = '<div class="admin-loading">加载…</div>';
+        try {
+            const [usersResp, playersResp] = await Promise.all([
+                fetch('/api/admin/users'),
+                fetch('/api/players')
+            ]);
+            const users = (await usersResp.json()).users || [];
+            const players = (await playersResp.json()).players || [];
+
+            let html = '<table class="admin-table"><thead><tr><th>用户</th><th>绑定选手</th><th>操作</th></tr></thead><tbody>';
+            users.filter(u => u.role !== 'admin').forEach(u => {
+                const bound = u.bound_players || [];
+                html += `<tr>
+                    <td>${u.username} (${u.email})</td>
+                    <td style="font-size:12px;color:var(--dim);">${bound.length ? bound.join(', ') : '未绑定'}</td>
+                    <td>
+                        <button class="admin-btn" onclick="showBindDialog(${u.id}, '${u.username}')">管理绑定</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            body.innerHTML = html;
+        } catch(e) {
+            body.innerHTML = '<p style="color:var(--flame);">加载失败</p>';
+        }
+    }
+
+    let bindDialogUser = null;
+    let bindDialogSlugs = [];
+
+    async function showBindDialog(userId, username) {
+        bindDialogUser = userId;
+
+        // 查当前绑定
+        const usersResp = await fetch('/api/admin/users');
+        const users = (await usersResp.json()).users || [];
+        const user = users.find(u => u.id === userId);
+        bindDialogSlugs = (user && user.bound_players) ? [...user.bound_players] : [];
+
+        const playersResp = await fetch('/api/players');
+        const players = (await playersResp.json()).players || [];
+
+        let checks = '';
+        players.forEach(p => {
+            const checked = bindDialogSlugs.includes(p.slug) ? 'checked' : '';
+            checks += `<label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;">
+                <input type="checkbox" value="${p.slug}" ${checked} style="accent-color:var(--fire);">
+                ${p.id_name} (${p.name})
+            </label>`;
+        });
+
+        const el = document.getElementById('adminBody');
+        el.innerHTML = `
+            <div style="max-width:480px;">
+                <h3 style="margin:0 0 6px;font-size:18px;color:var(--text);">绑定选手 — ${username}</h3>
+                <p style="color:var(--dim);font-size:13px;margin:0 0 16px;">勾选该用户可编辑的选手</p>
+                <div style="border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 16px;max-height:320px;overflow-y:auto;" id="bindCheckboxes">
+                    ${checks}
+                </div>
+                <div style="margin-top:16px;display:flex;gap:10px;">
+                    <button class="admin-btn primary" onclick="saveBindings()">保存</button>
+                    <button class="admin-btn" onclick="loadTab('bindings')">取消</button>
+                </div>
+            </div>
+        `;
+    }
+
+    async function saveBindings() {
+        const checks = document.querySelectorAll('#bindCheckboxes input[type="checkbox"]');
+        const selected = [];
+        checks.forEach(cb => { if (cb.checked) selected.push(cb.value); });
+
+        const resp = await fetch('/api/admin/users/' + bindDialogUser, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ player_slugs: selected })
+        });
+        const data = await resp.json();
+        showToast(data.ok ? '绑定成功' : (data.error || '绑定失败'), data.ok ? 'ok' : 'err');
+        loadTab('bindings');
+    }
+
+    // === 选手管理 ===
+    async function loadPlayers(body) {
+        body.innerHTML = '<div class="admin-loading">加载选手…</div>';
+        try {
+            const resp = await fetch('/api/admin/players');
+            const data = await resp.json();
+            if (!data.ok) { body.innerHTML = '<p>加载失败</p>'; return; }
+
+            const players = data.players || [];
+            if (players.length === 0) {
+                body.innerHTML = '<div class="admin-placeholder"><p>暂无选手</p></div>';
+                return;
+            }
+
+            let html = '<table class="admin-table"><thead><tr><th>ID</th><th>头像</th><th>姓名</th><th>角色</th><th>头像 URL</th><th>操作</th></tr></thead><tbody>';
+            players.forEach(p => {
+                const avatarDisplay = p.avatar
+                    ? `<img src="${p.avatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`
+                    : `<span style="color:var(--dim);font-size:11px;">无</span>`;
+                html += `<tr>
+                    <td>${p.slug}</td>
+                    <td>${avatarDisplay}</td>
+                    <td><b>${p.name}</b><br><span style="font-size:11px;color:var(--dim);">${p.id_name}</span></td>
+                    <td>${p.role}</td>
+                    <td><input type="text" id="av-${p.slug}" value="${p.avatar || ''}" placeholder="头像图片URL" style="width:100%;padding:6px 8px;font-size:12px;border:1px solid var(--line-2);border-radius:4px;background:var(--bg);color:var(--text);box-sizing:border-box;"></td>
+                    <td><button class="admin-btn" onclick="savePlayerAvatar('${p.slug}')">保存</button></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            body.innerHTML = html;
+        } catch(e) {
+            body.innerHTML = '<p style="color:var(--flame);">加载失败</p>';
+        }
+    }
+
+    async function savePlayerAvatar(slug) {
+        const input = document.getElementById('av-' + slug);
+        const avatar = input ? input.value.trim() : '';
+        const resp = await fetch('/api/admin/players/' + slug, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ avatar })
+        });
+        const data = await resp.json();
+        if (data.ok) {
+            showToast('头像已更新', 'ok');
+            document.querySelector('[data-tab="players"]').click();
+        } else {
+            showToast(data.error || '保存失败', 'err');
+        }
+    }
+
+    // === 赛事管理 ===
+    async function loadMatches(body) {
+        body.innerHTML = '<div class="admin-loading">加载赛事…</div>';
+        try {
+            const resp = await fetch('/api/admin/matches');
+            const data = await resp.json();
+            if (!data.ok) { body.innerHTML = '<p>加载失败</p>'; return; }
+
+            let html = '<div style="margin-bottom:16px;"><button class="admin-btn primary" onclick="showMatchForm(null)">+ 新增赛事</button></div>';
+            html += '<table class="admin-table"><thead><tr><th>赛事</th><th>对手</th><th>日期</th><th>结果</th><th>比分</th><th>首页展示</th><th>操作</th></tr></thead><tbody>';
+            (data.matches||[]).forEach(m => {
+                const resultLabel = m.result === 'win' ? '胜' : m.result === 'lose' ? '负' : m.result === 'draw' ? '平' : '—';
+                html += `<tr>
+                    <td>${m.title}</td>
+                    <td>${m.opponent}</td>
+                    <td style="font-size:12px;color:var(--dim);">${m.match_date}</td>
+                    <td>${resultLabel}</td>
+                    <td style="font-family:var(--mono);">${m.score || '—'}</td>
+                    <td>${m.featured ? '⭐' : '—'}</td>
+                    <td>
+                        <button class="admin-btn" onclick="showMatchForm(${m.id})">编辑</button>
+                        <button class="admin-btn danger" onclick="deleteMatch(${m.id})">删除</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            body.innerHTML = html;
+        } catch(e) {
+            body.innerHTML = '<p style="color:var(--flame);">加载失败</p>';
+        }
+    }
+
+    let editingMatchId = null;
+    async function showMatchForm(id) {
+        editingMatchId = id;
+        let defaults = { title:'', opponent:'', match_date:'', result:'', score:'', description:'', featured:0 };
+
+        if (id) {
+            const resp = await fetch('/api/admin/matches');
+            const data = await resp.json();
+            const m = (data.matches||[]).find(x => x.id === id);
+            if (m) defaults = m;
+        }
+
+        const el = document.getElementById('adminBody');
+        el.innerHTML = `
+            <div style="max-width:500px;">
+                <h3 style="margin:0 0 16px;font-size:18px;color:var(--text);">${id ? '编辑赛事' : '新增赛事'}</h3>
+                <div style="display:grid;gap:12px;">
+                    <label style="font-size:12px;color:var(--dim);">赛事名称</label>
+                    <input id="f_title" value="${defaults.title}" style="padding:8px 12px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);">
+                    <div style="display:flex;gap:12px;">
+                        <div style="flex:1;"><label style="font-size:12px;color:var(--dim);">对手</label>
+                        <input id="f_opponent" value="${defaults.opponent}" style="width:100%;padding:8px 12px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);"></div>
+                        <div style="flex:1;"><label style="font-size:12px;color:var(--dim);">日期</label>
+                        <input id="f_date" type="date" value="${defaults.match_date}" style="width:100%;padding:8px 12px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);"></div>
+                    </div>
+                    <div style="display:flex;gap:12px;">
+                        <div><label style="font-size:12px;color:var(--dim);">结果</label>
+                        <select id="f_result" style="padding:8px 12px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);">
+                            <option value="">—</option>
+                            <option value="win" ${defaults.result==='win'?'selected':''}>胜</option>
+                            <option value="lose" ${defaults.result==='lose'?'selected':''}>负</option>
+                            <option value="draw" ${defaults.result==='draw'?'selected':''}>平</option>
+                        </select></div>
+                        <div><label style="font-size:12px;color:var(--dim);">比分</label>
+                        <input id="f_score" value="${defaults.score}" placeholder="3:1" style="padding:8px 12px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);width:100px;"></div>
+                        <div style="display:flex;align-items:flex-end;padding-bottom:8px;">
+                            <label><input type="checkbox" id="f_featured" ${defaults.featured?'checked':''} style="accent-color:var(--fire);"> 首页展示</label>
+                        </div>
+                    </div>
+                    <label style="font-size:12px;color:var(--dim);">备注</label>
+                    <textarea id="f_desc" rows="3" style="padding:8px 12px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);font-size:13px;">${defaults.description||''}</textarea>
+                    <div style="margin-top:8px;display:flex;gap:10px;">
+                        <button class="admin-btn primary" onclick="saveMatch()">保存</button>
+                        <button class="admin-btn" onclick="loadTab('matches')">取消</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    async function saveMatch() {
+        const data = {
+            title: document.getElementById('f_title').value.trim(),
+            opponent: document.getElementById('f_opponent').value.trim(),
+            match_date: document.getElementById('f_date').value,
+            result: document.getElementById('f_result').value,
+            score: document.getElementById('f_score').value.trim(),
+            description: document.getElementById('f_desc').value.trim(),
+            featured: document.getElementById('f_featured').checked ? 1 : 0
+        };
+        if (!data.title || !data.opponent || !data.match_date) {
+            showToast('请填写赛事名称、对手和日期', 'err'); return;
+        }
+        const url = editingMatchId ? '/api/admin/matches/' + editingMatchId : '/api/admin/matches';
+        const resp = await fetch(url, {
+            method: editingMatchId ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const r = await resp.json();
+        showToast(r.ok ? (editingMatchId ? '已更新' : '已创建') : (r.error || '操作失败'), r.ok ? 'ok' : 'err');
+        loadTab('matches');
+    }
+
+    async function deleteMatch(id) {
+        if (!confirm('确定删除该赛事？')) return;
+        const resp = await fetch('/api/admin/matches/' + id, { method: 'DELETE' });
+        const data = await resp.json();
+        showToast(data.ok ? '已删除' : (data.error || '删除失败'), data.ok ? 'ok' : 'err');
+        loadTab('matches');
+    }
+
+    // === 首页管理 ===
+    async function loadHome(body) {
+        body.innerHTML = '<div class="admin-loading">加载…</div>';
+        try {
+            const resp = await fetch('/api/admin/home');
+            const data = await resp.json();
+            if (!data.ok) { body.innerHTML = '<p>加载失败</p>'; return; }
+
+            const secs = data.sections || [];
+            let html = '<h3 style="margin:0 0 16px;font-size:18px;color:var(--text);">首页区块编辑</h3>';
+            html += '<div style="display:grid;gap:14px;max-width:600px;">';
+            secs.forEach(s => {
+                const label = s.section_key === 'hero_title' ? '主标题' :
+                    s.section_key === 'hero_subtitle' ? '副标题' :
+                    s.section_key === 'about_text' ? '关于我们' : s.section_key;
+                html += `<label style="font-size:12px;color:var(--dim);">${label}</label>
+                    <textarea id="sec_${s.section_key}" rows="${s.section_key==='about_text'?4:2}" style="padding:8px 12px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);font-size:13px;">${s.content}</textarea>`;
+            });
+            html += `<div style="margin-top:8px;"><button class="admin-btn primary" onclick="saveHomeSections()">保存所有</button></div>`;
+            html += '</div>';
+            body.innerHTML = html;
+        } catch(e) {
+            body.innerHTML = '<p style="color:var(--flame);">加载失败</p>';
+        }
+    }
+
+    async function saveHomeSections() {
+        const sections = [];
+        document.querySelectorAll('[id^="sec_"]').forEach(el => {
+            const key = el.id.replace('sec_', '');
+            sections.push({ section_key: key, content: el.value });
+        });
+        const resp = await fetch('/api/admin/home', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sections })
+        });
+        const data = await resp.json();
+        showToast(data.ok ? '已保存' : (data.error || '保存失败'), data.ok ? 'ok' : 'err');
+        loadTab('home');
+    }
+    </script>
+</body>
+</html>

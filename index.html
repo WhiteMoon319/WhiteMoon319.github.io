@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YHG ESPORTS / 野火不熄 · 征战峡谷</title>
+    <meta name="description" content="YHG电子竞技战队 — 王者荣耀分部。以野火精神为核心,持续向更高赛场发起冲击。">
+    <link rel="icon" type="image/webp" href="resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="resource/img/logo.webp">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="zh_CN">
+    <meta property="og:title" content="YHG ESPORTS / 野火不熄 · 征战峡谷">
+    <meta property="og:description" content="YHG电子竞技战队 — 王者荣耀分部。以野火精神为核心,持续向更高赛场发起冲击。">
+    <meta property="og:url" content="https://yhg-7su.pages.dev/">
+    <meta property="og:image" content="https://yhg-7su.pages.dev/resource/img/logo.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="resource/css/style.css">
+  <script defer src="resource/js/auth.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="./" aria-label="返回首页">
+            <img src="resource/img/logo.webp" alt="YHG战队标识">
+            <span>YHG</span>
+        </a>
+        <nav class="nav" aria-label="主导航">
+            <a class="active" href="./">HOME</a>
+            <a href="about/">ABOUT</a>
+            <a href="members/">ROSTER</a>
+            <a href="matches/">MATCHES</a>
+            <a href="news/">NEWS</a>
+        </nav>
+        <div id="authWidget"></div>
+    </header>
+
+    <main>
+        <!-- ============ HERO ============ -->
+        <section class="hero" aria-label="YHG战队首屏介绍">
+            <div class="embers" aria-hidden="true">
+                <i></i><i></i><i></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <div class="hero-content">
+                <div class="eyebrow reveal in" data-delay="1">HONOR OF KINGS // ESPORTS TEAM</div>
+                <h1 class="reveal in" data-delay="2">野火不熄<br><strong>征战峡谷</strong></h1>
+                <p class="reveal in" data-delay="3">YHG电子竞技战队是一支建制完善、运营标准化的职业电竞队伍。以“野火精神”为核心文化内核,汇聚怀揣竞技理想的青年选手,持续向更高赛场发起冲击。</p>
+                <div class="hero-actions reveal in" data-delay="4">
+                    <a class="primary-btn" href="about/">了解 YHG</a>
+                    <a class="ghost-btn" href="members/">查看阵容</a>
+                </div>
+                <div class="hero-stats reveal in" data-delay="5" aria-label="战队关键词">
+                    <div class="stat-card">
+                        <b>标准化</b>
+                        <span>职业运营体系</span>
+                    </div>
+                    <div class="stat-card">
+                        <b>进攻型</b>
+                        <span>敢打敢拼风格</span>
+                    </div>
+                    <div class="stat-card">
+                        <b>逆风局</b>
+                        <span>寻觅战机反击</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ QUICK ENTRY ============ -->
+        <section id="about" class="section about">
+            <div class="section-title reveal" data-delay="1">
+                <span>QUICK ENTRY // 01</span>
+                <h2>战队官网</h2>
+                <p>YHG 王者荣耀战队官方展示页入口,后续可接入战报、相册、招新与视频内容。</p>
+            </div>
+            <div class="card-grid">
+                <a class="grid-card reveal" data-delay="2" href="about/">
+                    <div class="meta">01 // ABOUT</div>
+                    <h3>关于 YHG</h3>
+                    <p>了解战队文化、专业体系、野火精神、竞技理念与未来愿景。</p>
+                </a>
+                <a class="grid-card reveal" data-delay="3" href="members/">
+                    <div class="meta">02 // ROSTER</div>
+                    <h3>队员阵容</h3>
+                    <p>展示选手、教练组与数据分析岗位,为后续角色资料预留空间。</p>
+                </a>
+                <a class="grid-card reveal" data-delay="4" href="matches/">
+                    <div class="meta">03 // MATCHES</div>
+                    <h3>赛事赛程</h3>
+                    <p>记录近期赛程、历史战绩和训练赛安排。</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- ============ WILDFIRE SPIRIT ============ -->
+        <section class="section vision">
+            <div class="section-title reveal" data-delay="1">
+                <span>WILDFIRE SPIRIT // 02</span>
+                <h2>以心火为炬,驰骋赛场</h2>
+            </div>
+            <article class="vision-card reveal" data-delay="2">
+                <p>野火精神贯穿于队伍建设与赛场实践的全部环节。聚星火以成燎原,敢打敢拼,凌厉进攻;顺境不骄,逆境不屈。</p>
+                <strong class="motto">野火烧不尽,春风吹又生</strong>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 YHG ESPORTS · Honor of Kings esports team · official site demo</p>
+    </footer>
+
+    <script>
+    // 从 API 动态加载首页内容
+    (async function() {
+        try {
+            const resp = await fetch('/api/home');
+            const data = await resp.json();
+            if (!data.ok) return;
+
+            const sec = data.sections || {};
+
+            // 更新 Hero 区标题
+            if (sec.hero_title) {
+                const h1 = document.querySelector('.hero-content h1');
+                if (h1) h1.innerHTML = h1.innerHTML.replace(/^[^<]+/, sec.hero_title);
+            }
+            if (sec.hero_subtitle) {
+                const p = document.querySelector('.hero-content > p');
+                if (p) p.textContent = sec.hero_subtitle;
+            }
+
+            // 如果有精选比赛，加到 quick entry 下方
+            if (data.featured_match) {
+                const m = data.featured_match;
+                const quickSection = document.querySelector('#about .section-title');
+                if (quickSection) {
+                    const badge = m.result === 'win' ? '\uD83C\uDFC6' : m.result === 'lose' ? '\uD83D\uDC4E' : m.result === 'draw' ? '\uD83E\uDD1D' : '\uD83D\uDD25';
+                    const info = document.createElement('div');
+                    info.style.cssText = 'margin-top:20px;padding:16px 22px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);display:flex;align-items:center;gap:16px;flex-wrap:wrap;';
+                    info.innerHTML = '<span style="font-size:24px;">'+badge+'</span>' +
+                        '<div><div style="font-weight:700;color:var(--text);">'+m.title+'</div>' +
+                        '<div style="font-size:13px;color:var(--dim);">vs '+m.opponent+' \u00B7 '+m.match_date+(m.score?' \u00B7 '+m.score:'')+'</div></div>' +
+                        '<a href="matches/" style="margin-left:auto;font-size:12px;font-weight:700;color:var(--fire);text-decoration:none;">\u67E5\u770B\u8D5B\u4E8B \u2192</a>';
+                    quickSection.parentElement.insertBefore(info, quickSection.nextSibling);
+                }
+            }
+        } catch(e) { /* 静默降级 */ }
+    })();
+
+    // 滚动渐入动画（cxjc 风格）
+    const revealIO = new IntersectionObserver((entries) => {
+      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
+    </script>
+</body>
+</html>

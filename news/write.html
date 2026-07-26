@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>写文章 - YHG电子竞技战队</title>
+    <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="../resource/img/logo.webp">
+    <link rel="stylesheet" href="../resource/css/style.css">
+    <style>
+        .write-wrap {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 120px 22px 80px;
+        }
+        .write-card {
+            padding: 44px 38px;
+            background: var(--surface);
+            border: 1px solid var(--line-2);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        .write-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--flame-grad);
+        }
+        .write-card h1 {
+            font-family: var(--display);
+            font-size: 28px;
+            color: var(--text);
+            margin: 0 0 6px;
+        }
+        .write-card p.sub {
+            color: var(--dim);
+            font-size: 14px;
+            margin: 0 0 28px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-family: var(--sans);
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--line-2);
+            border-radius: var(--r-sm);
+            outline: none;
+            transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+            box-sizing: border-box;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--fire-2);
+            box-shadow: 0 0 0 3px var(--fire-soft);
+        }
+        .form-group textarea {
+            min-height: 360px;
+            resize: vertical;
+            line-height: 1.85;
+        }
+        .form-group .hint {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--faint);
+        }
+        .form-error {
+            color: var(--flame);
+            font-size: 13px;
+            margin: 0 0 16px;
+            min-height: 20px;
+        }
+        .submit-row {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .auth-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 48px;
+            padding: 0 32px;
+            color: #fff;
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: var(--flame-grad);
+            border: 1px solid rgba(255,255,255,0.45);
+            border-radius: var(--r-sm);
+            box-shadow: 0 6px 18px var(--fire-glow), inset 0 1px 0 rgba(255,255,255,0.45);
+            cursor: pointer;
+            transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+        }
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px var(--fire-glow-2);
+        }
+        .auth-btn:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+        @media (max-width: 480px) {
+            .write-card { padding: 28px 22px; }
+            .form-group textarea { min-height: 260px; }
+        }
+    </style>
+  <script defer src="../resource/js/auth.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="../" aria-label="返回首页">
+            <img src="../resource/img/logo.webp" alt="YHG战队标识">
+            <span>YHG</span>
+        </a>
+        <nav class="nav" aria-label="主导航">
+            <a href="../">HOME</a>
+            <a href="../about/">ABOUT</a>
+            <a href="../members/">ROSTER</a>
+            <a href="../matches/">MATCHES</a>
+            <a class="active" href="./">NEWS</a>
+        </nav>
+        <div id="authWidget" style="cursor:default;">写文章</div>
+    </header>
+
+    <main>
+        <div class="write-wrap reveal in" data-delay="1">
+            <div class="write-card">
+                <h1 id="pageTitle">写文章</h1>
+                <p class="sub" id="pageSub">发布战队新闻、战报或故事</p>
+                <div class="form-error" id="formError"></div>
+                <form id="articleForm">
+                    <div class="form-group">
+                        <label for="title">标题</label>
+                        <input type="text" id="title" name="title" placeholder="文章标题" required maxlength="120">
+                    </div>
+                    <div class="form-group">
+                        <label for="summary">摘要（可选）</label>
+                        <input type="text" id="summary" name="summary" placeholder="一段简短的介绍，显示在文章卡片上">
+                    </div>
+                    <div class="form-group">
+                        <label for="content">正文</label>
+                        <textarea id="content" name="content" placeholder="写点什么…" required></textarea>
+                        <div class="hint">支持纯文本和 HTML 标签</div>
+                    </div>
+                    <div class="submit-row">
+                        <button class="auth-btn" type="submit" id="submitBtn">发布文章</button>
+                        <a href="./" style="color:var(--dim);font-size:14px;">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 YHG ESPORTS · Honor of Kings esports team</p>
+    </footer>
+
+    <script>
+        // 检测是否为编辑模式
+        const params = new URLSearchParams(window.location.search);
+        const editSlug = params.get('edit');
+
+        (async function() {
+            try {
+                const resp = await fetch('/api/auth/me');
+                if (!resp.ok) {
+                    window.location.href = '../login.html?redirect=news/write.html';
+                    return;
+                }
+                const data = await resp.json();
+                const level = data.user.level || 1;
+                const isStaff = data.user.role === 'admin' || data.user.role === 'sub_admin';
+                if (!isStaff && level < 2) {
+                    document.querySelector('.write-card').innerHTML = `
+                        <div style="text-align:center;padding:40px 0;">
+                            <div style="font-size:48px;margin-bottom:16px;">🔒</div>
+                            <h2 style="font-size:20px;color:var(--text);margin:0 0 8px;">需要 Lv.2 才能发文</h2>
+                            <p style="color:var(--dim);font-size:14px;">联系战队管理员提升等级后即可发布文章。</p>
+                            <p style="margin-top:24px;"><a href="./" style="color:var(--fire);">返回新闻</a></p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 编辑模式：加载文章数据
+                if (editSlug) {
+                    document.getElementById('pageTitle').textContent = '编辑文章';
+                    document.getElementById('pageSub').textContent = '修改已发布的文章';
+                    document.getElementById('submitBtn').textContent = '保存修改';
+
+                    const articleResp = await fetch('/api/news/' + editSlug);
+                    if (!articleResp.ok) {
+                        document.querySelector('.write-card').innerHTML = '<p style="color:var(--flame);padding:40px;text-align:center;">文章不存在或无权编辑</p>';
+                        return;
+                    }
+                    const articleData = await articleResp.json();
+                    if (articleData.ok && articleData.article) {
+                        document.getElementById('title').value = articleData.article.title || '';
+                        document.getElementById('summary').value = articleData.article.summary || '';
+                        document.getElementById('content').value = articleData.article.content || '';
+                    }
+                }
+            } catch(e) {
+                window.location.href = '../login.html?redirect=news/write.html';
+            }
+        })();
+
+        document.getElementById('articleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('title').value.trim();
+            const summary = document.getElementById('summary').value.trim();
+            const content = document.getElementById('content').value;
+            const errorEl = document.getElementById('formError');
+            const btn = document.getElementById('submitBtn');
+
+            errorEl.textContent = '';
+            if (!title || !content) {
+                errorEl.textContent = '标题和正文不能为空';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = editSlug ? '保存中…' : '发布中…';
+
+            try {
+                const url = editSlug ? '/api/news/' + editSlug : '/api/news';
+                const method = editSlug ? 'PUT' : 'POST';
+                const resp = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, summary, content })
+                });
+                const data = await resp.json();
+
+                if (resp.ok) {
+                    if (editSlug) {
+                        window.location.href = 'article.html?slug=' + editSlug;
+                    } else if (data.status === 'pending') {
+                        document.getElementById('articleForm').innerHTML = `
+                            <div style="text-align:center;padding:40px 0;">
+                                <div style="font-size:48px;margin-bottom:16px;">✅</div>
+                                <h2 style="font-size:20px;color:var(--text);margin:0 0 8px;">文章已提交</h2>
+                                <p style="color:var(--dim);font-size:14px;">已提交管理员审核，审核通过后将公开发布。</p>
+                                <p style="margin-top:24px;"><a href="./" style="color:var(--fire);">返回新闻</a></p>
+                            </div>
+                        `;
+                    } else {
+                        window.location.href = 'article.html?slug=' + data.slug;
+                    }
+                } else {
+                    errorEl.textContent = data.error || '操作失败';
+                    btn.disabled = false;
+                    btn.textContent = editSlug ? '保存修改' : '发布文章';
+                }
+            } catch (e) {
+                errorEl.textContent = '网络错误，请重试';
+                btn.disabled = false;
+                btn.textContent = editSlug ? '保存修改' : '发布文章';
+            }
+        });
+
+        const revealIO = new IntersectionObserver((entries) => {
+          entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
+    </script>
+</body>
+</html>

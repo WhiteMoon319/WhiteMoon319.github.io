@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - YHG电子竞技战队</title>
+    <meta name="description" content="注册 YHG 战队账户">
+    <link rel="icon" type="image/webp" href="resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="resource/img/logo.webp">
+    <link rel="stylesheet" href="resource/css/style.css">
+    <style>
+        .auth-wrap {
+            min-height: calc(100vh - 140px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 22px 80px;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 44px 38px;
+            background: var(--surface);
+            border: 1px solid var(--line-2);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--flame-grad);
+        }
+        .auth-card h1 {
+            font-family: var(--display);
+            font-size: 28px;
+            color: var(--text);
+            margin: 0 0 6px;
+        }
+        .auth-card p.sub {
+            color: var(--dim);
+            font-size: 14px;
+            margin: 0 0 28px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-family: var(--sans);
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--line-2);
+            border-radius: var(--r-sm);
+            outline: none;
+            transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            border-color: var(--fire-2);
+            box-shadow: 0 0 0 3px var(--fire-soft);
+        }
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+        .input-row input {
+            flex: 1;
+        }
+        .input-row .code-btn {
+            flex-shrink: 0;
+            height: 48px;
+            padding: 0 18px;
+            font-size: 13px;
+            font-family: var(--mono);
+            font-weight: 700;
+            color: var(--fire);
+            background: transparent;
+            border: 2px solid var(--fire);
+            border-radius: var(--r-sm);
+            cursor: pointer;
+            transition: all 0.25s var(--ease);
+            white-space: nowrap;
+        }
+        .input-row .code-btn:hover {
+            background: var(--fire);
+            color: #fff;
+        }
+        .input-row .code-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: transparent;
+            color: var(--dim);
+            border-color: var(--line-2);
+        }
+        .auth-error {
+            color: var(--flame);
+            font-size: 13px;
+            margin: 0 0 16px;
+            min-height: 20px;
+        }
+        .auth-success {
+            color: #2e7d32;
+            font-size: 13px;
+            margin: 0 0 16px;
+        }
+        .auth-btn {
+            width: 100%;
+            height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #fff;
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: var(--flame-grad);
+            border: 1px solid rgba(255,255,255,0.45);
+            border-radius: var(--r-sm);
+            box-shadow: 0 6px 18px var(--fire-glow), inset 0 1px 0 rgba(255,255,255,0.45);
+            cursor: pointer;
+            transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+        }
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px var(--fire-glow-2), inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+        .auth-btn:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+        .auth-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--dim);
+        }
+        .auth-link a {
+            color: var(--fire);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .auth-link a:hover {
+            color: var(--fire-3);
+        }
+        @media (max-width: 480px) {
+            .auth-card { padding: 32px 24px; }
+        }
+    </style>
+  <script defer src="resource/js/auth.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="./" aria-label="返回首页">
+            <img src="resource/img/logo.webp" alt="YHG战队标识">
+            <span>YHG</span>
+        </a>
+        <nav class="nav" aria-label="主导航">
+            <a href="./">HOME</a>
+            <a href="about/">ABOUT</a>
+            <a href="members/">ROSTER</a>
+            <a href="matches/">MATCHES</a>
+            <a href="news/">NEWS</a>
+        </nav>
+        <div id="authStateBtn" style="cursor:default;">注册</div>
+    </header>
+
+    <main>
+        <div class="auth-wrap reveal in" data-delay="1">
+            <div class="auth-card">
+                <h1>注册</h1>
+                <p class="sub">加入 YHG 社区</p>
+                <div id="msgArea"></div>
+                <form id="registerForm">
+                    <!-- 第一步：邮箱 + 验证码 -->
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <div class="input-row">
+                            <input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
+                            <button type="button" class="code-btn" id="sendCodeBtn">发送验证码</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="code">验证码</label>
+                        <input type="text" id="code" name="code" placeholder="输入6位验证码" required inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+                    </div>
+                    <!-- 第二步：用户名 + 密码 -->
+                    <div class="form-group">
+                        <label for="username">用户名</label>
+                        <input type="text" id="username" name="username" placeholder="你的昵称" required minlength="2" maxlength="20" autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <input type="password" id="password" name="password" placeholder="至少6位" required minlength="6" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm">确认密码</label>
+                        <input type="password" id="confirm" name="confirm" placeholder="再次输入密码" required autocomplete="new-password">
+                    </div>
+                    <button class="auth-btn" type="submit" id="submitBtn">注册</button>
+                </form>
+                <div class="auth-link">
+                    已有账户？<a href="login.html">登录</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 YHG ESPORTS · Honor of Kings esports team</p>
+    </footer>
+
+    <script>
+        const msgArea = document.getElementById('msgArea');
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const emailInput = document.getElementById('email');
+        const codeInput = document.getElementById('code');
+        const form = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        let codeSent = false;
+        let countdown = 0;
+        let countdownTimer = null;
+
+        // 发送验证码
+        sendCodeBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showMsg('请输入有效的邮箱地址', 'error');
+                return;
+            }
+
+            sendCodeBtn.disabled = true;
+            sendCodeBtn.textContent = '发送中…';
+
+            try {
+                const resp = await fetch('/api/auth/send-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await resp.json();
+
+                if (resp.ok) {
+                    showMsg('✅ 验证码已发送到 ' + email, 'success');
+                    codeSent = true;
+                    startCountdown(60);
+                } else {
+                    showMsg(data.error || '发送失败', 'error');
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.textContent = '发送验证码';
+                }
+            } catch (e) {
+                showMsg('网络错误，请重试', 'error');
+                sendCodeBtn.disabled = false;
+                sendCodeBtn.textContent = '发送验证码';
+            }
+        });
+
+        // 倒计时
+        function startCountdown(sec) {
+            countdown = sec;
+            sendCodeBtn.textContent = countdown + '秒后重试';
+            countdownTimer = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(countdownTimer);
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.textContent = '重新发送';
+                } else {
+                    sendCodeBtn.textContent = countdown + '秒后重试';
+                }
+            }, 1000);
+        }
+
+        // 提交注册
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            const code = codeInput.value.trim();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm').value;
+
+            if (!codeSent) {
+                showMsg('请先获取验证码', 'error');
+                return;
+            }
+            if (!code || code.length !== 6) {
+                showMsg('请输入6位验证码', 'error');
+                return;
+            }
+            if (password !== confirm) {
+                showMsg('两次密码不一致', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '注册中…';
+
+            try {
+                const resp = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code, username, password })
+                });
+                const data = await resp.json();
+
+                if (resp.ok) {
+                    document.querySelector('.auth-card').innerHTML = `
+                        <div style="text-align:center;padding:20px 0;">
+                            <h1>注册成功</h1>
+                            <p class="sub">欢迎加入 YHG，${username}！</p>
+                            <p style="margin-top:16px; color:var(--dim);">即将跳转到登录页…</p>
+                        </div>
+                    `;
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                } else {
+                    showMsg(data.error || '注册失败', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '注册';
+                }
+            } catch (e) {
+                showMsg('网络错误，请重试', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '注册';
+            }
+        });
+
+        function showMsg(text, type) {
+            msgArea.innerHTML = '<div class="' + (type === 'error' ? 'auth-error' : 'auth-success') + '">' + text + '</div>';
+        }
+
+        const revealIO = new IntersectionObserver((entries) => {
+          entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
+    </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+# 阻止敏感文件被公开访问
+/.wrangler/*  / 403
+/node_modules/*  / 403
+/_private/*  / 403
