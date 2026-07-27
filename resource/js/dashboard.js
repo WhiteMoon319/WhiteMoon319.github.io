@@ -13,7 +13,7 @@
       const data = await resp.json();
       currentUser = data.user;
     } catch(e) {
-      if (el) el.innerHTML = '<p style="text-align:center;color:var(--dim);">\u52A0\u8F7D\u5931\u8D25</p>';
+      if (el) el.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><p>加载失败，请检查网络后重试</p></div>';
       return;
     }
 

@@ -52,6 +52,30 @@ window.escapeHtml = function(str) {
 
 /* ===== 页面加载进度条 ===== */
 (function() {
+  // Skip-to-content 无障碍链接
+  var skip = document.createElement('a');
+  skip.className = 'skip-link';
+  skip.href = '#main-content';
+  skip.textContent = '跳到主要内容';
+  document.body.prepend(skip);
+  var main = document.querySelector('main');
+  if (main && !main.id) main.id = 'main-content';
+
+  // Header 滚动阴影
+  var header = document.querySelector('.site-header');
+  if (header) {
+    var hTicking = false;
+    window.addEventListener('scroll', function() {
+      if (!hTicking) {
+        hTicking = true;
+        requestAnimationFrame(function() {
+          header.classList.toggle('scrolled', window.scrollY > 10);
+          hTicking = false;
+        });
+      }
+    }, { passive: true });
+  }
+
   var bar = document.createElement('div');
   bar.id = 'page-progress';
   document.body.appendChild(bar);
@@ -208,13 +232,15 @@ window.escapeHtml = function(str) {
 (function() {
   const list = document.getElementById('matchList');
   if (!list) return;
+  // 骨架屏加载状态
+  list.innerHTML = '<div class="grid-card skeleton" style="min-height:160px;"></div>'.repeat(4);
   (async function() {
     try {
       const resp = await fetch('/api/matches');
       const data = await resp.json();
       const matches = data.matches || [];
       if (matches.length === 0) {
-        list.innerHTML = '<div class="match-placeholder"><p>\u6682\u65E0\u6BD4\u8D5B\u8BB0\u5F55</p></div>';
+        list.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">🏆</div><p>暂无比赛记录</p></div>';
         return;
       }
       let html = '';
@@ -236,7 +262,7 @@ window.escapeHtml = function(str) {
         });
       }
     } catch(e) {
-      list.innerHTML = '<div class="match-placeholder"><p>\u52A0\u8F7D\u5931\u8D25</p></div>';
+      list.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">⚠️</div><p>加载失败，请检查网络后重试</p></div>';
     }
   })();
 })();

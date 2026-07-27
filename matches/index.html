@@ -31,6 +31,11 @@
         .match-card .result .badge.win { background: #e8f5e9; color: #2e7d32; }
         .match-card .result .badge.lose { background: #fce4ec; color: #c62828; }
         .match-card .result .badge.draw { background: #fff3e0; color: #e65100; }
+        @media (prefers-color-scheme: dark) {
+            .match-card .result .badge.win { background: rgba(46,125,50,0.18); color: #81c784; }
+            .match-card .result .badge.lose { background: rgba(198,40,40,0.18); color: #ef9a9a; }
+            .match-card .result .badge.draw { background: rgba(230,81,0,0.18); color: #ffcc80; }
+        }
         .match-card .score { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--text); min-width: 60px; text-align: center; }
         .match-card .desc { width: 100%; font-size: 13px; color: var(--dim); line-height: 1.6; padding-top: 12px; border-top: 1px solid var(--line); }
         .match-placeholder { text-align: center; padding: 60px 20px; color: var(--dim); }

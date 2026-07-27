@@ -7,7 +7,7 @@ const CACHE_NAME = 'yhg-v1';
 // 需要预缓存的资源
 const PRECACHE_URLS = [
   '/',
-  '/resource/css/style.min.css',
+  '/resource/css/style.css',
   '/resource/js/main.js',
   '/resource/js/auth.js',
   '/resource/img/logo.webp',

@@ -10,7 +10,7 @@
   const main = document.getElementById('mainContent');
 
   if (!slug) {
-    if (main) main.innerHTML = '<section class="section"><p style="text-align:center;color:var(--dim);">缺少选手标识</p></section>';
+    if (main) main.innerHTML = '<section class="section"><div class="empty-state"><div class="empty-icon">🔍</div><p>缺少选手标识</p></div></section>';
     return;
   }
 
@@ -113,7 +113,7 @@
       }
 
     } catch(e) {
-      if (main) main.innerHTML = '<section class="section"><p style="text-align:center;color:var(--dim);padding:80px 0;">选手资料加载失败</p></section>';
+      if (main) main.innerHTML = '<section class="section"><div class="empty-state"><div class="empty-icon">⚠️</div><p>选手资料加载失败，请检查网络后重试</p></div></section>';
     }
   })();
 })();

@@ -80,6 +80,12 @@ html {
     scroll-behavior: smooth;
 }
 
+/* 固定 header 高度补偿，防止锚点跳转被遮挡 */
+section[id],
+[id] {
+    scroll-margin-top: 80px;
+}
+
 body {
     min-height: 100vh;
     color: var(--text);
@@ -1773,13 +1779,7 @@ footer p {
         background: var(--surface);
     }
 
-    img {
-        opacity: 0.85;
-        transition: opacity 0.3s;
-    }
-    img:hover {
-        opacity: 1;
-    }
+    /* img 透明度由 .img-loaded 系统统一控制，见下方 dark mode img 规则 */
 
     .home-featured-match {
         background: var(--surface);
@@ -2108,6 +2108,36 @@ footer p {
 }
 
 /* ===== 页面加载进度条 ===== */
+
+/* ===== Skip to content 无障碍跳转 ===== */
+.skip-link {
+    position: fixed;
+    top: -100%;
+    left: 16px;
+    z-index: 10000;
+    padding: 10px 20px;
+    background: var(--fire);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 0 0 var(--r-sm) var(--r-sm);
+    transition: top 0.2s;
+    text-decoration: none;
+}
+.skip-link:focus {
+    top: 0;
+}
+
+/* ===== Header 滚动阴影 ===== */
+.site-header.scrolled {
+    box-shadow: 0 4px 20px rgba(120, 80, 30, 0.10);
+}
+@media (prefers-color-scheme: dark) {
+    .site-header.scrolled {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.30);
+    }
+}
+
 #page-progress {
     position: fixed;
     top: 0;

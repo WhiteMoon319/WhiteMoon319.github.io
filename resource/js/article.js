@@ -12,7 +12,7 @@
   let currentUser = null; // { id, username, role }
 
   if (!slug) {
-    if (wrap) wrap.innerHTML = '<p style="text-align:center;padding:40px;color:var(--dim);">缺少文章标识</p>';
+    if (wrap) wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📄</div><p>缺少文章标识</p></div>';
     return;
   }
 
@@ -33,7 +33,7 @@
       const data = await resp.json();
 
       if (!data.ok || !data.article) {
-        if (wrap) wrap.innerHTML = '<p style="text-align:center;padding:40px;color:var(--dim);">文章不存在或已删除</p>';
+        if (wrap) wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>文章不存在或已删除</p><a href="/news/">返回新闻列表</a></div>';
         return;
       }
 
@@ -89,7 +89,7 @@
       });
 
     } catch (e) {
-      if (wrap) wrap.innerHTML = '<p style="text-align:center;padding:40px;color:var(--dim);">\u52A0\u8F7D\u5931\u8D25</p>';
+      if (wrap) wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><p>加载失败，请检查网络后重试</p></div>';
     }
   })();
 

@@ -12,7 +12,7 @@
   const slug = params.get('slug');
 
   if (!slug) {
-    app.innerHTML = '<p style="text-align:center;color:var(--dim);padding:40px 0;">缺少选手标识</p>';
+    app.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><p>缺少选手标识</p></div>';
     return;
   }
 
@@ -33,7 +33,7 @@
       if (!resp.ok) throw new Error('not found');
       player = (await resp.json()).player;
     } catch(e) {
-      app.innerHTML = '<p style="text-align:center;color:var(--dim);padding:40px 0;">选手资料不存在</p>';
+      app.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>选手资料不存在</p><a href="/members/">返回队员阵容</a></div>';
       return;
     }
 

@@ -263,8 +263,17 @@ async function renderNotifBell(container) {
 
   // 初始加载
   updateBadge();
-  // 每 30 秒轮询
-  setInterval(updateBadge, 30000);
+  // 每 30 秒轮询（标签页隐藏时暂停，节能）
+  let notifTimer = setInterval(updateBadge, 30000);
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      clearInterval(notifTimer);
+      notifTimer = null;
+    } else if (!notifTimer) {
+      updateBadge();
+      notifTimer = setInterval(updateBadge, 30000);
+    }
+  });
 }
 
 // ===== 主流程 =====
