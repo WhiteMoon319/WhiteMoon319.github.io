@@ -109,10 +109,15 @@ async function handleAnnouncement(request, env, headers, staff) {
       return new Response(JSON.stringify({ error: '公告标题不能为空' }), { status: 400, headers });
     }
 
+    // 写入 announcements 表
+    const result = await env.DB.prepare(
+      "INSERT INTO announcements (title, body, link, created_by) VALUES (?, ?, ?, ?)"
+    ).bind(title, content, body.link || '', staff.id).run();
+
     // 发送给所有用户
     await notifyAllUsers(env, 'system', title, content, body.link || '');
 
-    return new Response(JSON.stringify({ ok: true, message: '公告已发送' }), { status: 200, headers });
+    return new Response(JSON.stringify({ ok: true, id: result.meta.last_row_id, message: '公告已发布' }), { status: 200, headers });
   } catch (e) {
     console.error(e);
     return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });

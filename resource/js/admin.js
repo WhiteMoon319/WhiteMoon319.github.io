@@ -473,52 +473,185 @@ console.error('loadUsers error:', e);
     loadTab('home');
   };
 
-  // 发布公告
+  // 公告管理
   async function loadAnnouncement(body) {
     body.innerHTML = ''
-      + '<div style="max-width:600px;">'
-      + '<h3 style="margin:0 0 6px;font-size:18px;color:var(--text);">\u53D1\u5E03\u7CFB\u7EDF\u516C\u544A</h3>'
-      + '<p style="color:var(--dim);font-size:13px;margin:0 0 20px;">\u516C\u544A\u5C06\u53D1\u9001\u7ED9\u6240\u6709\u6CE8\u518C\u7528\u6237\u7684\u7AD9\u5185\u901A\u77E5\u3002</p>'
-      + '<div style="display:grid;gap:14px;">'
-      + '<label style="font-size:12px;color:var(--dim);">\u516C\u544A\u6807\u9898 <span style="color:var(--flame);">*</span></label>'
-      + '<input id="annTitle" placeholder="\u8F93\u5165\u516C\u544A\u6807\u9898" maxlength="120" style="padding:10px 14px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);font-size:14px;">'
-      + '<label style="font-size:12px;color:var(--dim);">\u516C\u544A\u5185\u5BB9</label>'
-      + '<textarea id="annBody" rows="4" placeholder="\u516C\u544A\u5185\u5BB9\uFF08\u53EF\u9009\uFF09" style="padding:10px 14px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);font-size:13px;resize:vertical;"></textarea>'
-      + '<label style="font-size:12px;color:var(--dim);">\u94FE\u63A5\u5730\u5740\uFF08\u53EF\u9009\uFF09</label>'
-      + '<input id="annLink" placeholder="https://..." style="padding:10px 14px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);font-size:13px;">'
-      + '<div style="margin-top:8px;"><button class="admin-btn primary" id="sendAnnouncement" style="padding:10px 28px;">\u53D1\u9001\u516C\u544A</button></div>'
-      + '</div></div>';
+      + '<div style="max-width:700px;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+      + '<h3 style="margin:0;font-size:18px;color:var(--text);">📢 公告管理</h3>'
+      + '<button class="admin-btn primary" id="showNewAnnForm" style="padding:8px 20px;font-size:12px;">+ 新建公告</button>'
+      + '</div>'
+      + '<div id="annListContainer"></div>'
+      + '<div id="annFormContainer" style="display:none;"></div>'
+      + '</div>';
 
-    document.getElementById('sendAnnouncement')?.addEventListener('click', async function() {
-      const title = document.getElementById('annTitle').value.trim();
-      if (!title) { showToast('\u8BF7\u8F93\u5165\u516C\u544A\u6807\u9898', 'err'); return; }
-      const btn = document.getElementById('sendAnnouncement');
+    await loadAnnList();
+
+    document.getElementById('showNewAnnForm')?.addEventListener('click', function() {
+      showAnnForm(null);
+    });
+  }
+
+  async function loadAnnList() {
+    const container = document.getElementById('annListContainer');
+    if (!container) return;
+    container.innerHTML = '<p style="color:var(--dim);font-size:13px;">加载中…</p>';
+    try {
+      const resp = await fetch('/api/admin/announcements');
+      const data = await resp.json();
+      if (!data.ok || !data.announcements || data.announcements.length === 0) {
+        container.innerHTML = '<p style="color:var(--dim);font-size:13px;">暂无公告</p>';
+        return;
+      }
+      const rows = data.announcements;
+      let html = '<div style="border:1px solid var(--line-2);border-radius:var(--r-lg);overflow:hidden;background:var(--surface);">'
+        + '<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="background:var(--bg);">'
+        + '<th style="padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);">ID</th>'
+        + '<th style="padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);">标题</th>'
+        + '<th style="padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);">创建人</th>'
+        + '<th style="padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);">时间</th>'
+        + '<th style="padding:10px 14px;text-align:center;border-bottom:1px solid var(--line);">操作</th>'
+        + '</tr></thead><tbody>';
+      rows.forEach(function(a) {
+        const time = a.created_at ? new Date(a.created_at + 'Z').toLocaleDateString('zh-CN', {
+          month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+        }) : '';
+        html += '<tr style="border-bottom:1px solid var(--line);">'
+          + '<td style="padding:10px 14px;font-family:var(--mono);color:var(--dim);">#' + a.id + '</td>'
+          + '<td style="padding:10px 14px;font-weight:600;">' + window.escapeHtml(a.title)
+          + (a.body ? '<div style="font-weight:400;font-size:11px;color:var(--dim);margin-top:2px;">' + window.escapeHtml(a.body.slice(0, 60)) + '</div>' : '')
+          + '</td>'
+          + '<td style="padding:10px 14px;color:var(--dim);font-size:12px;">' + window.escapeHtml(a.creator_name || '') + '</td>'
+          + '<td style="padding:10px 14px;font-size:11px;color:var(--faint);font-family:var(--mono);">' + time + '</td>'
+          + '<td style="padding:10px 14px;text-align:center;white-space:nowrap;">'
+          + '<button class="ann-edit-btn" data-id="' + a.id + '" style="background:none;border:1px solid var(--line-2);border-radius:var(--r-sm);padding:4px 12px;font-size:11px;cursor:pointer;color:var(--text);margin-right:6px;">编辑</button>'
+          + '<button class="ann-del-btn" data-id="' + a.id + '" data-title="' + window.escapeHtml(a.title) + '" style="background:none;border:1px solid var(--flame);border-radius:var(--r-sm);padding:4px 12px;font-size:11px;cursor:pointer;color:var(--flame);">删除</button>'
+          + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+      container.innerHTML = html;
+
+      // 编辑
+      container.querySelectorAll('.ann-edit-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          const id = parseInt(this.dataset.id);
+          if (id) showAnnForm(id);
+        });
+      });
+
+      // 删除
+      container.querySelectorAll('.ann-del-btn').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+          const id = parseInt(this.dataset.id);
+          const title = this.dataset.title;
+          if (!id) return;
+          if (!confirm('确定要删除公告「' + title + '」吗？\n所有用户的该通知将被同时删除。')) return;
+          const resp = await fetch('/api/admin/announcements/' + id, { method: 'DELETE' });
+          const data = await resp.json();
+          if (data.ok) {
+            showToast('公告已删除', 'ok');
+            await loadAnnList();
+          } else {
+            showToast(data.error || '删除失败', 'err');
+          }
+        });
+      });
+    } catch(e) {
+      container.innerHTML = '<p style="color:var(--flame);font-size:13px;">加载失败</p>';
+    }
+  }
+
+  function showAnnForm(editId) {
+    const listContainer = document.getElementById('annListContainer');
+    const formContainer = document.getElementById('annFormContainer');
+    const newBtn = document.getElementById('showNewAnnForm');
+    if (!formContainer) return;
+    if (listContainer) listContainer.style.display = 'none';
+    if (newBtn) newBtn.style.display = 'none';
+    formContainer.style.display = 'block';
+
+    if (editId) {
+      // 编辑模式：先加载数据
+      formContainer.innerHTML = '<p style="color:var(--dim);font-size:13px;">加载中…</p>';
+      fetch('/api/admin/announcements/' + editId).then(function(r) { return r.json(); }).then(function(data) {
+        if (!data.ok || !data.announcement) {
+          formContainer.innerHTML = '<p style="color:var(--flame);font-size:13px;">公告不存在</p>';
+          return;
+        }
+        renderAnnForm(editId, data.announcement);
+      }).catch(function() {
+        formContainer.innerHTML = '<p style="color:var(--flame);font-size:13px;">加载失败</p>';
+      });
+    } else {
+      renderAnnForm(null, { title: '', body: '', link: '' });
+    }
+  }
+
+  function renderAnnForm(editId, ann) {
+    const formContainer = document.getElementById('annFormContainer');
+    if (!formContainer) return;
+    const isEdit = !!editId;
+    formContainer.innerHTML = ''
+      + '<div style="background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:24px;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+      + '<h4 style="margin:0;font-size:16px;color:var(--text);">' + (isEdit ? '✏️ 编辑公告 #' + editId : '📝 新建公告') + '</h4>'
+      + '<button class="admin-btn" id="cancelAnnForm" style="padding:6px 16px;font-size:12px;">返回列表</button>'
+      + '</div>'
+      + '<p style="color:var(--dim);font-size:13px;margin:0 0 16px;">' + (isEdit ? '修改后将同时更新所有用户的通知内容。' : '公告将发送给所有注册用户的站内通知。') + '</p>'
+      + '<div style="display:grid;gap:14px;">'
+      + '<label style="font-size:12px;color:var(--dim);">公告标题 <span style="color:var(--flame);">*</span></label>'
+      + '<input id="annFormTitle" value="' + window.escapeHtml(ann.title) + '" placeholder="输入公告标题" maxlength="120" style="padding:10px 14px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);font-size:14px;">'
+      + '<label style="font-size:12px;color:var(--dim);">公告内容</label>'
+      + '<textarea id="annFormBody" rows="4" placeholder="公告内容（可选）" style="padding:10px 14px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);font-size:13px;resize:vertical;">' + window.escapeHtml(ann.body) + '</textarea>'
+      + '<label style="font-size:12px;color:var(--dim);">链接地址（可选）</label>'
+      + '<input id="annFormLink" value="' + window.escapeHtml(ann.link) + '" placeholder="https://..." style="padding:10px 14px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--bg);color:var(--text);font-size:13px;">'
+      + '<div style="margin-top:8px;display:flex;gap:10px;">'
+      + '<button class="admin-btn primary" id="saveAnnFormBtn" style="padding:10px 28px;">' + (isEdit ? '保存修改' : '发布公告') + '</button>'
+      + '<span id="annFormResult" style="font-size:12px;color:var(--dim);align-self:center;"></span>'
+      + '</div></div></div>';
+
+    document.getElementById('saveAnnFormBtn')?.addEventListener('click', async function() {
+      const title = document.getElementById('annFormTitle').value.trim();
+      if (!title) { document.getElementById('annFormResult').textContent = '请输入标题'; return; }
+      const btn = document.getElementById('saveAnnFormBtn');
       btn.disabled = true;
-      btn.textContent = '\u53D1\u9001\u4E2D\u2026';
+      btn.textContent = isEdit ? '保存中…' : '发布中…';
       try {
-        const resp = await fetch('/api/admin/articles/announcement', {
-          method: 'POST',
+        const resp = await fetch(isEdit ? '/api/admin/announcements/' + editId : '/api/admin/announcements', {
+          method: isEdit ? 'PUT' : 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: title,
-            content: document.getElementById('annBody').value.trim(),
-            link: document.getElementById('annLink').value.trim()
+            content: document.getElementById('annFormBody').value.trim(),
+            link: document.getElementById('annFormLink').value.trim()
           })
         });
         const data = await resp.json();
         if (data.ok) {
-          showToast('\u516C\u544A\u5DF2\u53D1\u9001\u7ED9\u6240\u6709\u7528\u6237', 'ok');
-          document.getElementById('annTitle').value = '';
-          document.getElementById('annBody').value = '';
-          document.getElementById('annLink').value = '';
+          showToast(isEdit ? '公告已更新' : '公告已发布', 'ok');
+          document.getElementById('annFormResult').textContent = '✅ ' + (isEdit ? '已更新' : '已发布');
+          // 返回列表
+          cancelAnnForm();
         } else {
-          showToast(data.error || '\u53D1\u9001\u5931\u8D25', 'err');
+          document.getElementById('annFormResult').textContent = '❌ ' + (data.error || '失败');
         }
       } catch(e) {
-        showToast('\u7F51\u7EDC\u9519\u8BEF', 'err');
+        document.getElementById('annFormResult').textContent = '❌ 网络错误';
       }
       btn.disabled = false;
-      btn.textContent = '\u53D1\u9001\u516C\u544A';
+      btn.textContent = isEdit ? '保存修改' : '发布公告';
     });
+
+    document.getElementById('cancelAnnForm')?.addEventListener('click', cancelAnnForm);
+
+    function cancelAnnForm() {
+      const listContainer = document.getElementById('annListContainer');
+      const formContainer = document.getElementById('annFormContainer');
+      const newBtn = document.getElementById('showNewAnnForm');
+      if (listContainer) listContainer.style.display = 'block';
+      if (formContainer) formContainer.style.display = 'none';
+      if (newBtn) newBtn.style.display = '';
+      loadAnnList();
+    }
   }
 })();
