@@ -6,7 +6,7 @@
     <title>选手资料 - YHG电子竞技战队</title>
     <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
     <link rel="apple-touch-icon" href="../resource/img/logo.webp">
-    <link rel="stylesheet" href="../resource/css/style.css">
+    <link rel="stylesheet" href="../resource/css/style.min.css">
     <style>
         .page-hero.member-hero { min-height: 66vh; }
         .loading { text-align:center; padding:80px 0; color:var(--dim); }
@@ -138,11 +138,11 @@
                             <article class="info-panel reveal" data-delay="3">
                                 <h3>基础资料</h3>
                                 <div class="info-grid">
-                                    <div class="info-cell"><span>姓名</span><b>${escapeHtml(p.name)}</b></div>
-                                    <div class="info-cell"><span>ID</span><b>${escapeHtml(p.id_name)}</b></div>
-                                    <div class="info-cell"><span>年龄</span><b>${escapeHtml(p.age || '—')}</b></div>
-                                    <div class="info-cell"><span>分路</span><b>${escapeHtml(p.role)}</b></div>
-                                    <div class="info-cell"><span>荣誉</span><b>${escapeHtml(p.titles || '—')}</b></div>
+                                    <div class="info-cell" data-field="姓名"><span>姓名</span><b>${escapeHtml(p.name)}</b></div>
+                                    <div class="info-cell" data-field="ID"><span>ID</span><b>${escapeHtml(p.id_name)}</b></div>
+                                    <div class="info-cell" data-field="年龄"><span>年龄</span><b>${escapeHtml(p.age || '—')}</b></div>
+                                    <div class="info-cell" data-field="分路"><span>分路</span><b>${escapeHtml(p.role)}</b></div>
+                                    <div class="info-cell" data-field="荣誉"><span>荣誉</span><b>${escapeHtml(p.titles || '—')}</b></div>
                                     <div class="info-cell"><span>资料更新</span><b>${updated}</b></div>
                                 </div>
                             </article>

@@ -53,12 +53,11 @@
     };
 
     document.querySelectorAll('.info-cell').forEach(cell => {
-      const label = cell.querySelector('span');
+      const field = cell.dataset.field;
       const value = cell.querySelector('b');
-      if (!label || !value) return;
-      const key = label.textContent.trim();
-      if (fieldMap[key] !== undefined && fieldMap[key] !== '') {
-        value.textContent = fieldMap[key];
+      if (!field || !value) return;
+      if (fieldMap[field] !== undefined && fieldMap[field] !== '') {
+        value.textContent = fieldMap[field];
       }
     });
 

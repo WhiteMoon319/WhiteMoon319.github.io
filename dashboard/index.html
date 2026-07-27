@@ -6,7 +6,7 @@
     <title>用户面板 - YHG电子竞技战队</title>
     <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
     <link rel="apple-touch-icon" href="../resource/img/logo.webp">
-    <link rel="stylesheet" href="../resource/css/style.css">
+    <link rel="stylesheet" href="../resource/css/style.min.css">
     <style>
         .dash-wrap { max-width: 680px; margin: 0 auto; padding: 120px 22px 80px; }
         .dash-card { padding: 44px 38px; background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
@@ -60,94 +60,5 @@
   <script defer src="../resource/js/main.js"></script>
     <script defer src="../resource/js/auth.js"></script>
     <script defer src="../resource/js/dashboard.js"></script>
-
-        try {
-            const resp = await fetch('/api/auth/me');
-            if (!resp.ok) { window.location.href = '../login/'; return; }
-            const data = await resp.json();
-            currentUser = data.user;
-        } catch(e) {
-            el.innerHTML = '<p style="text-align:center;color:var(--dim);">加载失败</p>';
-            return;
-        }
-        const u = currentUser;
-        const created = u.created_at ? new Date(u.created_at+'Z').toLocaleDateString('zh-CN') : '未知';
-        const avHtml = u.avatar ? '<img src="'+u.avatar+'">' : '&#x1F464;';
-        const bound = (u.bound_players&&u.bound_players.length) ? u.bound_players.join(', ') : '未绑定';
-        el.innerHTML = [
-            '<h1>'+u.username+'</h1>',
-            '<p class="dash-email">'+u.email+'</p>',
-            '<div class="dash-section"><h2>\u4fee\u6539\u5934\u50cf</h2><div class="avatar-area">',
-            '<div class="avatar-preview" id="avPrev">'+avHtml+'</div>',
-            '<div class="avatar-actions">',
-            '<label>\u8f93\u5165\u56fe\u7247 URL</label>',
-            '<input type="text" id="avUrl" placeholder="https://..." value="'+(u.avatar||'')+'">',
-            '<label>\u6216\u4e0a\u4f20\u56fe\u7247</label>',
-            '<input type="file" id="avFile" accept="image/*">',
-            '<button class="btn-save small" id="saveAvBtn">\u4fdd\u5b58\u5934\u50cf</button></div></div></div>',
-            '<div class="dash-section"><h2>\u4fee\u6539\u6635\u79f0</h2><div class="form-row">',
-            '<label>\u65b0\u6635\u79f0</label>',
-            '<input type="text" id="nickInput" value="'+u.username+'" maxlength="20">',
-            '<span id="nickHint" class="hint"></span>',
-            '<button class="btn-save small" id="saveNickBtn">\u4fdd\u5b58</button></div></div>',
-            '<div class="dash-section"><h2>\u8d26\u6237\u4fe1\u606f</h2>',
-            '<dl class="dash-info"><dt>\u6635\u79f0</dt><dd>'+u.username+'</dd>',
-            '<dt>\u90ae\u7bb1</dt><dd>'+u.email+'</dd>',
-            '<dt>\u89d2\u8272</dt><dd>'+(u.role==='admin'?'\u8d85\u7ea7\u7ba1\u7406\u5458':u.role==='sub_admin'?'\u526f\u7ba1\u7406\u5458':'\u666e\u901a\u7528\u6237')+'</dd>',
-            '<dt>\u7b49\u7ea7</dt><dd>Lv.'+(u.level||1)+'</dd>',
-            '<dt>\u7ed1\u5b9a\u9009\u624b</dt><dd style="color:var(--dim);font-size:13px;">'+bound+'</dd>',
-            '<dt>\u6ce8\u518c\u65f6\u95f4</dt><dd>'+created+'</dd></dl></div>',
-            '<div class="dash-section"><h2>\u64cd\u4f5c</h2>',
-            '<div style="display:flex;gap:14px;flex-wrap:wrap;">'+
-            ((u.level >= 2 || u.role === 'admin' || u.role === 'sub_admin')
-                ? '<a class="primary-btn" href="news/write.html" style="text-decoration:none;">\u270d \u5199\u6587\u7ae0</a>'
-                : '') +
-            '<button class="ghost-btn" id="logoutBtn" style="border-color:var(--line-hot);color:var(--fire);">\u9000\u51fa\u767b\u5f55</button></div></div>'
-        ].join('');
-
-        document.getElementById('avUrl').addEventListener('input', ()=>{
-            const v = document.getElementById('avUrl').value.trim();
-            document.getElementById('avPrev').innerHTML = v ? '<img src="'+v+'" onerror="this.parentElement.innerHTML=\'&#x1F464;\'">' : '&#x1F464;';
-        });
-        document.getElementById('avFile').addEventListener('change', ()=>{
-            const f = document.getElementById('avFile').files[0];
-            if(!f)return;
-            const r = new FileReader();
-            r.onload = e=>{ document.getElementById('avPrev').innerHTML = '<img src="'+e.target.result+'">'; document.getElementById('avUrl').value = e.target.result; };
-            r.readAsDataURL(f);
-        });
-        document.getElementById('saveAvBtn').addEventListener('click', async ()=>{
-            const url = document.getElementById('avUrl').value.trim();
-            if(!url){ showToast('\u8bf7\u8f93\u5165\u5934\u50cf URL \u6216\u4e0a\u4f20\u56fe\u7247'); return; }
-            const btn = document.getElementById('saveAvBtn'); btn.disabled = true;
-            const r = await fetch('/api/auth/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({avatar:url})});
-            const d = await r.json(); btn.disabled = false;
-            d.ok ? (showToast('\u5934\u50cf\u5df2\u66f4\u65b0'), currentUser.avatar=url) : showToast(d.error||'\u4fdd\u5b58\u5931\u8d25');
-        });
-        document.getElementById('saveNickBtn').addEventListener('click', async ()=>{
-            const name = document.getElementById('nickInput').value.trim();
-            if(!name||name.length<1){ showToast('\u6635\u79f0\u4e0d\u80fd\u4e3a\u7a7a'); return; }
-            if(name===currentUser.username){ showToast('\u6635\u79f0\u672a\u53d8\u5316'); return; }
-            const btn = document.getElementById('saveNickBtn'); btn.disabled = true;
-            const r = await fetch('/api/auth/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:name})});
-            const d = await r.json(); btn.disabled = false;
-            if(d.ok){
-                showToast('\u6635\u79f0\u5df2\u66f4\u65b0'); currentUser.username = name;
-                document.getElementById('dashContent').querySelector('h1').textContent = name;
-                const w = document.getElementById('authStateBtn')||document.getElementById('authWidget');
-                if(w) w.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px 4px 10px;background:var(--surface-2);border-radius:99px;font-size:13px;font-weight:600;">\u25cf '+name+'</span>';
-            } else {
-                showToast(d.error||'\u4fdd\u5b58\u5931\u8d25');
-                if(d.error&&d.error.includes('\u5df2\u88ab\u4f7f\u7528')){
-                    document.getElementById('nickHint').textContent = '\u274c '+d.error;
-                    document.getElementById('nickHint').className = 'hint-err';
-                }
-            }
-        });
-        document.getElementById('logoutBtn').addEventListener('click', async ()=>{
-            await fetch('/api/auth/logout',{method:'POST'}); window.location.href='index.html';
-        });
-    }
-
 </body>
 </html>
