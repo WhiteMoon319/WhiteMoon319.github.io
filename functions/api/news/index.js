@@ -106,7 +106,7 @@ async function handleCreate(request, env, headers) {
 
     await env.DB.prepare(
       'INSERT INTO articles (user_id, title, summary, content, slug, status) VALUES (?, ?, ?, ?, ?, ?)'
-    ).bind(session.user_id, title, summary || '', content, slug, status).run();
+    ).bind(session.user_id, title, summary || '', content.replace(/<[^>]+>/g, ''), slug, status).run();
 
     return new Response(JSON.stringify({ ok: true, slug, status }), { status: 201, headers });
   } catch (e) {

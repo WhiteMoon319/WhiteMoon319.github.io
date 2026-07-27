@@ -221,7 +221,7 @@
                     if (articleData.ok && articleData.article) {
                         document.getElementById('title').value = articleData.article.title || '';
                         document.getElementById('summary').value = articleData.article.summary || '';
-                        document.getElementById('content').value = articleData.article.content || '';
+                        document.getElementById('content').value = (articleData.article.content || '').replace(/<[^>]+>/g, '');
                     }
                 }
             } catch(e) {

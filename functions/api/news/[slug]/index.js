@@ -94,7 +94,7 @@ async function handlePut(slug, request, env, headers) {
 
     await env.DB.prepare(
       "UPDATE articles SET title = ?, summary = ?, content = ?, updated_at = datetime('now') WHERE slug = ?"
-    ).bind(title, summary || '', content, slug).run();
+    ).bind(title, summary || '', content.replace(/<[^>]+>/g, ''), slug).run();
 
     return new Response(JSON.stringify({ ok: true, slug }), { status: 200, headers });
   } catch (e) {

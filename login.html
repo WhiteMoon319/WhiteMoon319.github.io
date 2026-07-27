@@ -136,6 +136,7 @@
             .auth-card { padding: 32px 24px; }
         }
     </style>
+  <script defer src="resource/js/main.js"></script>
   <script defer src="resource/js/auth.js"></script>
 </head>
 <body>
@@ -235,11 +236,6 @@
                 btn.textContent = '登录';
             }
         });
-
-        const revealIO = new IntersectionObserver((entries) => {
-          entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
-        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-        document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
     </script>
 </body>
 </html>

@@ -57,11 +57,10 @@
         </div>
     </main>
     <footer><p>© 2026 YHG ESPORTS</p></footer>
+  <script defer src="resource/js/main.js"></script>
     <script defer src="resource/js/auth.js"></script>
-    <script>
-    let currentUser = null;
-    async function loadDashboard() {
-        const el = document.getElementById('dashContent');
+    <script defer src="resource/js/dashboard.js"></script>
+
         try {
             const resp = await fetch('/api/auth/me');
             if (!resp.ok) { window.location.href = 'login.html'; return; }
@@ -149,13 +148,6 @@
             await fetch('/api/auth/logout',{method:'POST'}); window.location.href='index.html';
         });
     }
-    function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
-    loadDashboard();
 
-    const revealIO = new IntersectionObserver((entries) => {
-      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
-    </script>
 </body>
 </html>

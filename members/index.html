@@ -14,6 +14,7 @@
     <meta property="og:image" content="https://yhg-7su.pages.dev/resource/img/logo.webp">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="stylesheet" href="../resource/css/style.css">
+  <script defer src="../resource/js/main.js"></script>
   <script defer src="../resource/js/auth.js"></script>
 </head>
 <body>
@@ -100,11 +101,5 @@
     <footer>
         <p>© 2026 YHG电子竞技战队. Honor of Kings esports team official site demo.</p>
     </footer>
-    <script>
-    const revealIO = new IntersectionObserver((entries) => {
-      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
-    </script>
 </body>
 </html>

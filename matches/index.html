@@ -31,6 +31,7 @@
         .match-list { max-width: 720px; margin: 0 auto; padding: 0 22px 80px; }
         @media (max-width: 480px) { .match-card { flex-direction: column; align-items: flex-start; } .match-card .result { align-self: flex-start; } }
     </style>
+    <script defer src="../resource/js/main.js"></script>
     <script defer src="../resource/js/auth.js"></script>
 </head>
 <body>
@@ -64,51 +65,5 @@
     </main>
 
     <footer><p>© 2026 YHG ESPORTS · Honor of Kings esports team</p></footer>
-
-    <script>
-    (async function() {
-        const list = document.getElementById('matchList');
-        try {
-            const resp = await fetch('/api/matches');
-            const data = await resp.json();
-            const matches = data.matches || [];
-
-            if (matches.length === 0) {
-                list.innerHTML = '<div class="match-placeholder"><p>暂无比赛记录</p></div>';
-                return;
-            }
-
-            let html = '';
-            matches.forEach((m, i) => {
-                const badge = m.result === 'win' ? '<span class="badge win">胜</span>' :
-                    m.result === 'lose' ? '<span class="badge lose">负</span>' :
-                    m.result === 'draw' ? '<span class="badge draw">平</span>' : '';
-                const delay = Math.min(i + 3, 6);
-                html += `
-                    <div class="match-card reveal" data-delay="${delay}">
-                        <div class="date">${m.match_date}</div>
-                        <div class="vs">
-                            <h3>${m.title}</h3>
-                            <div class="opponent">vs ${m.opponent}</div>
-                        </div>
-                        ${m.score ? '<div class="score">'+m.score+'</div>' : ''}
-                        <div class="result">${badge}</div>
-                        ${m.description ? '<div class="desc">'+m.description+'</div>' : ''}
-                    </div>
-                `;
-            });
-            list.innerHTML = html;
-            // 动态加载完成后观察新 reveal 元素
-            document.querySelectorAll('.match-card.reveal:not(.in)').forEach(el => revealIO.observe(el));
-        } catch(e) {
-            list.innerHTML = '<div class="match-placeholder"><p>加载失败</p></div>';
-        }
-    })();
-
-    const revealIO = new IntersectionObserver((entries) => {
-      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
-    </script>
 </body>
 </html>
