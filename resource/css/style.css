@@ -5,11 +5,8 @@
    野火烧不尽 · 春风吹又生
    ========================================================= */
 
-/* Fonts: self-hosted with font-display: swap */
-/* Space Grotesk, Rajdhani: Google Fonts - loaded via <link> in HTML with display=swap */
-/* Noto Sans SC: Google Fonts - loaded via <link> in HTML with display=swap */
-
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+/* Fonts: loaded via <link> in HTML head with display=swap for optimal performance */
+/* Space Grotesk, Rajdhani, Noto Sans SC — Google Fonts */
 
 :root {
     /* surfaces — warm layered ivories */
@@ -2108,6 +2105,149 @@ footer p {
 .confirm-dialog .confirm-cancel:hover {
     border-color: var(--fire);
     color: var(--fire);
+}
+
+/* ===== 页面加载进度条 ===== */
+#page-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    height: 3px;
+    width: 0;
+    background: var(--flame-grad);
+    box-shadow: 0 0 10px var(--fire-glow), 0 0 4px var(--fire-glow);
+    border-radius: 0 2px 2px 0;
+    transition: width 0.3s var(--ease), opacity 0.4s;
+    pointer-events: none;
+}
+#page-progress.done {
+    width: 100%;
+    opacity: 0;
+    transition: width 0.2s var(--ease), opacity 0.5s 0.2s;
+}
+
+/* ===== 回到顶部按钮 ===== */
+#backToTop {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    z-index: 900;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-content: center;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: 50%;
+    box-shadow: var(--shadow);
+    color: var(--fire);
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(16px) scale(0.9);
+    transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), border-color 0.2s, box-shadow 0.2s;
+    pointer-events: none;
+}
+#backToTop.show {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+}
+#backToTop:hover {
+    border-color: var(--line-hot);
+    box-shadow: var(--shadow), 0 0 16px var(--fire-glow);
+    transform: translateY(-3px);
+}
+#backToTop:active {
+    transform: translateY(0) scale(0.94);
+}
+
+/* ===== 图片淡入加载 ===== */
+img[loading="lazy"],
+.profile-pic,
+.member-portrait-pic {
+    opacity: 0;
+    transition: opacity 0.5s var(--ease);
+}
+img[loading="lazy"].img-loaded,
+.profile-pic.img-loaded,
+.member-portrait-pic.img-loaded,
+img.img-loaded {
+    opacity: 1;
+}
+/* 深色模式下图片不再额外降低透明度（已由 img-loaded 控制） */
+@media (prefers-color-scheme: dark) {
+    img {
+        opacity: 0;
+        transition: opacity 0.5s var(--ease);
+    }
+    img.img-loaded {
+        opacity: 0.88;
+    }
+    img.img-loaded:hover {
+        opacity: 1;
+    }
+}
+
+/* ===== 按钮微交互：按压反馈 ===== */
+.primary-btn:active,
+.ghost-btn:active,
+.auth-btn:active,
+.join-btn:active {
+    transform: translateY(0) scale(0.97);
+    transition-duration: 0.08s;
+}
+
+/* ===== 链接悬停下划线动画 ===== */
+a.hover-line {
+    position: relative;
+}
+a.hover-line::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background: var(--flame-grad);
+    border-radius: 2px;
+    transition: width 0.3s var(--ease);
+}
+a.hover-line:hover::after {
+    width: 100%;
+}
+
+/* ===== 空状态美化 ===== */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--dim);
+}
+.empty-state .empty-icon {
+    font-size: 48px;
+    opacity: 0.6;
+    filter: grayscale(0.3);
+}
+.empty-state p {
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 320px;
+}
+.empty-state a {
+    color: var(--fire);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid var(--line-hot);
+    transition: border-color 0.2s;
+}
+.empty-state a:hover {
+    border-color: var(--fire);
 }
 
 /* ===== View Transitions ===== */

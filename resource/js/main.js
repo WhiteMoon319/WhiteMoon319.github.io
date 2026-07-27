@@ -50,6 +50,78 @@ window.escapeHtml = function(str) {
   }
 })();
 
+/* ===== 页面加载进度条 ===== */
+(function() {
+  var bar = document.createElement('div');
+  bar.id = 'page-progress';
+  document.body.appendChild(bar);
+  // 模拟进度
+  bar.style.width = '30%';
+  setTimeout(function() { bar.style.width = '70%'; }, 100);
+  window.addEventListener('load', function() {
+    bar.classList.add('done');
+    setTimeout(function() { bar.remove(); }, 800);
+  });
+  // 如果页面已经加载完成
+  if (document.readyState === 'complete') {
+    bar.classList.add('done');
+    setTimeout(function() { bar.remove(); }, 800);
+  }
+})();
+
+/* ===== 回到顶部按钮 ===== */
+(function() {
+  var btn = document.createElement('button');
+  btn.id = 'backToTop';
+  btn.setAttribute('aria-label', '回到顶部');
+  btn.innerHTML = '↑';
+  document.body.appendChild(btn);
+
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(function() {
+        if (window.scrollY > 500) {
+          btn.classList.add('show');
+        } else {
+          btn.classList.remove('show');
+        }
+        ticking = false;
+      });
+    }
+  }, { passive: true });
+
+  btn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+
+/* ===== 图片淡入加载 ===== */
+(function() {
+  function markLoaded(img) {
+    if (img.complete && img.naturalWidth > 0) {
+      img.classList.add('img-loaded');
+    } else {
+      img.addEventListener('load', function() { img.classList.add('img-loaded'); }, { once: true });
+      img.addEventListener('error', function() { img.classList.add('img-loaded'); }, { once: true });
+    }
+  }
+  // 处理已有图片
+  document.querySelectorAll('img').forEach(markLoaded);
+  // 监听动态插入的图片
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      m.addedNodes.forEach(function(node) {
+        if (node.nodeType !== 1) return;
+        if (node.tagName === 'IMG') markLoaded(node);
+        node.querySelectorAll && node.querySelectorAll('img').forEach(markLoaded);
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+
 /* ===== Toast 提示系统 ===== */
 (function() {
   const TOAST_DURATION = 2500;

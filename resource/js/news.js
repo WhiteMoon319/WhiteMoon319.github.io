@@ -56,7 +56,7 @@
     const pagi = document.getElementById('pagination');
     updateUrl();
 
-    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--dim);padding:40px 0;">\u52A0\u8F7D\u4E2D\u2026</p>';
+    grid.innerHTML = '<div class="grid-card skeleton" style="min-height:200px;"></div>'.repeat(6);
     pagi.innerHTML = '';
 
     try {
@@ -89,8 +89,10 @@
           });
         }
       } else {
-        grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--dim);padding:40px 0;">'
-          + (newsQuery ? '\u6CA1\u6709\u627E\u5230\u5339\u914D\u7684\u6587\u7AE0' : '\u6682\u65E0\u6587\u7AE0\uFF0C\u5FEB\u6765\u5199\u4E0B\u7B2C\u4E00\u7BC7\u5427\uFF01') + '</p>';
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">'
+          + '<div class="empty-icon">' + (newsQuery ? '🔍' : '📝') + '</div>'
+          + '<p>' + (newsQuery ? '没有找到匹配的文章，试试其他关键词' : '暂无文章，快来写下第一篇吧！') + '</p>'
+          + '</div>';
       }
 
       if (data.totalPages > 1) {
@@ -108,7 +110,10 @@
         pagi.innerHTML = phtml;
       }
     } catch(e) {
-      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--dim);padding:40px 0;">\u52A0\u8F7D\u5931\u8D25</p>';
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">'
+        + '<div class="empty-icon">⚠️</div>'
+        + '<p>加载失败，请检查网络后重试</p>'
+        + '</div>';
     }
   }
 })();
