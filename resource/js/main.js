@@ -14,6 +14,46 @@ window.escapeHtml = function(str) {
   return d.innerHTML;
 };
 
+/* ===== Toast 提示系统 ===== */
+(function() {
+  const TOAST_DURATION = 2500;
+
+  // 注入 toast 容器
+  const container = document.createElement('div');
+  container.id = 'toast-container';
+  container.style.cssText = 'position:fixed;top:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
+  document.body.appendChild(container);
+
+  window.showToast = function(msg, type) {
+    type = type || 'info';
+    const el = document.createElement('div');
+    // 图标
+    const icon = type === 'ok' || type === 'success' ? '\u2714\uFE0F' : type === 'err' || type === 'error' ? '\u274C' : '\u2139\uFE0F';
+    el.innerHTML = '<span style="flex-shrink:0;font-size:16px;">' + icon + '</span>'
+      + '<span>' + window.escapeHtml(String(msg)) + '</span>';
+    el.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px 20px;'
+      + 'background:var(--surface,#fff);border:1px solid var(--line-2,#ddd);'
+      + 'border-radius:var(--r-lg,12px);box-shadow:0 8px 30px rgba(26,26,46,0.12);'
+      + 'font-size:14px;color:var(--text,#1a1a2e);pointer-events:auto;'
+      + 'animation:toastIn 0.3s ease;max-width:380px;'
+      + 'border-left:4px solid ' + (type === 'ok' || type === 'success' ? 'var(--spring-2,#2ecc71)' : type === 'err' || type === 'error' ? 'var(--fire,#c23630)' : 'var(--dim,#5c5c74)');
+    container.appendChild(el);
+
+    // 移除
+    setTimeout(function() {
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(30px)';
+      el.style.transition = 'opacity 0.3s, transform 0.3s';
+      setTimeout(function() { el.remove(); }, 300);
+    }, TOAST_DURATION);
+  };
+
+  // 注入动画
+  const style = document.createElement('style');
+  style.textContent = '@keyframes toastIn { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }';
+  document.head.appendChild(style);
+})();
+
 /* ===== 滚动渐入动画 ===== */
 (function() {
   if (!window.IntersectionObserver) return;

@@ -277,10 +277,10 @@
               list.innerHTML = '<p class="comment-placeholder">暂无评论</p>';
             }
           } else {
-            alert(data.error || '删除失败');
+            window.showToast(data.error || '删除失败', 'err');
           }
         } catch(e) {
-          alert('网络错误');
+          window.showToast('网络错误', 'err');
         }
       });
     });
@@ -306,10 +306,10 @@
         if (countEl) countEl.textContent = data.like_count;
         if (btn) btn.classList.toggle('liked');
       } else {
-        alert(data.error || '操作失败');
+        window.showToast(data.error || '操作失败', 'err');
       }
     } catch(e) {
-      alert('网络错误');
+      window.showToast('网络错误', 'err');
     }
   }
 
@@ -322,10 +322,10 @@
         var countSpan = btn.querySelector('.like-count');
         if (countSpan) countSpan.textContent = data.like_count;
       } else {
-        alert(data.error || '操作失败');
+        window.showToast(data.error || '操作失败', 'err');
       }
     } catch(e) {
-      alert('网络错误');
+      window.showToast('网络错误', 'err');
     }
   }
 
@@ -354,11 +354,11 @@
         input.value = '';
         loadComments(articleId);
       } else {
-        alert(data.error || '评论失败');
+        window.showToast(data.error || '评论失败', 'err');
         if (submitBtn) submitBtn.disabled = false;
       }
     } catch(e) {
-      alert('网络错误');
+      window.showToast('网络错误', 'err');
       if (submitBtn) submitBtn.disabled = false;
     }
   }
