@@ -50,8 +50,50 @@ window.escapeHtml = function(str) {
 
   // 注入动画
   const style = document.createElement('style');
-  style.textContent = '@keyframes toastIn { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }';
+  style.textContent = '@keyframes toastIn { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }'
+    + '@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }'
+    + '@keyframes scaleIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }';
   document.head.appendChild(style);
+})();
+
+/* ===== 确认对话框 ===== */
+(function() {
+  window.showConfirm = function(msg) {
+    return new Promise(function(resolve) {
+      // 遮罩
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(26,26,46,0.4);display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
+      // 弹框
+      const box = document.createElement('div');
+      box.style.cssText = 'background:var(--surface,#fff);border-radius:var(--r-lg,16px);padding:28px 32px 20px;max-width:400px;width:90%;box-shadow:0 16px 48px rgba(26,26,46,0.2);animation:scaleIn 0.2s ease;text-align:center;';
+      box.innerHTML = '<div style="font-size:15px;color:var(--text,#1a1a2e);line-height:1.6;margin-bottom:24px;">' + window.escapeHtml(String(msg)).replace(/\n/g, '<br>') + '</div>'
+        + '<div style="display:flex;gap:12px;justify-content:center;">'
+        + '<button class="confirm-ok" style="padding:10px 28px;background:var(--fire,#c23630);color:#fff;border:none;border-radius:var(--r-sm,8px);font-size:13px;font-weight:700;cursor:pointer;min-width:100px;">确定</button>'
+        + '<button class="confirm-cancel" style="padding:10px 28px;background:transparent;color:var(--dim,#5c5c74);border:1px solid var(--line-2,#ddd);border-radius:var(--r-sm,8px);font-size:13px;font-weight:600;cursor:pointer;min-width:100px;">取消</button>'
+        + '</div>';
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+
+      function close(result) {
+        overlay.remove();
+        resolve(result);
+      }
+
+      box.querySelector('.confirm-ok').addEventListener('click', function() { close(true); });
+      box.querySelector('.confirm-cancel').addEventListener('click', function() { close(false); });
+      overlay.addEventListener('click', function(e) { if (e.target === overlay) close(false); });
+      // 键盘
+      function keyHandler(e) {
+        if (e.key === 'Enter') { close(true); }
+        if (e.key === 'Escape') { close(false); }
+      }
+      document.addEventListener('keydown', keyHandler);
+      // 清理键盘监听
+      overlay.addEventListener('remove', function() { document.removeEventListener('keydown', keyHandler); });
+      // focus 确定按钮
+      box.querySelector('.confirm-ok').focus();
+    });
+  };
 })();
 
 /* ===== 滚动渐入动画 ===== */

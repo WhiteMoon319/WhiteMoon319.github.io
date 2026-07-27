@@ -110,7 +110,7 @@ console.error('loadUsers error:', e);
   }
 
   window.deleteUser = async function(id) {
-    if (!confirm('\u786E\u5B9A\u5220\u9664\u8BE5\u7528\u6237\uFF1F\u6240\u6709\u5173\u8054\u4F1A\u8BDD\u548C\u7ED1\u5B9A\u4E5F\u4F1A\u88AB\u6E05\u7406\u3002')) return;
+    if (!await window.showConfirm('\u786E\u5B9A\u5220\u9664\u8BE5\u7528\u6237\uFF1F\u6240\u6709\u5173\u8054\u4F1A\u8BDD\u548C\u7ED1\u5B9A\u4E5F\u4F1A\u88AB\u6E05\u7406\u3002')) return;
     const resp = await fetch('/api/admin/users/' + id, { method: 'DELETE' });
     const data = await resp.json();
     showToast(data.ok ? '\u5DF2\u5220\u9664' : (data.error || '\u5220\u9664\u5931\u8D25'), data.ok ? 'ok' : 'err');
@@ -132,7 +132,7 @@ console.error('loadUsers error:', e);
 
   window.setLevel = async function(id, level) {
     const label = level === 2 ? 'Lv.2\uFF08\u53EF\u53D1\u6587\uFF09' : 'Lv.1';
-    if (!confirm('\u786E\u5B9A\u5C06\u8BE5\u7528\u6237\u63D0\u5347\u4E3A ' + label + '\uFF1F')) return;
+    if (!await window.showConfirm('\u786E\u5B9A\u5C06\u8BE5\u7528\u6237\u63D0\u5347\u4E3A ' + label + '\uFF1F')) return;
     const resp = await fetch('/api/admin/users/' + id + '/level', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -205,7 +205,7 @@ console.error('loadUsers error:', e);
   };
 
   window.deleteArticle = async function(slug) {
-    if (!confirm('\u786E\u5B9A\u5220\u9664\u8BE5\u6587\u7AE0\uFF1F')) return;
+    if (!await window.showConfirm('\u786E\u5B9A\u5220\u9664\u8BE5\u6587\u7AE0\uFF1F')) return;
     const resp = await fetch('/api/admin/articles/' + slug, { method: 'DELETE' });
     const data = await resp.json();
     showToast(data.ok ? '\u5DF2\u5220\u9664' : (data.error || '\u5220\u9664\u5931\u8D25'), data.ok ? 'ok' : 'err');
@@ -430,7 +430,7 @@ console.error('loadUsers error:', e);
   };
 
   window.deleteMatch = async function(id) {
-    if (!confirm('\u786E\u5B9A\u5220\u9664\u8BE5\u8D5B\u4E8B\uFF1F')) return;
+    if (!await window.showConfirm('\u786E\u5B9A\u5220\u9664\u8BE5\u8D5B\u4E8B\uFF1F')) return;
     const resp = await fetch('/api/admin/matches/' + id, { method: 'DELETE' });
     const data = await resp.json();
     showToast(data.ok ? '\u5DF2\u5220\u9664' : (data.error || '\u5220\u9664\u5931\u8D25'), data.ok ? 'ok' : 'err');
@@ -545,7 +545,7 @@ console.error('loadUsers error:', e);
           const id = parseInt(this.dataset.id);
           const title = this.dataset.title;
           if (!id) return;
-          if (!confirm('确定要删除公告「' + title + '」吗？\n所有用户的该通知将被同时删除。')) return;
+          if (!await window.showConfirm('确定要删除公告「' + title + '」吗？\n所有用户的该通知将被同时删除。')) return;
           const resp = await fetch('/api/admin/announcements/' + id, { method: 'DELETE' });
           const data = await resp.json();
           if (data.ok) {

@@ -265,7 +265,7 @@
     list.querySelectorAll('.comment-del').forEach(function(btn) {
       btn.addEventListener('click', async function() {
         var commentId = parseInt(this.dataset.id);
-        if (!confirm('确定要删除这条评论吗？')) return;
+        if (!await window.showConfirm('确定要删除这条评论吗？')) return;
         try {
           const resp = await fetch('/api/news/' + slug + '/comments/' + commentId, { method: 'DELETE' });
           const data = await resp.json();
