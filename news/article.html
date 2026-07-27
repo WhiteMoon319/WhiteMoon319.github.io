@@ -66,6 +66,15 @@
         .reply-submit:disabled { opacity: 0.5; }
         .reply-cancel { background: transparent; color: var(--faint); border: 1px solid var(--line); }
 
+        /* 回复折叠 & 小字号 */
+        .comment-reply .comment-text { font-size: 13px; }
+        .comment-reply .comment-author { font-size: 12px; }
+        .comment-reply .comment-avatar { width: 24px; height: 24px; font-size: 11px; }
+        .comment-reply .comment-item { padding: 6px 0; }
+        .comment-replies-toggle { font-size: 12px; color: var(--fire); cursor: pointer;
+          padding: 6px 0 6px 72px; font-weight: 600; }
+        .comment-replies-toggle:hover { text-decoration: underline; }
+
         @media (max-width: 480px) {
             .article-card { padding: 28px 22px; }
             .article-card h1 { font-size: 24px; }
