@@ -5,6 +5,10 @@
    野火烧不尽 · 春风吹又生
    ========================================================= */
 
+/* Fonts: self-hosted with font-display: swap */
+/* Space Grotesk, Rajdhani: Google Fonts - loaded via <link> in HTML with display=swap */
+/* Noto Sans SC: Google Fonts - loaded via <link> in HTML with display=swap */
+
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
 
 :root {
@@ -1694,4 +1698,433 @@ footer p {
         transition: none !important;
         scroll-behavior: auto !important;
     }
+}
+
+/* ===== 焦点样式 ===== */
+:focus-visible {
+    outline: 2px solid var(--fire-2);
+    outline-offset: 2px;
+}
+
+/* ===== 深色模式 ===== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #1a1614;
+        --bg-1: #241e1a;
+        --surface: #2a241f;
+        --surface-2: #322a24;
+        --surface-3: #3a322c;
+        --glass: rgba(26, 22, 20, 0.72);
+        --line: rgba(220, 200, 170, 0.10);
+        --line-2: rgba(220, 200, 170, 0.18);
+        --text: #ece3d8;
+        --dim: #b5a99a;
+        --faint: #887e72;
+        --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15);
+        --shadow: 0 14px 34px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.15);
+        --shadow-lg: 0 30px 60px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    body::before {
+        background:
+            radial-gradient(50% 45% at 92% 4%, rgba(251, 191, 36, 0.08), transparent 60%),
+            radial-gradient(42% 42% at 78% 26%, rgba(239, 68, 68, 0.06), transparent 60%),
+            radial-gradient(40% 40% at 8% 92%, rgba(101, 163, 13, 0.06), transparent 60%),
+            linear-gradient(180deg, #1a1614, #1e1a16 60%, #221e18);
+    }
+
+    .site-header {
+        background: linear-gradient(180deg, rgba(26, 22, 20, 0.88), rgba(26, 22, 20, 0.64));
+        border-bottom-color: var(--line);
+    }
+
+    .nav.menu-open {
+        background: rgba(26, 22, 20, 0.98);
+    }
+
+    .hero {
+        background:
+            radial-gradient(40% 50% at 84% 30%, rgba(251, 191, 36, 0.14), transparent 62%),
+            radial-gradient(36% 42% at 96% 6%, rgba(239, 68, 68, 0.08), transparent 60%),
+            radial-gradient(34% 40% at 6% 90%, rgba(101, 163, 13, 0.06), transparent 60%),
+            linear-gradient(150deg, #1e1815 0%, #1a1614 50%, #1c1815 100%);
+    }
+
+    .hero::after,
+    .page-hero::after {
+        color: rgba(234, 88, 12, 0.08);
+    }
+
+    .eyebrow {
+        background: var(--surface-2);
+    }
+
+    .grid-card {
+        background: var(--surface);
+    }
+
+    .grid-card:hover {
+        background: var(--surface-3);
+    }
+
+    .vision-card {
+        background: var(--surface);
+    }
+
+    .about-card,
+    .content-card {
+        background: var(--surface);
+    }
+
+    img {
+        opacity: 0.85;
+        transition: opacity 0.3s;
+    }
+    img:hover {
+        opacity: 1;
+    }
+
+    .home-featured-match {
+        background: var(--surface);
+    }
+
+    .match-card {
+        background: var(--surface);
+    }
+
+    .admin-card {
+        background: var(--surface);
+    }
+
+    /* 通知下拉 */
+    .notif-dropdown {
+        background: var(--surface);
+    }
+    .notif-item:hover {
+        background: rgba(234, 88, 12, 0.06);
+    }
+    .notif-item.unread {
+        background: rgba(234, 88, 12, 0.03);
+    }
+
+    /* 文章卡片 */
+    .article-card {
+        background: var(--surface);
+    }
+
+    .dash-card {
+        background: var(--surface);
+    }
+
+    .comment-item {
+        background: var(--surface-2);
+    }
+
+    /* toast */
+    #toast-container > div {
+        background: var(--surface) !important;
+        color: var(--text) !important;
+    }
+}
+
+/* ===== Container Queries 基础 ===== */
+.card-grid,
+.profile-grid,
+.system-grid {
+    container-type: inline-size;
+}
+
+@container (max-width: 380px) {
+    .card-grid > .grid-card {
+        padding: 20px;
+    }
+    .card-grid > .grid-card h3 {
+        font-size: 16px;
+    }
+}
+
+/* ===== 移动端菜单 .nav-toggle 在 CSS 中的完整样式 ===== */
+.nav-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: var(--dim);
+    flex-shrink: 0;
+}
+
+@media (max-width: 860px) {
+    .nav-toggle {
+        display: inline-flex;
+    }
+}
+
+/* ===== Toast 提示系统（样式类版） ===== */
+#toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+.toast-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: var(--surface, #fff);
+    border: 1px solid var(--line-2, #ddd);
+    border-radius: var(--r-lg, 12px);
+    box-shadow: 0 8px 30px rgba(26, 26, 46, 0.12);
+    font-size: 14px;
+    color: var(--text, #1a1a2e);
+    pointer-events: auto;
+    max-width: 380px;
+    animation: toastIn 0.3s ease;
+    border-left: 4px solid var(--dim, #5c5c74);
+}
+.toast-item .toast-icon {
+    flex-shrink: 0;
+    font-size: 16px;
+}
+.toast-item.toast-success {
+    border-left-color: var(--spring-2, #2ecc71);
+}
+.toast-item.toast-error {
+    border-left-color: var(--fire, #c23630);
+}
+.toast-item.toast-info {
+    border-left-color: var(--dim, #5c5c74);
+}
+.toast-item.toast-out {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+/* ===== 确认对话框 ===== */
+/* 注意: 旧版 .confirm-overlay/.confirm-box 已被原生 <dialog> 替代，保留为 fallback */
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(26, 26, 46, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+.confirm-box {
+    background: var(--surface, #fff);
+    border-radius: var(--r-lg, 16px);
+    padding: 28px 32px 20px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 16px 48px rgba(26, 26, 46, 0.2);
+    animation: scaleIn 0.2s ease;
+    text-align: center;
+}
+.confirm-msg {
+    font-size: 15px;
+    color: var(--text, #1a1a2e);
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+.confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+.confirm-ok {
+    padding: 10px 28px;
+    background: var(--fire, #c23630);
+    color: #fff;
+    border: none;
+    border-radius: var(--r-sm, 8px);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    min-width: 100px;
+    transition: filter 0.2s;
+}
+.confirm-ok:hover {
+    filter: brightness(1.1);
+}
+.confirm-cancel {
+    padding: 10px 28px;
+    background: transparent;
+    color: var(--dim, #5c5c74);
+    border: 1px solid var(--line-2, #ddd);
+    border-radius: var(--r-sm, 8px);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 100px;
+    transition: border-color 0.2s, color 0.2s;
+}
+.confirm-cancel:hover {
+    border-color: var(--fire);
+    color: var(--fire);
+}
+
+/* ===== 骨架屏加载动画 ===== */
+@keyframes skeletonPulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0.6; }
+}
+.skeleton {
+    background: var(--surface-3);
+    border-radius: var(--r-sm);
+    animation: skeletonPulse 1.8s ease-in-out infinite;
+    color: transparent !important;
+    pointer-events: none;
+    user-select: none;
+}
+.skeleton-line {
+    height: 14px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+.skeleton-line:last-child {
+    width: 65%;
+}
+.skeleton-line-sm {
+    height: 10px;
+    width: 40%;
+    margin-bottom: 8px;
+}
+.skeleton-block {
+    height: 120px;
+    margin-bottom: 16px;
+}
+.skeleton-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.skeleton-table-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+}
+.skeleton-admin-table {
+    padding: 20px 0;
+}
+.skeleton-admin-header {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.skeleton-admin-header .skeleton {
+    height: 32px;
+    border-radius: var(--r-sm);
+}
+
+/* ===== :has() 优化 ===== */
+/* 表单输入框聚焦时高亮父容器 */
+.form-row:has(input:focus, select:focus, textarea:focus) {
+    border-color: var(--fire-2);
+}
+/* 评论项在悬停时显示删除按钮 */
+.comment-item:has(.comment-del) .comment-del {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.comment-item:has(.comment-del):hover .comment-del {
+    opacity: 1;
+}
+/* 导航项激活态强化 */
+.site-header:has(.nav .active) .nav .active {
+    color: var(--fire);
+}
+
+/* ===== 原生 <dialog> 确认弹框 ===== */
+.confirm-dialog {
+    padding: 28px 32px 20px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-lg, 16px);
+    max-width: 400px;
+    width: 90%;
+    background: var(--surface, #fff);
+    color: var(--text, #1a1a2e);
+    box-shadow: 0 16px 48px rgba(26, 26, 46, 0.2);
+    animation: scaleIn 0.2s ease;
+    text-align: center;
+}
+.confirm-dialog::backdrop {
+    background: rgba(26, 26, 46, 0.4);
+    animation: fadeIn 0.2s ease;
+}
+.confirm-dialog .confirm-msg {
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+.confirm-dialog .confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+.confirm-dialog .confirm-ok {
+    padding: 10px 28px;
+    background: var(--fire, #c23630);
+    color: #fff;
+    border: none;
+    border-radius: var(--r-sm, 8px);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    min-width: 100px;
+    transition: filter 0.2s;
+}
+.confirm-dialog .confirm-ok:hover {
+    filter: brightness(1.1);
+}
+.confirm-dialog .confirm-cancel {
+    padding: 10px 28px;
+    background: transparent;
+    color: var(--dim, #5c5c74);
+    border: 1px solid var(--line-2, #ddd);
+    border-radius: var(--r-sm, 8px);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 100px;
+    transition: border-color 0.2s, color 0.2s;
+}
+.confirm-dialog .confirm-cancel:hover {
+    border-color: var(--fire);
+    color: var(--fire);
+}
+
+/* ===== View Transitions ===== */
+@view-transition {
+    navigation: auto;
+}
+::view-transition-old(root) {
+    animation: 0.3s ease-out both fadeOut;
+}
+::view-transition-new(root) {
+    animation: 0.3s ease-out both fadeIn;
+}
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

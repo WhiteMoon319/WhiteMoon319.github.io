@@ -2,14 +2,6 @@
  * YHG Auth — 全局导航栏认证状态 + 通知铃铛
  */
 
-/** 转义 HTML 防止 XSS */
-window.escapeHtml = function(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.appendChild(document.createTextNode(String(str)));
-  return div.innerHTML;
-};
-
 // ===== 通知铃铛样式（自动注入） =====
 (function() {
   if (document.getElementById('nstyles')) return;

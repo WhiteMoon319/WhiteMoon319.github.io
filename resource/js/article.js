@@ -89,7 +89,6 @@
       });
 
     } catch (e) {
-      console.error(e);
       if (wrap) wrap.innerHTML = '<p style="text-align:center;padding:40px;color:var(--dim);">\u52A0\u8F7D\u5931\u8D25</p>';
     }
   })();
@@ -167,12 +166,12 @@
         return (b.like_count || 0) - (a.like_count || 0);
       });
 
-      var repliesHtml = '';
-      var maxVisible = 2; // 只展示前 2 条高赞回复
+      let repliesHtml = '';
+      const maxVisible = 2; // 只展示前 2 条高赞回复
 
-      for (var i = 0; i < c.replies.length; i++) {
-        var replyDepth = depth + 1;
-        var replyContent = renderComment(c.replies[i], replyDepth);
+      for (let i = 0; i < c.replies.length; i++) {
+        const replyDepth = depth + 1;
+        const replyContent = renderComment(c.replies[i], replyDepth);
         if (i < maxVisible) {
           repliesHtml += replyContent;
         } else {
@@ -182,7 +181,6 @@
 
       // 如果回复数 > maxVisible，加展开按钮
       if (c.replies.length > maxVisible) {
-        var remain = c.replies.length - maxVisible;
         repliesHtml += '<div class="comment-replies-toggle" data-id="' + c.id + '">'
           + '查看全部 ' + c.replies.length + ' 条回复</div>';
       }
@@ -201,8 +199,8 @@
       if (!list) return;
 
       if (data.comments && data.comments.length > 0) {
-        var fullHtml = '';
-        for (var i = 0; i < data.comments.length; i++) {
+        let fullHtml = '';
+        for (let i = 0; i < data.comments.length; i++) {
           fullHtml += renderComment(data.comments[i], 0);
         }
         list.innerHTML = fullHtml;
@@ -211,7 +209,7 @@
         list.innerHTML = '<p class="comment-placeholder">暂无评论</p>';
       }
     } catch(e) {
-      console.error(e);
+      // 静默降级
     }
   }
 
@@ -220,8 +218,8 @@
     // 回复按钮
     list.querySelectorAll('.reply-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        var id = this.dataset.id;
-        var form = document.getElementById('replyForm-' + id);
+        const id = this.dataset.id;
+        const form = document.getElementById('replyForm-' + id);
         if (form) {
           list.querySelectorAll('.reply-form').forEach(function(f) {
             if (f.id !== 'replyForm-' + id) f.style.display = 'none';
@@ -237,8 +235,8 @@
     // 回复提交
     list.querySelectorAll('.reply-submit').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        var parentId = parseInt(this.dataset.parent);
-        var input = this.parentElement.querySelector('.reply-input');
+        const parentId = parseInt(this.dataset.parent);
+        const input = this.parentElement.querySelector('.reply-input');
         if (input && input.value.trim()) {
           submitComment(articleId, parentId, input);
         }
@@ -248,7 +246,7 @@
     // 回复取消
     list.querySelectorAll('.reply-cancel').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        var form = this.closest('.reply-form');
+        const form = this.closest('.reply-form');
         if (form) form.style.display = 'none';
       });
     });
@@ -256,7 +254,7 @@
     // 评论点赞
     list.querySelectorAll('.comment-like-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        var commentId = parseInt(this.dataset.id);
+        const commentId = parseInt(this.dataset.id);
         toggleCommentLike(commentId, this);
       });
     });
@@ -264,13 +262,13 @@
     // 删除评论
     list.querySelectorAll('.comment-del').forEach(function(btn) {
       btn.addEventListener('click', async function() {
-        var commentId = parseInt(this.dataset.id);
+        const commentId = parseInt(this.dataset.id);
         if (!await window.showConfirm('确定要删除这条评论吗？')) return;
         try {
           const resp = await fetch('/api/news/' + slug + '/comments/' + commentId, { method: 'DELETE' });
           const data = await resp.json();
           if (data.ok) {
-            var item = document.querySelector('.comment-item[data-id="' + commentId + '"]');
+            const item = document.querySelector('.comment-item[data-id="' + commentId + '"]');
             if (item) item.remove();
             // 如果评论区空了
             if (list.querySelectorAll('.comment-item').length === 0) {
@@ -288,8 +286,8 @@
     // 展开折叠的回复
     list.querySelectorAll('.comment-replies-toggle').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        var id = this.dataset.id;
-        var hidden = this.parentElement.querySelectorAll('.reply-hidden');
+        const id = this.dataset.id;
+        const hidden = this.parentElement.querySelectorAll('.reply-hidden');
         hidden.forEach(function(el) { el.style.display = 'block'; });
         this.style.display = 'none';
       });
@@ -301,8 +299,8 @@
       const resp = await fetch('/api/news/' + slug + '/like', { method: 'POST' });
       const data = await resp.json();
       if (resp.ok) {
-        var countEl = document.getElementById('likeCount');
-        var btn = document.getElementById('likeBtn');
+        const countEl = document.getElementById('likeCount');
+        const btn = document.getElementById('likeBtn');
         if (countEl) countEl.textContent = data.like_count;
         if (btn) btn.classList.toggle('liked');
       } else {
@@ -319,7 +317,7 @@
       const data = await resp.json();
       if (resp.ok) {
         btn.classList.toggle('liked', data.liked);
-        var countSpan = btn.querySelector('.like-count');
+        const countSpan = btn.querySelector('.like-count');
         if (countSpan) countSpan.textContent = data.like_count;
       } else {
         window.showToast(data.error || '操作失败', 'err');
@@ -330,18 +328,18 @@
   }
 
   async function submitComment(articleId, parentId, inputEl) {
-    var input = inputEl || document.getElementById('commentInput');
+    const input = inputEl || document.getElementById('commentInput');
     if (!input) return;
-    var content = input.value.trim();
+    const content = input.value.trim();
     if (!content) return;
 
-    var submitBtn = inputEl
+    const submitBtn = inputEl
       ? inputEl.parentElement.querySelector('.reply-submit')
       : document.getElementById('submitComment');
     if (submitBtn) submitBtn.disabled = true;
 
     try {
-      var body = { content: content };
+      const body = { content: content };
       if (parentId) body.parent_id = parentId;
 
       const resp = await fetch('/api/news/' + slug + '/comments', {

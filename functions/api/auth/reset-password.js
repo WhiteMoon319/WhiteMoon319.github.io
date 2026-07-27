@@ -18,8 +18,8 @@ export async function onRequest(context) {
     if (!email || !code || !password) {
       return new Response(JSON.stringify({ error: '请填写完整信息' }), { status: 400, headers });
     }
-    if (password.length < 6) {
-      return new Response(JSON.stringify({ error: '密码至少6位' }), { status: 400, headers });
+    if (password.length < 8) {
+      return new Response(JSON.stringify({ error: '密码至少8位' }), { status: 400, headers });
     }
 
     // 验证码校验

@@ -14,86 +14,105 @@ window.escapeHtml = function(str) {
   return d.innerHTML;
 };
 
+/* ===== CSRF 防护：所有 API 请求自动携带 X-Requested-By ===== */
+(function() {
+  const origFetch = window.fetch;
+  window.fetch = function(input, init) {
+    init = init || {};
+    const reqUrl = typeof input === 'string' ? input : (input.url || '');
+    // 只对同源 /api/ 请求添加
+    if (
+      reqUrl.startsWith('/api/') ||
+      reqUrl.startsWith(window.location.origin + '/api/')
+    ) {
+      if (!init.method || init.method === 'GET' || init.method === 'HEAD') {
+        return origFetch.call(window, input, init);
+      }
+      init.headers = init.headers || {};
+      if (init.headers instanceof Headers) {
+        init.headers.set('X-Requested-By', 'YHG');
+      } else {
+        init.headers['X-Requested-By'] = 'YHG';
+      }
+    }
+    return origFetch.call(window, input, init);
+  };
+})();
+
+/* ===== Service Worker 注册 ===== */
+(function() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').catch(function() {
+        // 静默降级
+      });
+    });
+  }
+})();
+
 /* ===== Toast 提示系统 ===== */
 (function() {
   const TOAST_DURATION = 2500;
 
-  // 注入 toast 容器
+  // 注入 toast 容器（样式在 CSS 中定义）
   const container = document.createElement('div');
   container.id = 'toast-container';
-  container.style.cssText = 'position:fixed;top:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
   document.body.appendChild(container);
 
   window.showToast = function(msg, type) {
     type = type || 'info';
     const el = document.createElement('div');
+    el.className = 'toast-item toast-' + (type === 'ok' || type === 'success' ? 'success' : type === 'err' || type === 'error' ? 'error' : 'info');
     // 图标
     const icon = type === 'ok' || type === 'success' ? '\u2714\uFE0F' : type === 'err' || type === 'error' ? '\u274C' : '\u2139\uFE0F';
-    el.innerHTML = '<span style="flex-shrink:0;font-size:16px;">' + icon + '</span>'
+    el.innerHTML = '<span class="toast-icon">' + icon + '</span>'
       + '<span>' + window.escapeHtml(String(msg)) + '</span>';
-    el.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px 20px;'
-      + 'background:var(--surface,#fff);border:1px solid var(--line-2,#ddd);'
-      + 'border-radius:var(--r-lg,12px);box-shadow:0 8px 30px rgba(26,26,46,0.12);'
-      + 'font-size:14px;color:var(--text,#1a1a2e);pointer-events:auto;'
-      + 'animation:toastIn 0.3s ease;max-width:380px;'
-      + 'border-left:4px solid ' + (type === 'ok' || type === 'success' ? 'var(--spring-2,#2ecc71)' : type === 'err' || type === 'error' ? 'var(--fire,#c23630)' : 'var(--dim,#5c5c74)');
     container.appendChild(el);
 
     // 移除
     setTimeout(function() {
-      el.style.opacity = '0';
-      el.style.transform = 'translateX(30px)';
-      el.style.transition = 'opacity 0.3s, transform 0.3s';
+      el.classList.add('toast-out');
       setTimeout(function() { el.remove(); }, 300);
     }, TOAST_DURATION);
   };
-
-  // 注入动画
-  const style = document.createElement('style');
-  style.textContent = '@keyframes toastIn { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }'
-    + '@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }'
-    + '@keyframes scaleIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }';
-  document.head.appendChild(style);
 })();
 
-/* ===== 确认对话框 ===== */
+/* ===== 确认对话框（原生 <dialog>） ===== */
 (function() {
   window.showConfirm = function(msg) {
     return new Promise(function(resolve) {
-      // 遮罩
-      const overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(26,26,46,0.4);display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
-      // 弹框
-      const box = document.createElement('div');
-      box.style.cssText = 'background:var(--surface,#fff);border-radius:var(--r-lg,16px);padding:28px 32px 20px;max-width:400px;width:90%;box-shadow:0 16px 48px rgba(26,26,46,0.2);animation:scaleIn 0.2s ease;text-align:center;';
-      box.innerHTML = '<div style="font-size:15px;color:var(--text,#1a1a2e);line-height:1.6;margin-bottom:24px;">' + window.escapeHtml(String(msg)).replace(/\n/g, '<br>') + '</div>'
-        + '<div style="display:flex;gap:12px;justify-content:center;">'
-        + '<button class="confirm-ok" style="padding:10px 28px;background:var(--fire,#c23630);color:#fff;border:none;border-radius:var(--r-sm,8px);font-size:13px;font-weight:700;cursor:pointer;min-width:100px;">确定</button>'
-        + '<button class="confirm-cancel" style="padding:10px 28px;background:transparent;color:var(--dim,#5c5c74);border:1px solid var(--line-2,#ddd);border-radius:var(--r-sm,8px);font-size:13px;font-weight:600;cursor:pointer;min-width:100px;">取消</button>'
-        + '</div>';
-      overlay.appendChild(box);
-      document.body.appendChild(overlay);
-
-      function close(result) {
-        overlay.remove();
-        resolve(result);
-      }
-
-      box.querySelector('.confirm-ok').addEventListener('click', function() { close(true); });
-      box.querySelector('.confirm-cancel').addEventListener('click', function() { close(false); });
-      overlay.addEventListener('click', function(e) { if (e.target === overlay) close(false); });
-      // 键盘
-      function keyHandler(e) {
-        if (e.key === 'Enter') { close(true); }
-        if (e.key === 'Escape') { close(false); }
-      }
-      document.addEventListener('keydown', keyHandler);
-      // 清理键盘监听
-      overlay.addEventListener('remove', function() { document.removeEventListener('keydown', keyHandler); });
-      // focus 确定按钮
-      box.querySelector('.confirm-ok').focus();
+      const dialog = document.createElement('dialog');
+      dialog.className = 'confirm-dialog';
+      dialog.innerHTML = '<form method="dialog">'
+        + '<div class="confirm-msg">' + window.escapeHtml(String(msg)).replace(/\n/g, '<br>') + '</div>'
+        + '<div class="confirm-actions">'
+        + '<button value="cancel" class="confirm-cancel" autofocus>取消</button>'
+        + '<button value="ok" class="confirm-ok">确定</button>'
+        + '</div></form>';
+      document.body.appendChild(dialog);
+      dialog.showModal();
+      dialog.addEventListener('close', function() {
+        resolve(dialog.returnValue === 'ok');
+        dialog.remove();
+      });
     });
   };
+})();
+
+/* ===== View Transitions: 内部链接过渡 ===== */
+(function() {
+  if (!document.startViewTransition) return;
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('a[href]');
+    if (!link) return;
+    if (e.metaKey || e.ctrlKey || e.button !== 0) return;
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('//') || href.startsWith('javascript:') || link.hasAttribute('download') || link.hasAttribute('target')) return;
+    e.preventDefault();
+    document.startViewTransition(function() {
+      window.location.href = href;
+    });
+  });
 })();
 
 /* ===== 滚动渐入动画 ===== */

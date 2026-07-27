@@ -51,7 +51,14 @@ export async function onRequest(context) {
 
     // 头像修改
     if (body.avatar !== undefined) {
-      await env.DB.prepare('UPDATE users SET avatar = ? WHERE id = ?').bind(body.avatar, user.id).run();
+      const avatar = (body.avatar || '').trim();
+      if (avatar && !avatar.startsWith('https://')) {
+        return new Response(JSON.stringify({ error: '头像地址必须为 https 链接' }), { status: 400, headers });
+      }
+      if (avatar.length > 1024) {
+        return new Response(JSON.stringify({ error: '头像地址过长' }), { status: 400, headers });
+      }
+      await env.DB.prepare('UPDATE users SET avatar = ? WHERE id = ?').bind(avatar, user.id).run();
       updates.push('avatar');
     }
 

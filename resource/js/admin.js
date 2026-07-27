@@ -38,20 +38,10 @@ let adminRole = null;
       });
     });
   } catch(e) {
-    console.error('Admin init failed:', e);
     document.getElementById('adminStatus').textContent = '\u52A0\u8F7D\u5931\u8D25';
     document.getElementById('adminBody').innerHTML = '<div class="admin-placeholder"><p>\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u91CD\u8BD5</p><p style="font-size:12px;color:var(--faint);margin-top:8px;">' + window.escapeHtml(e.message || '') + '</p></div>';
   }
   })();
-
-  window.showToast = function(msg, type) {
-    const container = document.getElementById('toastContainer');
-    const el = document.createElement('div');
-    el.className = 'admin-toast-item ' + (type || 'ok');
-    el.textContent = msg;
-    container.appendChild(el);
-    setTimeout(function() { if (el.parentNode) el.remove(); }, 3000);
-  };
 
   window.loadTab = function(tab) {
     const body = document.getElementById('adminBody');
@@ -72,7 +62,7 @@ let adminRole = null;
 
   // 用户管理
   async function loadUsers(body) {
-    body.innerHTML = '<div class="admin-loading">\u52A0\u8F7D\u7528\u6237\u2026</div>';
+    body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
       const resp = await fetch('/api/admin/users');
       const data = await resp.json();
@@ -104,10 +94,11 @@ let adminRole = null;
       html += '</tbody></table>';
       body.innerHTML = html;
     } catch(e) {
-console.error('loadUsers error:', e);
       body.innerHTML = '<p style="color:var(--flame);">\u52A0\u8F7D\u5931\u8D25: ' + window.escapeHtml(e.message || '\u672A\u77E5\u9519\u8BEF') + '</p>';
     }
   }
+
+  // 文章管理
 
   window.deleteUser = async function(id) {
     if (!await window.showConfirm('\u786E\u5B9A\u5220\u9664\u8BE5\u7528\u6237\uFF1F\u6240\u6709\u5173\u8054\u4F1A\u8BDD\u548C\u7ED1\u5B9A\u4E5F\u4F1A\u88AB\u6E05\u7406\u3002')) return;
@@ -145,7 +136,7 @@ console.error('loadUsers error:', e);
 
   // 文章管理
   async function loadArticles(body) {
-    body.innerHTML = '<div class="admin-loading">\u52A0\u8F7D\u6587\u7AE0\u2026</div>';
+    body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
       const resp = await fetch('/api/admin/articles');
       const data = await resp.json();
@@ -179,10 +170,11 @@ console.error('loadUsers error:', e);
       html += '</tbody></table>';
       body.innerHTML = html;
     } catch(e) {
-console.error('loadUsers error:', e);
       body.innerHTML = '<p style="color:var(--flame);">\u52A0\u8F7D\u5931\u8D25: ' + window.escapeHtml(e.message || '\u672A\u77E5\u9519\u8BEF') + '</p>';
     }
   }
+
+  // 文章管理
 
   window.approveArticle = async function(slug) {
     const resp = await fetch('/api/admin/articles/' + slug + '/status', {
@@ -216,7 +208,7 @@ console.error('loadUsers error:', e);
   let bindDialogUser = null;
 
   async function loadBindings(body) {
-    body.innerHTML = '<div class="admin-loading">\u52A0\u8F7D\u2026</div>';
+    body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
       const resp = await Promise.all([
         fetch('/api/admin/users').then(function(r) { return r.json(); }),
@@ -287,7 +279,7 @@ console.error('loadUsers error:', e);
 
   // 选手管理
   async function loadPlayers(body) {
-    body.innerHTML = '<div class="admin-loading">\u52A0\u8F7D\u9009\u624B\u2026</div>';
+    body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
       const resp = await fetch('/api/admin/players');
       const data = await resp.json();
@@ -332,7 +324,7 @@ console.error('loadUsers error:', e);
   let editingMatchId = null;
 
   async function loadMatches(body) {
-    body.innerHTML = '<div class="admin-loading">\u52A0\u8F7D\u8D5B\u4E8B\u2026</div>';
+    body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
       const resp = await fetch('/api/admin/matches');
       const data = await resp.json();
@@ -439,7 +431,7 @@ console.error('loadUsers error:', e);
 
   // 首页管理
   async function loadHome(body) {
-    body.innerHTML = '<div class="admin-loading">\u52A0\u8F7D\u2026</div>';
+    body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
       const resp = await fetch('/api/admin/home');
       const data = await resp.json();
@@ -654,4 +646,17 @@ console.error('loadUsers error:', e);
       loadAnnList();
     }
   }
+
+  /* ===== 事件委托: 处理 data-action 按钮 ===== */
+  document.getElementById('adminBody').addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    e.preventDefault();
+    const action = btn.dataset.action;
+    // 各 action 由对应的 setup 函数绑定
+    // 默认支持 loadTab：<button data-action="loadTab" data-tab="users">
+    if (action === 'loadTab') {
+      loadTab(btn.dataset.tab);
+    }
+  });
 })();
