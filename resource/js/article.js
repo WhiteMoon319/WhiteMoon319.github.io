@@ -1,168 +1,286 @@
 /**
  * YHG Article — 文章详情页逻辑
- * 加载文章、渲染、点赞、评论
+ * 依赖：main.js（window.escapeHtml）
  */
-
 (function() {
-  var slug = new URLSearchParams(window.location.search).get('slug');
+  'use strict';
+
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('slug');
+  const wrap = document.querySelector('.article-wrap');
+
   if (!slug) {
-    var el = document.getElementById('articleContent');
-    if (el) el.innerHTML = '<p style="text-align:center;color:var(--dim);">缺少文章标识</p>';
+    if (wrap) wrap.innerHTML = '<p style="text-align:center;padding:40px;color:var(--dim);">缺少文章标识</p>';
     return;
   }
 
-  var currentUser = null;
-
   (async function() {
     try {
-      var meResp = await fetch('/api/auth/me');
-      if (meResp.ok) currentUser = (await meResp.json()).user;
-    } catch(e) {}
+      const resp = await fetch('/api/news/' + encodeURIComponent(slug));
+      const data = await resp.json();
 
-    var articleData;
-    try {
-      var resp = await fetch('/api/news/' + slug);
-      if (!resp.ok) throw new Error('not found');
-      articleData = await resp.json();
-    } catch(e) {
-      document.getElementById('articleContent').innerHTML = '<p style="text-align:center;color:var(--dim);">文章不存在或加载失败</p>';
-      return;
-    }
+      if (!data.ok || !data.article) {
+        if (wrap) wrap.innerHTML = '<p style="text-align:center;padding:40px;color:var(--dim);">文章不存在或已删除</p>';
+        return;
+      }
 
-    var a = articleData.article;
-    var created = a.created_at ? new Date(a.created_at + 'Z').toLocaleString('zh-CN') : '';
+      const a = data.article;
+      const contentHtml = cleanContent(a.content || '');
+      const date = a.created_at ? a.created_at.split('T')[0] : '';
+      const likedClass = a.liked ? ' liked' : '';
 
-    var el = document.getElementById('articleContent');
-    el.innerHTML = [
-      '<h1>' + window.escapeHtml(a.title) + '</h1>',
-      '<div class="article-meta">',
-      '  <span>\u270D ' + window.escapeHtml(a.username) + '</span>',
-      '  <span>\uD83D\uDCC5 ' + created + '</span>',
-      '  <span id="likeDisplay">\u2764 ' + (a.like_count || 0) + '</span>',
-      '</div>',
-      '<div class="article-body">' + a.content.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/\n/g, '<br>') + '</div>',
-      '<div class="article-actions">',
-      '  <button class="like-btn' + (a.liked_by_me ? ' liked' : '') + '" id="likeBtn">',
-      '    <span class="heart">' + (a.liked_by_me ? '\u2764' : '\u2661') + '</span>',
-      '    <span id="likeCount">' + (a.like_count || 0) + '</span>',
-      '  </button>',
-      '  <a class="ghost-btn" href="./">\u2190 \u8FD4\u56DE\u65B0\u95FB</a>',
-      (currentUser ? '<a class="ghost-btn" href="write.html?edit=' + slug + '" style="text-decoration:none;font-size:13px;">\u270F \u7F16\u8F91</a>' : ''),
-      (currentUser ? '<button class="btn-del" id="delBtn">\u5220\u9664</button>' : ''),
-      '</div>',
-      '<div class="comment-section">',
-      '  <h3>\uD83D\uDCAC \u8BC4\u8BBA</h3>',
-      (currentUser ? [
-        '  <div class="comment-form">',
-        '    <input type="text" id="commentInput" placeholder="\u5199\u4E0B\u4F60\u7684\u8BC4\u8BBA\u2026" maxlength="500">',
-        '    <button id="commentSubmit">\u53D1\u8868</button>',
-        '  </div>'
-      ].join('\n') : '<p style="color:var(--dim);font-size:13px;margin-bottom:16px;"><a href="../login/" style="color:var(--fire);">\u767B\u5F55</a>\u540E\u53EF\u4EE5\u8BC4\u8BBA</p>'),
-      '  <div id="commentList"><div class="comment-placeholder">\u52A0\u8F7D\u8BC4\u8BBA\u4E2D\u2026</div></div>',
-      '</div>'
-    ].filter(Boolean).join('\n');
+      const html =
+        '<div class="article-card reveal in" data-delay="1">' +
+          '<h1>' + window.escapeHtml(a.title) + '</h1>' +
+          '<div class="article-meta">' +
+            '<span>发布者 ' + window.escapeHtml(a.username || '匿名') + ' · ' + date + '</span>' +
+            '<span>' + (a.view_count || 0) + ' 次阅读</span>' +
+          '</div>' +
+          '<div class="article-body">' + contentHtml + '</div>' +
+          '<div class="article-actions">' +
+            '<button class="like-btn' + likedClass + '" id="likeBtn">' +
+              '<span class="heart">' + (a.liked ? '\u2764' : '\u2661') + '</span>' +
+              ' <span id="likeCount">' + (a.like_count || 0) + '</span>' +
+            '</button>' +
+          '</div>' +
+          '<div class="comment-section">' +
+            '<h3>\u8BC4\u8BBA</h3>' +
+            '<div class="comment-form">' +
+              '<input type="text" id="commentInput" placeholder="\u8F93\u5165\u8BC4\u8BBA\u2026">' +
+              '<button id="submitComment">\u53D1\u9001</button>' +
+            '</div>' +
+            '<div id="commentList"><p class="comment-placeholder">\u52A0\u8F7D\u4E2D\u2026</p></div>' +
+          '</div>' +
+        '</div>';
 
-    // 点赞
-    var likeBtn = document.getElementById('likeBtn');
-    if (currentUser) {
-      likeBtn.addEventListener('click', async function() {
-        var r = await fetch('/api/news/' + slug + '/like', { method: 'POST' });
-        if (r.ok) {
-          var d = await r.json();
-          document.getElementById('likeCount').textContent = d.like_count;
-          document.getElementById('likeDisplay').textContent = '\u2764 ' + d.like_count;
-          likeBtn.classList.toggle('liked', d.liked);
-          likeBtn.querySelector('.heart').textContent = d.liked ? '\u2764' : '\u2661';
-        }
-      });
-    } else {
-      likeBtn.addEventListener('click', function() {
-        window.location.href = '../login/';
-      });
-    }
+      if (wrap) wrap.innerHTML = html;
 
-    // 删除
-    var delBtn = document.getElementById('delBtn');
-    if (delBtn) {
-      delBtn.addEventListener('click', async function() {
-        if (!confirm('\u786E\u5B9A\u5220\u9664\u8FD9\u7BC7\u6587\u7AE0\uFF1F')) return;
-        var r = await fetch('/api/news/' + slug, { method: 'DELETE' });
-        if (r.ok) { window.location.href = './'; }
-        else { var err = await r.json(); alert(err.error || '\u5220\u9664\u5931\u8D25'); }
-      });
-    }
+      // 加载评论
+      loadComments(a.id);
 
-    // 加载评论
-    await loadComments(slug);
-
-    // 发表评论
-    var submitBtn = document.getElementById('commentSubmit');
-    var input = document.getElementById('commentInput');
-    if (submitBtn && input) {
-      submitBtn.addEventListener('click', async function() {
-        var content = input.value.trim();
-        if (!content) return;
-        submitBtn.disabled = true;
-        var r = await fetch('/api/news/' + slug + '/comments', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: content })
+      // 点赞事件
+      const likeBtn = document.getElementById('likeBtn');
+      if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+          toggleLike(a.id);
         });
-        if (r.ok) {
-          input.value = '';
-          await loadComments(slug);
-        } else {
-          var err = await r.json();
-          alert(err.error || '\u53D1\u8868\u5931\u8D25');
-        }
-        submitBtn.disabled = false;
-      });
-      input.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitBtn.click(); }
-      });
+      }
+
+      // 提交评论
+      const submitBtn = document.getElementById('submitComment');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', function() {
+          submitComment(a.id, null);
+        });
+      }
+
+      // 按 Enter 提交评论
+      const commentInput = document.getElementById('commentInput');
+      if (commentInput) {
+        commentInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            submitComment(a.id, null);
+          }
+        });
+      }
+
+    } catch (e) {
+      console.error(e);
+      if (wrap) wrap.innerHTML = '<p style="text-align:center;padding:40px;color:var(--dim);">\u52A0\u8F7D\u5931\u8D25</p>';
     }
   })();
 
-  async function loadComments(slug) {
-    var list = document.getElementById('commentList');
-    try {
-      var resp = await fetch('/api/news/' + slug + '/comments');
-      var data = await resp.json();
-      if (!data.ok || !data.comments || data.comments.length === 0) {
-        list.innerHTML = '<div class="comment-placeholder">\u6682\u65E0\u8BC4\u8BBA\uFF0C\u5FEB\u6765\u62A2\u6C99\u53D1\u5427</div>';
-        return;
+  // 清洗文章内容
+  function cleanContent(content) {
+    return content
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n')
+      .replace(/<p\s*\/?>/gi, '')
+      .replace(/<\/?div\s*[^>]*>/gi, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .replace(/\n/g, '<br>');
+  }
+  window._cleanContent = cleanContent;
+
+  /** 渲染单条评论（含回复嵌套） */
+  function renderComment(c, depth) {
+    if (depth === undefined) depth = 0;
+    const indent = depth > 0 ? ' style="padding-left:' + Math.min(depth * 28, 84) + 'px;"' : '';
+    const replyBtn = '<button class="reply-btn" data-id="' + c.id + '">\u56DE\u590D</button>';
+    const likeActive = c.liked_by_me ? ' liked' : '';
+    const likeBtn = '<button class="comment-like-btn' + likeActive + '" data-id="' + c.id + '">' +
+      '<span class="heart">' + (c.liked_by_me ? '\u2764' : '\u2661') + '</span> ' +
+      '<span class="like-count" data-id="' + c.id + '">' + (c.like_count || 0) + '</span>' +
+    '</button>';
+
+    let avatarHtml = '<div class="comment-avatar">\uD83D\uDC64</div>';
+    if (c.avatar) {
+      avatarHtml = '<div class="comment-avatar"><img src="' + window.escapeHtml(c.avatar) + '"></div>';
+    }
+
+    let html = '<div class="comment-item" data-id="' + c.id + '"' + indent + '>' +
+      avatarHtml +
+      '<div class="comment-body">' +
+        '<span class="comment-author">' + window.escapeHtml(c.username || '\u533F\u540D') + '</span>' +
+        '<span class="comment-time">' + (c.created_at ? c.created_at.split('T')[0] : '') + '</span>' +
+        '<div class="comment-text">' + window.escapeHtml(c.content) + '</div>' +
+        '<div class="comment-actions">' +
+          likeBtn +
+          replyBtn +
+        '</div>' +
+        '<div class="reply-form" id="replyForm-' + c.id + '" style="display:none;">' +
+          '<div class="reply-form-inner">' +
+            '<input type="text" class="reply-input" placeholder="\u56DE\u590D ' + window.escapeHtml(c.username) + '\u2026">' +
+            '<button class="reply-submit" data-parent="' + c.id + '">\u53D1\u9001</button>' +
+            '<button class="reply-cancel">\u53D6\u6D88</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    // 递归渲染子回复
+    if (c.replies && c.replies.length > 0) {
+      var repliesHtml = '';
+      for (var i = 0; i < c.replies.length; i++) {
+        repliesHtml += renderComment(c.replies[i], depth + 1);
       }
-      var html = '';
-      data.comments.forEach(function(c) {
-        var time = c.created_at ? new Date(c.created_at + 'Z').toLocaleString('zh-CN') : '';
-        var avatarHtml = c.avatar ? '<img src="' + window.escapeHtml(c.avatar) + '" alt="">' : '\uD83D\uDC64';
-        var canDel = currentUser && (currentUser.id === c.user_id || currentUser.role === 'admin' || currentUser.role === 'sub_admin');
-        html += [
-          '<div class="comment-item">',
-          '  <div class="comment-avatar">' + avatarHtml + '</div>',
-          '  <div class="comment-body">',
-          '    <div>',
-          '      <span class="comment-author">' + window.escapeHtml(c.username) + '</span>',
-          '      <span class="comment-time">' + time + '</span>',
-          (canDel ? '<button class="comment-del" data-id="' + c.id + '">\u5220\u9664</button>' : ''),
-          '    </div>',
-          '    <div class="comment-text">' + window.escapeHtml(c.content) + '</div>',
-          '  </div>',
-          '</div>'
-        ].filter(Boolean).join('\n');
-      });
-      list.innerHTML = html;
-      // delete event listeners (replace onclick with data-id)
-      list.querySelectorAll('.comment-del').forEach(function(btn) {
-        btn.addEventListener('click', async function() {
-          if (!confirm('\u786E\u5B9A\u5220\u9664\u8FD9\u6761\u8BC4\u8BBA\uFF1F')) return;
-          var r = await fetch('/api/news/' + slug + '/comments/' + btn.dataset.id, { method: 'DELETE' });
-          if (r.ok) { await loadComments(slug); }
-          else { var err = await r.json(); alert(err.error || '\u5220\u9664\u5931\u8D25'); }
+      html += repliesHtml;
+    }
+
+    return html;
+  }
+
+  async function loadComments(articleId) {
+    try {
+      const resp = await fetch('/api/news/' + slug + '/comments');
+      const data = await resp.json();
+      const list = document.getElementById('commentList');
+      if (!list) return;
+      if (data.comments && data.comments.length > 0) {
+        // 渲染嵌套评论
+        var html = '';
+        for (var i = 0; i < data.comments.length; i++) {
+          html += renderComment(data.comments[i], 0);
+        }
+        list.innerHTML = html;
+
+        // 绑定回复按钮
+        list.querySelectorAll('.reply-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var id = this.dataset.id;
+            var form = document.getElementById('replyForm-' + id);
+            if (form) {
+              // 折叠其他打开的回复框
+              list.querySelectorAll('.reply-form').forEach(function(f) {
+                if (f.id !== 'replyForm-' + id) f.style.display = 'none';
+              });
+              form.style.display = form.style.display === 'none' ? 'block' : 'none';
+              if (form.style.display === 'block') {
+                form.querySelector('.reply-input')?.focus();
+              }
+            }
+          });
         });
-      });
+
+        // 绑定回复提交
+        list.querySelectorAll('.reply-submit').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var parentId = parseInt(this.dataset.parent);
+            var input = this.parentElement.querySelector('.reply-input');
+            if (input && input.value.trim()) {
+              submitComment(articleId, parentId, input);
+            }
+          });
+        });
+
+        // 绑定回复取消
+        list.querySelectorAll('.reply-cancel').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var form = this.closest('.reply-form');
+            if (form) form.style.display = 'none';
+          });
+        });
+
+        // 绑定评论点赞
+        list.querySelectorAll('.comment-like-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var commentId = parseInt(this.dataset.id);
+            toggleCommentLike(commentId, this);
+          });
+        });
+      } else {
+        list.innerHTML = '<p class="comment-placeholder">\u6682\u65E0\u8BC4\u8BBA</p>';
+      }
     } catch(e) {
-      list.innerHTML = '<div class="comment-placeholder">\u8BC4\u8BBA\u52A0\u8F7D\u5931\u8D25</div>';
+      console.error(e);
+    }
+  }
+
+  async function toggleLike(articleId) {
+    try {
+      const resp = await fetch('/api/news/' + slug + '/like', { method: 'POST' });
+      const data = await resp.json();
+      if (resp.ok) {
+        const countEl = document.getElementById('likeCount');
+        const btn = document.getElementById('likeBtn');
+        if (countEl) countEl.textContent = data.like_count;
+        if (btn) btn.classList.toggle('liked');
+      } else {
+        alert(data.error || '\u64CD\u4F5C\u5931\u8D25');
+      }
+    } catch(e) {
+      alert('\u7F51\u7EDC\u9519\u8BEF');
+    }
+  }
+
+  async function toggleCommentLike(commentId, btn) {
+    try {
+      const resp = await fetch('/api/news/' + slug + '/comments/' + commentId + '/like', { method: 'POST' });
+      const data = await resp.json();
+      if (resp.ok) {
+        btn.classList.toggle('liked', data.liked);
+        var countSpan = btn.querySelector('.like-count');
+        if (countSpan) countSpan.textContent = data.like_count;
+      } else {
+        alert(data.error || '\u64CD\u4F5C\u5931\u8D25');
+      }
+    } catch(e) {
+      alert('\u7F51\u7EDC\u9519\u8BEF');
+    }
+  }
+
+  async function submitComment(articleId, parentId, inputEl) {
+    var input = inputEl || document.getElementById('commentInput');
+    if (!input) return;
+    var content = input.value.trim();
+    if (!content) return;
+
+    var submitBtn = inputEl
+      ? inputEl.parentElement.querySelector('.reply-submit')
+      : document.getElementById('submitComment');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      var body = { content: content };
+      if (parentId) body.parent_id = parentId;
+
+      const resp = await fetch('/api/news/' + slug + '/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        input.value = '';
+        loadComments(articleId);
+      } else {
+        alert(data.error || '\u8BC4\u8BBA\u5931\u8D25');
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    } catch(e) {
+      alert('\u7F51\u7EDC\u9519\u8BEF');
+      if (submitBtn) submitBtn.disabled = false;
     }
   }
 })();

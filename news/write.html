@@ -128,7 +128,9 @@
             .form-group textarea { min-height: 260px; }
         }
     </style>
-  <script defer src="../resource/js/auth.js"></script>
+  <script defer src="../resource/js/main.js"></script>
+    <script defer src="../resource/js/auth.js"></script>
+    <script defer src="../resource/js/news-write.js"></script>
 </head>
 <body>
     <header class="site-header">
@@ -179,114 +181,5 @@
         <p>© 2026 YHG ESPORTS · Honor of Kings esports team</p>
     </footer>
 
-    <script>
-        // 检测是否为编辑模式
-        const params = new URLSearchParams(window.location.search);
-        const editSlug = params.get('edit');
-
-        (async function() {
-            try {
-                const resp = await fetch('/api/auth/me');
-                if (!resp.ok) {
-                    window.location.href = '../login/?redirect=news/write.html';
-                    return;
-                }
-                const data = await resp.json();
-                const level = data.user.level || 1;
-                const isStaff = data.user.role === 'admin' || data.user.role === 'sub_admin';
-                if (!isStaff && level < 2) {
-                    document.querySelector('.write-card').innerHTML = `
-                        <div style="text-align:center;padding:40px 0;">
-                            <div style="font-size:48px;margin-bottom:16px;">🔒</div>
-                            <h2 style="font-size:20px;color:var(--text);margin:0 0 8px;">需要 Lv.2 才能发文</h2>
-                            <p style="color:var(--dim);font-size:14px;">联系战队管理员提升等级后即可发布文章。</p>
-                            <p style="margin-top:24px;"><a href="./" style="color:var(--fire);">返回新闻</a></p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // 编辑模式：加载文章数据
-                if (editSlug) {
-                    document.getElementById('pageTitle').textContent = '编辑文章';
-                    document.getElementById('pageSub').textContent = '修改已发布的文章';
-                    document.getElementById('submitBtn').textContent = '保存修改';
-
-                    const articleResp = await fetch('/api/news/' + editSlug);
-                    if (!articleResp.ok) {
-                        document.querySelector('.write-card').innerHTML = '<p style="color:var(--flame);padding:40px;text-align:center;">文章不存在或无权编辑</p>';
-                        return;
-                    }
-                    const articleData = await articleResp.json();
-                    if (articleData.ok && articleData.article) {
-                        document.getElementById('title').value = articleData.article.title || '';
-                        document.getElementById('summary').value = articleData.article.summary || '';
-                        document.getElementById('content').value = (articleData.article.content || '').replace(/<[^>]+>/g, '');
-                    }
-                }
-            } catch(e) {
-                window.location.href = '../login/?redirect=news/write.html';
-            }
-        })();
-
-        document.getElementById('articleForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = document.getElementById('title').value.trim();
-            const summary = document.getElementById('summary').value.trim();
-            const content = document.getElementById('content').value;
-            const errorEl = document.getElementById('formError');
-            const btn = document.getElementById('submitBtn');
-
-            errorEl.textContent = '';
-            if (!title || !content) {
-                errorEl.textContent = '标题和正文不能为空';
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = editSlug ? '保存中…' : '发布中…';
-
-            try {
-                const url = editSlug ? '/api/news/' + editSlug : '/api/news';
-                const method = editSlug ? 'PUT' : 'POST';
-                const resp = await fetch(url, {
-                    method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, summary, content })
-                });
-                const data = await resp.json();
-
-                if (resp.ok) {
-                    if (editSlug) {
-                        window.location.href = 'article.html?slug=' + editSlug;
-                    } else if (data.status === 'pending') {
-                        document.getElementById('articleForm').innerHTML = `
-                            <div style="text-align:center;padding:40px 0;">
-                                <div style="font-size:48px;margin-bottom:16px;">✅</div>
-                                <h2 style="font-size:20px;color:var(--text);margin:0 0 8px;">文章已提交</h2>
-                                <p style="color:var(--dim);font-size:14px;">已提交管理员审核，审核通过后将公开发布。</p>
-                                <p style="margin-top:24px;"><a href="./" style="color:var(--fire);">返回新闻</a></p>
-                            </div>
-                        `;
-                    } else {
-                        window.location.href = 'article.html?slug=' + data.slug;
-                    }
-                } else {
-                    errorEl.textContent = data.error || '操作失败';
-                    btn.disabled = false;
-                    btn.textContent = editSlug ? '保存修改' : '发布文章';
-                }
-            } catch (e) {
-                errorEl.textContent = '网络错误，请重试';
-                btn.disabled = false;
-                btn.textContent = editSlug ? '保存修改' : '发布文章';
-            }
-        });
-
-        const revealIO = new IntersectionObserver((entries) => {
-          entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
-        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-        document.querySelectorAll('.reveal:not(.in)').forEach(el => revealIO.observe(el));
-    </script>
 </body>
 </html>

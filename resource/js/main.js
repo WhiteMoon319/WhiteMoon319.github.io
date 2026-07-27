@@ -9,7 +9,7 @@
 /** 转义 HTML 防止 XSS */
 window.escapeHtml = function(str) {
   if (!str) return '';
-  var d = document.createElement('div');
+  const d = document.createElement('div');
   d.appendChild(document.createTextNode(String(str)));
   return d.innerHTML;
 };
@@ -17,7 +17,7 @@ window.escapeHtml = function(str) {
 /* ===== 滚动渐入动画 ===== */
 (function() {
   if (!window.IntersectionObserver) return;
-  var revealIO = new IntersectionObserver(function(entries) {
+  const revealIO = new IntersectionObserver(function(entries) {
     entries.forEach(function(en) {
       if (en.isIntersecting) {
         en.target.classList.add('in');
@@ -28,26 +28,26 @@ window.escapeHtml = function(str) {
   document.querySelectorAll('.reveal:not(.in)').forEach(function(el) {
     revealIO.observe(el);
   });
-  window.__revealIO = revealIO; // 供动态内容页面使用
+  window.__revealIO = revealIO;
 })();
 
 /* ===== 比赛列表页 ===== */
 (function() {
-  var list = document.getElementById('matchList');
+  const list = document.getElementById('matchList');
   if (!list) return;
   (async function() {
     try {
-      var resp = await fetch('/api/matches');
-      var data = await resp.json();
-      var matches = data.matches || [];
+      const resp = await fetch('/api/matches');
+      const data = await resp.json();
+      const matches = data.matches || [];
       if (matches.length === 0) {
         list.innerHTML = '<div class="match-placeholder"><p>\u6682\u65E0\u6BD4\u8D5B\u8BB0\u5F55</p></div>';
         return;
       }
-      var html = '';
+      let html = '';
       matches.forEach(function(m, i) {
-        var badge = m.result === 'win' ? '<span class="badge win">\u80DC</span>' : m.result === 'lose' ? '<span class="badge lose">\u8D1F</span>' : m.result === 'draw' ? '<span class="badge draw">\u5E73</span>' : '';
-        var delay = Math.min(i + 3, 6);
+        const badge = m.result === 'win' ? '<span class="badge win">\u80DC</span>' : m.result === 'lose' ? '<span class="badge lose">\u8D1F</span>' : m.result === 'draw' ? '<span class="badge draw">\u5E73</span>' : '';
+        const delay = Math.min(i + 3, 6);
         html += '<div class="match-card reveal" data-delay="' + delay + '">'
           + '<div class="date">' + m.match_date + '</div>'
           + '<div class="vs"><h3>' + window.escapeHtml(m.title) + '</h3><div class="opponent">vs ' + window.escapeHtml(m.opponent) + '</div></div>'
@@ -66,32 +66,33 @@ window.escapeHtml = function(str) {
       list.innerHTML = '<div class="match-placeholder"><p>\u52A0\u8F7D\u5931\u8D25</p></div>';
     }
   })();
+})();
 /* ===== 首页 API 数据加载 ===== */
 (function() {
   if (!document.querySelector('.hero-content')) return;
   (async function() {
     try {
-      var resp = await fetch('/api/home');
-      var data = await resp.json();
+      const resp = await fetch('/api/home');
+      const data = await resp.json();
       if (!data.ok) return;
 
-      var sec = data.sections || {};
+      const sec = data.sections || {};
 
       if (sec.hero_title) {
-        var h1 = document.querySelector('.hero-content h1');
+        const h1 = document.querySelector('.hero-content h1');
         if (h1) h1.innerHTML = h1.innerHTML.replace(/^[^<]+/, window.escapeHtml(sec.hero_title));
       }
       if (sec.hero_subtitle) {
-        var p = document.querySelector('.hero-content > p');
+        const p = document.querySelector('.hero-content > p');
         if (p) p.textContent = sec.hero_subtitle;
       }
 
       if (data.featured_match) {
-        var m = data.featured_match;
-        var quickSection = document.querySelector('#about .section-title');
+        const m = data.featured_match;
+        const quickSection = document.querySelector('#about .section-title');
         if (quickSection) {
-          var badge = m.result === 'win' ? '\uD83C\uDFC6' : m.result === 'lose' ? '\uD83D\uDC4E' : m.result === 'draw' ? '\uD83E\uDD1D' : '\uD83D\uDD25';
-          var info = document.createElement('div');
+          const badge = m.result === 'win' ? '\uD83C\uDFC6' : m.result === 'lose' ? '\uD83D\uDC4E' : m.result === 'draw' ? '\uD83E\uDD1D' : '\uD83D\uDD25';
+          const info = document.createElement('div');
           info.className = 'home-featured-match';
           info.style.cssText = 'margin-top:20px;padding:16px 22px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);display:flex;align-items:center;gap:16px;flex-wrap:wrap;';
           info.innerHTML = '<span style="font-size:24px;">' + badge + '</span>' +

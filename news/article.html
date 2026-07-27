@@ -49,6 +49,23 @@
         .comment-del:hover { text-decoration: underline; }
         .comment-placeholder { text-align: center; padding: 30px 0; color: var(--dim); font-size: 14px; }
 
+        /* 评论增强：点赞 + 回复 */
+        .comment-actions { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+        .comment-like-btn { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; font-size: 12px; color: var(--faint); background: transparent; border: 1px solid var(--line); border-radius: 99px; cursor: pointer; transition: all 0.2s; }
+        .comment-like-btn:hover { border-color: var(--fire); color: var(--fire); }
+        .comment-like-btn.liked { background: var(--fire-soft, #fff0f0); border-color: var(--fire); color: var(--fire); }
+        .comment-like-btn .heart { font-size: 11px; }
+        .reply-btn { padding: 2px 8px; font-size: 12px; color: var(--dim); background: transparent; border: 1px solid var(--line); border-radius: 99px; cursor: pointer; transition: all 0.2s; }
+        .reply-btn:hover { border-color: var(--spring-2); color: var(--spring-3); }
+        .reply-form { margin-top: 8px; }
+        .reply-form-inner { display: flex; gap: 8px; }
+        .reply-form-inner input { flex: 1; padding: 8px 12px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--bg); color: var(--text); font-size: 13px; outline: none; }
+        .reply-form-inner input:focus { border-color: var(--spring-2); }
+        .reply-form-inner button { padding: 8px 14px; font-family: var(--mono); font-size: 11px; font-weight: 700; border-radius: var(--r-sm); cursor: pointer; white-space: nowrap; }
+        .reply-submit { background: var(--flame-grad); color: #fff; border: none; }
+        .reply-submit:disabled { opacity: 0.5; }
+        .reply-cancel { background: transparent; color: var(--faint); border: 1px solid var(--line); }
+
         @media (max-width: 480px) {
             .article-card { padding: 28px 22px; }
             .article-card h1 { font-size: 24px; }

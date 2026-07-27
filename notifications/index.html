@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通知 - YHG电子竞技战队</title>
+    <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="../resource/img/logo.webp">
+    <link rel="stylesheet" href="../resource/css/style.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="../" aria-label="返回首页">
+            <img src="../resource/img/logo.webp" alt="YHG战队标识">
+            <span>YHG</span>
+        </a>
+        <nav class="nav" aria-label="主导航">
+            <a href="../">HOME</a>
+            <a href="../about/">ABOUT</a>
+            <a href="../members/">ROSTER</a>
+            <a href="../matches/">MATCHES</a>
+            <a href="../news/">NEWS</a>
+        </nav>
+        <div id="authWidget" style="cursor:default;">通知</div>
+    </header>
+
+    <main>
+        <div class="notif-page">
+            <div class="notif-page-top">
+                <h1>通知</h1>
+                <button class="notif-mark-read" id="markAllReadPage" style="font-size:13px;padding:8px 16px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--surface);">全部已读</button>
+            </div>
+            <div class="notif-list" id="notifList">
+                <div class="notif-empty">加载中…</div>
+            </div>
+            <div class="notif-page-controls" id="notifPageControls"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 YHG ESPORTS · Honor of Kings esports team</p>
+    </footer>
+
+    <script defer src="../resource/js/main.js"></script>
+    <script defer src="../resource/js/auth.js"></script>
+    <script defer src="../resource/js/notifications.js"></script>
+</body>
+</html>

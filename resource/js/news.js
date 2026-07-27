@@ -1,36 +1,38 @@
 /**
  * YHG News — 新闻列表页逻辑
  * 搜索、分页、文章卡片渲染
+ * 依赖：main.js（window.escapeHtml, window.__revealIO）
  */
-
-var newsQuery = '';
-var newsPage = 1;
-
 (function() {
-  var grid = document.getElementById('newsGrid');
+  'use strict';
+
+  let newsQuery = '';
+  let newsPage = 1;
+
+  const grid = document.getElementById('newsGrid');
   if (!grid) return;
 
   (async function() {
     try {
-      var meResp = await fetch('/api/auth/me');
+      const meResp = await fetch('/api/auth/me');
       if (meResp.ok) {
-        var action = document.getElementById('newsAction');
+        const action = document.getElementById('newsAction');
         if (action) action.innerHTML = '<a class="primary-btn" href="write.html" style="text-decoration:none;">\u270F \u5199\u6587\u7AE0</a>';
       }
     } catch(e) {}
-    var up = new URLSearchParams(window.location.search);
-    var q = up.get('q');
-    var p = parseInt(up.get('page')) || 1;
+    const up = new URLSearchParams(window.location.search);
+    const q = up.get('q');
+    const p = parseInt(up.get('page')) || 1;
     if (q) { document.getElementById('searchInput').value = q; newsQuery = q; }
     newsPage = p;
     load(newsPage);
   })();
 
   function updateUrl() {
-    var params = new URLSearchParams();
+    const params = new URLSearchParams();
     if (newsQuery) params.set('q', newsQuery);
     if (newsPage > 1) params.set('page', newsPage);
-    var qs = params.toString();
+    const qs = params.toString();
     window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
   }
 
@@ -40,31 +42,40 @@ var newsPage = 1;
     load(page);
   };
 
+  // 清洗摘要内容：转 <br>/</p> 为换行后剥标签
+  function cleanSummary(text) {
+    return text
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n')
+      .replace(/<p\s*\/?>/gi, '')
+      .replace(/<[^>]+>/g, '');
+  }
+
   async function load(page) {
-    var grid = document.getElementById('newsGrid');
-    var pagi = document.getElementById('pagination');
+    const grid = document.getElementById('newsGrid');
+    const pagi = document.getElementById('pagination');
     updateUrl();
 
     grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--dim);padding:40px 0;">\u52A0\u8F7D\u4E2D\u2026</p>';
     pagi.innerHTML = '';
 
     try {
-      var url = '/api/news?page=' + page + '&limit=6';
+      let url = '/api/news?page=' + page + '&limit=6';
       if (newsQuery) url += '&q=' + encodeURIComponent(newsQuery);
-      var resp = await fetch(url);
+      const resp = await fetch(url);
       if (!resp.ok) throw new Error();
-      var data = await resp.json();
+      const data = await resp.json();
 
       if (data.articles && data.articles.length > 0) {
-        var html = '';
+        let html = '';
         data.articles.forEach(function(a, i) {
-          var date = a.created_at ? new Date(a.created_at + 'Z').toLocaleDateString('zh-CN') : '';
-          var safeTitle = window.escapeHtml(a.title);
-          var safeAuthor = window.escapeHtml(a.username);
-          var raw = a.summary || a.content;
-          var summary = window.escapeHtml(raw.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').substring(0, 60)) + '...';
-          var likes = a.like_count ? '\u2764 ' + a.like_count : '';
-          var delay = Math.min(i + 3, 6);
+          const date = a.created_at ? new Date(a.created_at + 'Z').toLocaleDateString('zh-CN') : '';
+          const safeTitle = window.escapeHtml(a.title);
+          const safeAuthor = window.escapeHtml(a.username);
+          const raw = a.summary || a.content;
+          const summary = window.escapeHtml(cleanSummary(raw).substring(0, 60)) + '...';
+          const likes = a.like_count ? '\u2764 ' + a.like_count : '';
+          const delay = Math.min(i + 3, 6);
           html += '<a class="grid-card reveal" data-delay="' + delay + '" href="article.html?slug=' + a.slug + '">'
             + '<div class="meta">' + date + ' \u00B7 ' + safeAuthor + (likes ? ' \u00B7 ' + likes : '') + '</div>'
             + '<h3>' + safeTitle + '</h3>'
@@ -83,11 +94,11 @@ var newsPage = 1;
       }
 
       if (data.totalPages > 1) {
-        var phtml = '';
+        let phtml = '';
         if (newsPage > 1) {
           phtml += '<button class="page-btn" onclick="loadNews(' + (newsPage - 1) + ')">\u2190 \u4E0A\u4E00\u9875</button>';
         }
-        for (var i = Math.max(1, newsPage - 2); i <= Math.min(data.totalPages, newsPage + 2); i++) {
+        for (let i = Math.max(1, newsPage - 2); i <= Math.min(data.totalPages, newsPage + 2); i++) {
           phtml += '<button class="page-btn' + (i === newsPage ? ' active' : '') + '" onclick="loadNews(' + i + ')">' + i + '</button>';
         }
         if (newsPage < data.totalPages) {
