@@ -44,11 +44,12 @@ export async function onRequest(context) {
       return new Response(JSON.stringify({ error: '邮箱或密码错误' }), { status: 401, headers });
     }
 
-    // 生成 session
+    // 生成 session（7天有效期）
     const token = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
     await env.DB.prepare(
-      'INSERT INTO sessions (user_id, token) VALUES (?, ?)'
-    ).bind(user.id, token).run();
+      'INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)'
+    ).bind(user.id, token, expiresAt).run();
 
     // URL 的 origin，用于 cookie domain
     const url = new URL(request.url);

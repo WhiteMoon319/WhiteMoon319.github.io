@@ -75,7 +75,11 @@
         const val = stats[key];
         const max = maxValues[key] || 20;
         const pct = Math.min(100, Math.round((val / max) * 100));
-        span.innerHTML = `${key} <b>${String(val).padStart(2, '0')}</b>`;
+        span.textContent = '';
+        span.appendChild(document.createTextNode(key + ' '));
+        const b = document.createElement('b');
+        b.textContent = String(val).padStart(2, '0');
+        span.appendChild(b);
         if (bar) bar.style.setProperty('--value', pct + '%');
       }
     });

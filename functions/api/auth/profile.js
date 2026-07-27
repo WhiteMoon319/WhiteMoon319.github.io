@@ -2,7 +2,7 @@
  * PUT /api/auth/profile — 修改昵称/头像（需登录）
  *   body: { username?: string, avatar?: string }
  *   username 不可与已有用户重复
- *   avatar 可以是 URL 或 data:image base64
+ *   avatar 可以是 https:// URL 或 data:image/(png|jpeg|webp) base64
  */
 import { getToken } from '../_auth.js';
 
@@ -52,11 +52,22 @@ export async function onRequest(context) {
     // 头像修改
     if (body.avatar !== undefined) {
       const avatar = (body.avatar || '').trim();
-      if (avatar && !avatar.startsWith('https://')) {
-        return new Response(JSON.stringify({ error: '头像地址必须为 https 链接' }), { status: 400, headers });
+      // 允许 https:// URL 或 data:image/(png|jpeg|webp) base64
+      const isHttps = avatar.startsWith('https://');
+      const isDataImage = /^data:image\/(png|jpeg|webp);base64,/.test(avatar);
+      if (avatar && !isHttps && !isDataImage) {
+        return new Response(JSON.stringify({ error: '头像必须是 https 链接或图片上传' }), { status: 400, headers });
       }
-      if (avatar.length > 1024) {
+      // data:image base64 限制 512KB，https URL 限制 1024 字符
+      if (isDataImage && avatar.length > 512 * 1024) {
+        return new Response(JSON.stringify({ error: '图片过大（最大 512KB）' }), { status: 400, headers });
+      }
+      if (isHttps && avatar.length > 1024) {
         return new Response(JSON.stringify({ error: '头像地址过长' }), { status: 400, headers });
+      }
+      // https URL 不能包含危险字符
+      if (isHttps && /["'<>\s]/.test(avatar)) {
+        return new Response(JSON.stringify({ error: '头像地址包含非法字符' }), { status: 400, headers });
       }
       await env.DB.prepare('UPDATE users SET avatar = ? WHERE id = ?').bind(avatar, user.id).run();
       updates.push('avatar');

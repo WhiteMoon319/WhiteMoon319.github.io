@@ -33,7 +33,7 @@
         const val = stats[k] || 0;
         const max = maxValues[k] || 20;
         const pct = Math.min(100, Math.round((val / max) * 100));
-        statsHtml += '<div class="attribute"><span>' + k + ' <b>' + val + '</b></span><i style="--value:' + pct + '%"></i></div>';
+        statsHtml += '<div class="attribute"><span>' + eh(k) + ' <b>' + eh(String(val)) + '</b></span><i style="--value:' + pct + '%"></i></div>';
       });
 
       // 判断是否是 admin / 绑定的用户

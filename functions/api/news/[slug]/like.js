@@ -12,7 +12,7 @@ export async function onRequest(context) {
   const slug = params.slug;
 
   // 先查文章 ID 和作者
-  const article = await env.DB.prepare('SELECT id, user_id, title FROM articles WHERE slug = ?').bind(slug).first();
+  const article = await env.DB.prepare('SELECT id, user_id, title, slug FROM articles WHERE slug = ?').bind(slug).first();
   if (!article) {
     return new Response(JSON.stringify({ error: '文章不存在' }), { status: 404, headers });
   }

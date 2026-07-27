@@ -6,12 +6,12 @@
 
 /* ===== 工具函数 ===== */
 
-/** 转义 HTML 防止 XSS */
+/** 转义 HTML 防止 XSS（包括引号，可安全用于属性上下文） */
 window.escapeHtml = function(str) {
   if (!str) return '';
-  const d = document.createElement('div');
-  d.appendChild(document.createTextNode(String(str)));
-  return d.innerHTML;
+  return String(str).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
 };
 
 /* ===== CSRF 防护：所有 API 请求自动携带 X-Requested-By ===== */

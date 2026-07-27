@@ -43,9 +43,17 @@ self.addEventListener('fetch', (event) => {
 
   const path = url.pathname;
 
-  // API 请求：网络优先，缓存备用
+  // API 请求：仅缓存公开 GET 接口，其余直接走网络不缓存
   if (path.startsWith('/api/')) {
-    event.respondWith(networkFirst(request));
+    // 公开只读 API 白名单，可缓存以支持离线浏览
+    const CACHEABLE_API = ['/api/home', '/api/matches', '/api/players', '/api/news'];
+    const isCacheable = CACHEABLE_API.some(function(p) { return path === p || path.startsWith(p + '/') || path.startsWith(p + '?'); }) && request.method === 'GET';
+    if (isCacheable) {
+      event.respondWith(networkFirst(request));
+    } else {
+      // 认证/私密接口不缓存，避免泄露用户数据
+      event.respondWith(fetch(request));
+    }
     return;
   }
 

@@ -29,12 +29,25 @@ export async function hashPassword(password, salt) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// 常量时间字符串比较，防止时序侧信道攻击
+function constantTimeEqual(a, b) {
+  const enc = new TextEncoder();
+  const aBytes = enc.encode(a);
+  const bBytes = enc.encode(b);
+  if (aBytes.length !== bBytes.length) return false;
+  let diff = 0;
+  for (let i = 0; i < aBytes.length; i++) {
+    diff |= aBytes[i] ^ bBytes[i];
+  }
+  return diff === 0;
+}
+
 // 验证密码
 export async function verifyPassword(password, stored) {
   // stored 格式: "salt:hash"
   const [salt, hash] = stored.split(':');
   const computed = await hashPassword(password, salt);
-  return computed === hash;
+  return constantTimeEqual(computed, hash);
 }
 
 // 创建哈希存库格式

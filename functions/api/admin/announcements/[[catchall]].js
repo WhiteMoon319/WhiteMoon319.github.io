@@ -63,15 +63,21 @@ export async function onRequest(context) {
         return new Response(JSON.stringify({ error: '公告标题不能为空' }), { status: 400, headers });
       }
 
+      // 校验 link 必须为空或以 https:// 或 / 开头
+      const link = (body.link || '').trim();
+      if (link && !link.startsWith('https://') && !link.startsWith('/')) {
+        return new Response(JSON.stringify({ error: '链接必须以 https:// 开头或为站内路径' }), { status: 400, headers });
+      }
+
       // 写入 announcements 表
       const result = await env.DB.prepare(
         "INSERT INTO announcements (title, body, link, created_by) VALUES (?, ?, ?, ?)"
-      ).bind(title, body.content || '', body.link || '', staff.id).run();
+      ).bind(title, body.content || '', link, staff.id).run();
 
       const newId = result.meta.last_row_id;
 
       // 通知所有用户
-      await notifyAllUsers(env, 'system', title, body.content || '', body.link || '');
+      await notifyAllUsers(env, 'system', title, body.content || '', link);
 
       return new Response(JSON.stringify({ ok: true, id: newId, message: '公告已发布' }), { status: 201, headers });
     } catch (e) {
@@ -89,8 +95,14 @@ export async function onRequest(context) {
         return new Response(JSON.stringify({ error: '公告标题不能为空' }), { status: 400, headers });
       }
 
-      // 检查公告存在
-      const existing = await env.DB.prepare('SELECT id FROM announcements WHERE id = ?').bind(annId).first();
+      // 校验 link
+      const link = (body.link || '').trim();
+      if (link && !link.startsWith('https://') && !link.startsWith('/')) {
+        return new Response(JSON.stringify({ error: '链接必须以 https:// 开头或为站内路径' }), { status: 400, headers });
+      }
+
+      // 检查公告存在（查询全部字段用于后续更新通知）
+      const existing = await env.DB.prepare('SELECT id, title, body, link FROM announcements WHERE id = ?').bind(annId).first();
       if (!existing) {
         return new Response(JSON.stringify({ error: '公告不存在' }), { status: 404, headers });
       }
@@ -98,13 +110,12 @@ export async function onRequest(context) {
       // 更新 announcements 表
       await env.DB.prepare(
         "UPDATE announcements SET title = ?, body = ?, link = ?, updated_at = datetime('now') WHERE id = ?"
-      ).bind(title, body.content || '', body.link || '', annId).run();
+      ).bind(title, body.content || '', link, annId).run();
 
       // 更新所有已发送的通知（type=system，匹配原标题/内容）
-      // 使用原公告信息来查找通知
       await env.DB.prepare(
         "UPDATE notifications SET title = ?, body = ?, link = ? WHERE type = 'system' AND title = ? AND body = ? AND link = ?"
-      ).bind(title, body.content || '', body.link || '', existing.title || '', existing.body || '', existing.link || '').run();
+      ).bind(title, body.content || '', link, existing.title || '', existing.body || '', existing.link || '').run();
 
       return new Response(JSON.stringify({ ok: true, message: '公告已更新' }), { status: 200, headers });
     } catch (e) {

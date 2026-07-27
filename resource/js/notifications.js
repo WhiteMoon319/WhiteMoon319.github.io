@@ -64,7 +64,7 @@
           fromInfo = '<div style="font-size:11px;color:var(--faint);">来自 ' + window.escapeHtml(n.from_username) + '</div>';
         }
         const linkHref = n.type === 'private_message' ? '/messages/' : (n.link || '#');
-        return '<div class="' + cls + '" data-id="' + n.id + '" data-href="' + linkHref + '">'
+        return '<div class="' + cls + '" data-id="' + n.id + '" data-href="' + window.escapeHtml(linkHref) + '">'
           + '<span class="notif-dot"></span>'
           + '<div class="notif-content">'
           + '<div class="notif-title">' + typeIcon + ' ' + window.escapeHtml(n.title) + '</div>'
@@ -109,7 +109,10 @@
             });
           }
           if (href && href !== '#') {
-            window.location.href = href;
+            // 仅允许 http(s) 协议或站内相对路径，防止 javascript: 等协议注入
+            if (/^(https?:)?\/\//i.test(href) || href.startsWith('/')) {
+              window.location.href = href;
+            }
           }
         });
 

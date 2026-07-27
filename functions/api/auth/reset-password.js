@@ -4,6 +4,7 @@
  * Body: { email, code, password }
  */
 import { createPasswordHash } from './crypto.js';
+import { checkRateLimit } from '../_auth.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -11,6 +12,14 @@ export async function onRequest(context) {
 
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
+  }
+
+  // IP 频率限制：每分钟最多 5 次重置尝试
+  const limit = await checkRateLimit(request, env, 'reset-password', 5, 1);
+  if (!limit.ok) {
+    return new Response(JSON.stringify({ error: limit.error }), {
+      status: 429, headers: { ...headers, 'Retry-After': '60' }
+    });
   }
 
   try {

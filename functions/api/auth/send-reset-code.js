@@ -4,9 +4,12 @@
  * Body: { email }
  */
 import nodemailer from 'nodemailer';
+import { checkRateLimit } from '../_auth.js';
 
 function generateCode() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return String(100000 + (arr[0] % 900000));
 }
 
 export async function onRequest(context) {
@@ -23,10 +26,19 @@ export async function onRequest(context) {
       return new Response(JSON.stringify({ error: '请输入有效的邮箱地址' }), { status: 400, headers });
     }
 
+    // IP 频率限制：每 10 分钟最多 5 次发信请求
+    const ipLimit = await checkRateLimit(request, env, 'send-reset-code', 5, 10);
+    if (!ipLimit.ok) {
+      return new Response(JSON.stringify({ error: ipLimit.error }), {
+        status: 429, headers: { ...headers, 'Retry-After': '600' }
+      });
+    }
+
     // 检查邮箱是否已注册
     const user = await env.DB.prepare('SELECT id, username FROM users WHERE email = ?').bind(email).first();
     if (!user) {
-      return new Response(JSON.stringify({ error: '该邮箱未注册' }), { status: 404, headers });
+      // 不泄露邮箱是否注册，统一返回成功
+      return new Response(JSON.stringify({ ok: true, message: '若该邮箱已注册，验证码已发送' }), { status: 200, headers });
     }
 
     // 防刷：60秒内不能重复发

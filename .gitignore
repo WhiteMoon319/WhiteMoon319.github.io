@@ -21,3 +21,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Credentials / secrets
+yhg_cookie.txt
+*.cookie
+*.cookies

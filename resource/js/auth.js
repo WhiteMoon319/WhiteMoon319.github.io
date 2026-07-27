@@ -156,7 +156,7 @@ async function renderNotifBell(container) {
         const privateMsgHint = n.from_username && n.type === 'private_message'
           ? '<div style="font-size:11px;color:var(--faint);">来自 ' + window.escapeHtml(n.from_username) + '</div>'
           : '';
-        return '<div class="' + cls + '" data-id="' + n.id + '" data-type="' + n.type + '" data-href="' + linkHref + '">'
+        return '<div class="' + cls + '" data-id="' + n.id + '" data-type="' + n.type + '" data-href="' + window.escapeHtml(linkHref) + '">'
           + '<span class="notif-dot"></span>'
           + '<div class="notif-content" style="cursor:pointer;">'
           + '<div class="notif-title">' + typeIcon + ' ' + window.escapeHtml(n.title) + '</div>'

@@ -109,13 +109,19 @@ async function handleAnnouncement(request, env, headers, staff) {
       return new Response(JSON.stringify({ error: '公告标题不能为空' }), { status: 400, headers });
     }
 
+    // 校验 link 必须为空或以 https:// 或 / 开头
+    const link = (body.link || '').trim();
+    if (link && !link.startsWith('https://') && !link.startsWith('/')) {
+      return new Response(JSON.stringify({ error: '链接必须以 https:// 开头或为站内路径' }), { status: 400, headers });
+    }
+
     // 写入 announcements 表
     const result = await env.DB.prepare(
       "INSERT INTO announcements (title, body, link, created_by) VALUES (?, ?, ?, ?)"
-    ).bind(title, content, body.link || '', staff.id).run();
+    ).bind(title, content, link, staff.id).run();
 
     // 发送给所有用户
-    await notifyAllUsers(env, 'system', title, content, body.link || '');
+    await notifyAllUsers(env, 'system', title, content, link);
 
     return new Response(JSON.stringify({ ok: true, id: result.meta.last_row_id, message: '公告已发布' }), { status: 200, headers });
   } catch (e) {

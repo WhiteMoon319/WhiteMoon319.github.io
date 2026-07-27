@@ -16,6 +16,7 @@ const BLOCKED_PATHS = [
   '/CNAME',
   '/delete_news.py',
   '/generate_news.py',
+  '/yhg_cookie.txt',
 ];
 
 const SECURITY_HEADERS = {

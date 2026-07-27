@@ -27,10 +27,13 @@ CREATE TABLE IF NOT EXISTS sessions (
   user_id INTEGER NOT NULL,
   token TEXT UNIQUE NOT NULL,
   created_at TEXT DEFAULT (datetime('now')),
+  expires_at TEXT DEFAULT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+-- 已有表则补 expires_at 列
+ALTER TABLE sessions ADD COLUMN expires_at TEXT DEFAULT NULL;
 
 -- ===== 文章 =====
 CREATE TABLE IF NOT EXISTS articles (
@@ -40,12 +43,15 @@ CREATE TABLE IF NOT EXISTS articles (
   summary TEXT DEFAULT '',
   content TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
+  status TEXT NOT NULL DEFAULT 'approved',   -- 'pending' | 'approved' | 'rejected'
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 CREATE INDEX IF NOT EXISTS idx_articles_created_at ON articles(created_at);
 CREATE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug);
+-- 已有表则补 status 列
+ALTER TABLE articles ADD COLUMN status TEXT DEFAULT 'approved';
 
 -- ===== 文章点赞（每用户每文章只能点一次） =====
 CREATE TABLE IF NOT EXISTS article_likes (
@@ -63,11 +69,14 @@ CREATE TABLE IF NOT EXISTS comments (
   article_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   content TEXT NOT NULL,
+  parent_id INTEGER DEFAULT NULL,
   created_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (article_id) REFERENCES articles(id),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 CREATE INDEX IF NOT EXISTS idx_comments_article ON comments(article_id);
+-- 已有表则补 parent_id 列
+ALTER TABLE comments ADD COLUMN parent_id INTEGER DEFAULT NULL;
 
 -- ===== 选手资料 =====
 CREATE TABLE IF NOT EXISTS players (
@@ -148,3 +157,54 @@ CREATE TABLE IF NOT EXISTS rate_limits (
   created_at TEXT DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_rate_limits_lookup ON rate_limits(ip, endpoint, window_start);
+
+-- ===== 通知 =====
+CREATE TABLE IF NOT EXISTS notifications (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  type TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT DEFAULT '',
+  link TEXT DEFAULT '',
+  related_article_id INTEGER,
+  related_comment_id INTEGER,
+  from_user_id INTEGER,
+  is_read INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, is_read);
+
+-- ===== 通知偏好 =====
+CREATE TABLE IF NOT EXISTS notification_preferences (
+  user_id INTEGER PRIMARY KEY,
+  on_site INTEGER NOT NULL DEFAULT 1,
+  email INTEGER NOT NULL DEFAULT 0,
+  on_comment INTEGER NOT NULL DEFAULT 1,
+  on_reply INTEGER NOT NULL DEFAULT 1,
+  on_like INTEGER NOT NULL DEFAULT 1,
+  on_article_status INTEGER NOT NULL DEFAULT 1,
+  on_announcement INTEGER NOT NULL DEFAULT 1,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- ===== 评论点赞 =====
+CREATE TABLE IF NOT EXISTS comment_likes (
+  comment_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (comment_id, user_id),
+  FOREIGN KEY (comment_id) REFERENCES comments(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- ===== 公告 =====
+CREATE TABLE IF NOT EXISTS announcements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  body TEXT DEFAULT '',
+  link TEXT DEFAULT '',
+  created_by INTEGER NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);

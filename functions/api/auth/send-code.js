@@ -5,10 +5,13 @@
  * 通过 QQ 邮箱 SMTP 发送 6 位验证码
  */
 import nodemailer from 'nodemailer';
+import { checkRateLimit } from '../_auth.js';
 
-// 生成6位随机数字验证码
+// 生成6位随机数字验证码（密码学安全）
 function generateCode() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return String(100000 + (arr[0] % 900000));
 }
 
 export async function onRequest(context) {
@@ -26,6 +29,14 @@ export async function onRequest(context) {
     const { email } = await request.json();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return new Response(JSON.stringify({ error: '请输入有效的邮箱地址' }), { status: 400, headers });
+    }
+
+    // IP 频率限制：每 10 分钟最多 5 次发信请求
+    const ipLimit = await checkRateLimit(request, env, 'send-code', 5, 10);
+    if (!ipLimit.ok) {
+      return new Response(JSON.stringify({ error: ipLimit.error }), {
+        status: 429, headers: { ...headers, 'Retry-After': '600' }
+      });
     }
 
     // 检查该邮箱 60 秒内是否已发过验证码（防刷）

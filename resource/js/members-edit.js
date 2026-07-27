@@ -75,23 +75,25 @@
     let stats = {};
     try { stats = JSON.parse(player.stats || '{}'); } catch(e) {}
 
+    const eh = window.escapeHtml || function(s) { return s || ''; };
+
     // 渲染编辑表单
     app.innerHTML =
       '<h1>编辑资料</h1>' +
-      '<p class="sub">' + (player.id_name || '') + '（' + (player.name || '') + '）</p>' +
+      '<p class="sub">' + eh(player.id_name || '') + '（' + eh(player.name || '') + '）</p>' +
       '<div class="form-error" id="formError"></div>' +
       '<form id="editForm">' +
-        '<div class="form-group"><label>真名</label><input type="text" id="name" value="' + (player.name || '') + '"></div>' +
-        '<div class="form-group" style="max-width:120px;"><label>年龄</label><input type="number" id="age" value="' + (player.age || '') + '" min="0" max="99"></div>' +
-        '<div class="form-group"><label>荣誉</label><input type="text" id="titles" value="' + (player.titles || '') + '" placeholder="例: 两冠三四强"></div>' +
-        '<div class="form-group"><label>简介 / 一句话介绍</label><textarea id="bio">' + (player.bio || '') + '</textarea></div>' +
-        '<div class="form-group"><label>经历</label><textarea id="experience" style="min-height:140px;">' + (player.experience || '') + '</textarea></div>' +
-        '<div class="form-group"><label>性格</label><textarea id="personality">' + (player.personality || '') + '</textarea></div>' +
-        '<div class="form-group"><label>锚点 / 个人特征</label><textarea id="anchor">' + (player.anchor || '') + '</textarea></div>' +
+        '<div class="form-group"><label>真名</label><input type="text" id="name" value="' + eh(player.name || '') + '"></div>' +
+        '<div class="form-group" style="max-width:120px;"><label>年龄</label><input type="number" id="age" value="' + eh(String(player.age || '')) + '" min="0" max="99"></div>' +
+        '<div class="form-group"><label>荣誉</label><input type="text" id="titles" value="' + eh(player.titles || '') + '" placeholder="例: 两冠三四强"></div>' +
+        '<div class="form-group"><label>简介 / 一句话介绍</label><textarea id="bio">' + eh(player.bio || '') + '</textarea></div>' +
+        '<div class="form-group"><label>经历</label><textarea id="experience" style="min-height:140px;">' + eh(player.experience || '') + '</textarea></div>' +
+        '<div class="form-group"><label>性格</label><textarea id="personality">' + eh(player.personality || '') + '</textarea></div>' +
+        '<div class="form-group"><label>锚点 / 个人特征</label><textarea id="anchor">' + eh(player.anchor || '') + '</textarea></div>' +
         '<div class="form-group"><label>属性面板</label><div class="stats-grid" id="statsGrid"></div><div class="hint">每个属性 1-20 之间的数值</div></div>' +
         '<div class="submit-row">' +
           '<button class="auth-btn" type="submit" id="submitBtn">保存修改</button>' +
-          '<a href="../members/' + slug + '/" style="color:var(--dim);font-size:14px;">取消</a>' +
+          '<a href="../members/' + encodeURIComponent(slug) + '/" style="color:var(--dim);font-size:14px;">取消</a>' +
         '</div>' +
       '</form>';
 
