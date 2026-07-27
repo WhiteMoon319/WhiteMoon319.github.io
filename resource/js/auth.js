@@ -81,6 +81,12 @@ window.escapeHtml = function(str) {
     .notif-page-btn.active { background:var(--fire,#c23630); color:#fff; border-color:var(--fire,#c23630); }
     .notif-page-top { display:flex; justify-content:space-between; align-items:center;
       margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+    .notif-dropdown-body { max-height:360px; overflow-y:auto; }
+    .notif-item:hover .notif-del-btn { opacity:1 !important; }
+    .notif-del-btn { background:none; border:none; color:var(--faint); cursor:pointer;
+      font-size:16px; padding:2px 6px; flex-shrink:0; opacity:0;
+      transition:opacity 0.2s; border-radius:4px; line-height:1; }
+    .notif-del-btn:hover { background:rgba(194,58,48,0.1); color:var(--fire); }
   `;
   document.head.appendChild(s);
 })();
@@ -108,11 +114,16 @@ async function renderNotifBell(container) {
   // 下拉
   const dd = document.createElement('div');
   dd.className = 'notif-dropdown';
-  dd.innerHTML = '<div class="notif-dropdown-header"><span>\u901A\u77E5</span><button class="notif-mark-read" id="markAllRead">\u5168\u90E8\u5DF2\u8BFB</button></div><div class="notif-empty">\u52A0\u8F7D\u4E2D\u2026</div><div class="notif-footer"><a href="/notifications/">\u67E5\u770B\u5168\u90E8</a></div>';
+  dd.innerHTML = '<div class="notif-dropdown-header"><span>\u901A\u77E5</span><button class="notif-mark-read" id="markAllRead">\u5168\u90E8\u5DF2\u8BFB</button></div>'
+    + '<div class="notif-dropdown-body" id="notifDropdownBody"><div class="notif-empty">\u52A0\u8F7D\u4E2D\u2026</div></div>'
+    + '<div class="notif-footer" id="notifDropdownFooter"><a href="/notifications/">\u67E5\u770B\u5168\u90E8</a> \u00B7 <a href="/messages/">\u79C1\u4FE1</a></div>';
 
   wrap.appendChild(bell);
   wrap.appendChild(dd);
   container.appendChild(wrap);
+
+  const bodyContainer = dd.querySelector('#notifDropdownBody');
+  const footerEl = dd.querySelector('#notifDropdownFooter');
 
   // 更新未读数
   async function updateBadge() {
@@ -128,32 +139,68 @@ async function renderNotifBell(container) {
     } catch(e) { /* silent */ }
   }
 
-  // 加载通知列表
+  // 渲染通知列表（只替换 bodyContainer 内容）
   async function loadDropdown() {
-    const body = dd.querySelector('.notif-dropdown-header')?.nextSibling;
-    if (!body) return;
+    if (!bodyContainer) return;
+    bodyContainer.innerHTML = '<div class="notif-empty">\u52A0\u8F7D\u4E2D\u2026</div>';
     try {
       const r = await fetch('/api/notifications?limit=5');
       const d = await r.json();
       if (!d.ok || !d.notifications || d.notifications.length === 0) {
-        body.outerHTML = '<div class="notif-empty">\u6682\u65E0\u901A\u77E5</div>';
+        bodyContainer.innerHTML = '<div class="notif-empty">\u6682\u65E0\u901A\u77E5</div>';
+        if (footerEl) footerEl.innerHTML = '<a href="/notifications/">\u67E5\u770B\u5168\u90E8</a>';
         return;
       }
-      const html = d.notifications.map(function(n) {
+      const items = d.notifications.map(function(n) {
         const cls = n.is_read ? 'notif-item read' : 'notif-item unread';
         const time = n.created_at ? n.created_at.split('T')[0] : '';
-        return '<a class="' + cls + '" href="' + (n.link || '#') + '" data-id="' + n.id + '">'
+        const typeIcon = n.type === 'system' ? '\uD83D\uDCE2' :
+          n.type === 'comment' || n.type === 'reply' ? '\uD83D\uDCAC' :
+          n.type === 'like_article' || n.type === 'like_comment' ? '\u2764\uFE0F' :
+          n.type === 'private_message' ? '\uD83D\uDC8C' :
+          n.type === 'article_approved' ? '\u2705' :
+          n.type === 'article_rejected' ? '\u274C' : '\uD83D\uDD14';
+        const linkHref = n.type === 'private_message' ? '/messages/' : (n.link || '/notifications/');
+        const privateMsgHint = n.from_username && n.type === 'private_message'
+          ? '<div style="font-size:11px;color:var(--faint);">来自 ' + window.escapeHtml(n.from_username) + '</div>'
+          : '';
+        return '<div class="' + cls + '" data-id="' + n.id + '" data-type="' + n.type + '" data-href="' + linkHref + '">'
           + '<span class="notif-dot"></span>'
-          + '<div class="notif-content">'
-          + '<div class="notif-title">' + window.escapeHtml(n.title) + '</div>'
+          + '<div class="notif-content" style="cursor:pointer;">'
+          + '<div class="notif-title">' + typeIcon + ' ' + window.escapeHtml(n.title) + '</div>'
           + (n.body ? '<div class="notif-body">' + window.escapeHtml(n.body) + '</div>' : '')
+          + privateMsgHint
           + '<div class="notif-time">' + time + '</div>'
-          + '</div></a>';
-      }).join('') + '<div class="notif-footer"><a href="/notifications/">\u67E5\u770B\u5168\u90E8 (' + d.unread_count + ' \u6761\u672A\u8BFB)</a></div>';
-      body.outerHTML = html;
+          + '</div>'
+          + '<button class="notif-del-btn" data-id="' + n.id + '" title="\u5220\u9664" style="background:none;border:none;color:var(--faint);cursor:pointer;font-size:14px;padding:2px;flex-shrink:0;opacity:0;transition:opacity 0.2s;">\u00D7</button>'
+          + '</div>';
+      }).join('');
+      bodyContainer.innerHTML = items;
+      if (footerEl) footerEl.innerHTML = '<a href="/notifications/">\u67E5\u770B\u5168\u90E8 (' + d.unread_count + ' \u6761\u672A\u8BFB)</a>';
+
+      // 删除按钮 hover 显示
+      bodyContainer.querySelectorAll('.notif-item').forEach(function(item) {
+        const del = item.querySelector('.notif-del-btn');
+        if (del) {
+          item.addEventListener('mouseenter', function() { del.style.opacity = '1'; });
+          item.addEventListener('mouseleave', function() { del.style.opacity = '0'; });
+          del.addEventListener('click', async function(e) {
+            e.stopPropagation();
+            const id = parseInt(this.dataset.id);
+            if (!id) return;
+            await fetch('/api/notifications/' + id, { method: 'DELETE' });
+            item.remove();
+            updateBadge();
+            // 如果空了，显示空状态
+            if (bodyContainer.querySelectorAll('.notif-item').length === 0) {
+              bodyContainer.innerHTML = '<div class="notif-empty">\u6682\u65E0\u901A\u77E5</div>';
+              if (footerEl) footerEl.innerHTML = '<a href="/notifications/">\u67E5\u770B\u5168\u90E8</a>';
+            }
+          });
+        }
+      });
     } catch(e) {
-      const b = dd.querySelector('.notif-dropdown-header')?.nextSibling;
-      if (b) b.outerHTML = '<div class="notif-empty">\u52A0\u8F7D\u5931\u8D25</div>';
+      if (bodyContainer) bodyContainer.innerHTML = '<div class="notif-empty">\u52A0\u8F7D\u5931\u8D25</div>';
     }
   }
 
@@ -185,24 +232,40 @@ async function renderNotifBell(container) {
     }
   });
 
-  // 全部已读
+  // 事件委托：点击通知项跳转 + 标记已读
+  bodyContainer.addEventListener('click', async function(e) {
+    const item = e.target.closest('.notif-item');
+    if (!item) return;
+    const id = parseInt(item.dataset.id);
+    const link = '/notifications/?highlight=' + id; // 跳转到通知页高亮
+    if (id) {
+      await fetch('/api/notifications/read', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id }) });
+    }
+    // 私信跳转到消息页
+    if (item.dataset.type === 'private_message') {
+      window.location.href = '/messages/';
+    } else {
+      window.location.href = link;
+    }
+  });
+
+  // 全部已读（事件委托在 dd 上）
   dd.addEventListener('click', async function(e) {
-    const target = e.target;
-    if (target.id === 'markAllRead') {
+    if (e.target.id === 'markAllRead') {
       e.stopPropagation();
       await fetch('/api/notifications/read', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      // 强制刷新 UI
+      bodyContainer.querySelectorAll('.notif-item').forEach(function(item) {
+        item.classList.remove('unread');
+        item.classList.add('read');
+      });
       badge.classList.remove('show');
-      loadDropdown();
-      updateBadge();
-    }
-    // 单击通知项标记已读
-    const item = target.closest('.notif-item');
-    if (item && item.dataset.id) {
-      const id = parseInt(item.dataset.id);
-      await fetch('/api/notifications/read', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id }) });
-      item.classList.remove('unread');
-      item.classList.add('read');
-      updateBadge();
+      if (footerEl) {
+        const count = bodyContainer.querySelectorAll('.notif-item').length;
+        footerEl.innerHTML = '<a href="/notifications/">\u67E5\u770B\u5168\u90E8' + (count > 0 ? ' (' + count + ' \u6761)' : '') + '</a>';
+      }
+      // 重新获取未读数
+      await updateBadge();
     }
   });
 

@@ -30,10 +30,30 @@
   </url>
   <url>
     <loc>https://yhg-7su.pages.dev/forgot-password/</loc>
-    <priority>0.3</priority>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://yhg-7su.pages.dev/dashboard/</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://yhg-7su.pages.dev/admin/</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://yhg-7su.pages.dev/news/write.html</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://yhg-7su.pages.dev/news/article.html</loc>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://yhg-7su.pages.dev/notifications/</loc>
-    <priority>0.5</priority>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://yhg-7su.pages.dev/messages/</loc>
+    <priority>0.7</priority>
   </url>
 </urlset>

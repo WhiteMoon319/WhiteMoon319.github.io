@@ -7,6 +7,16 @@
     <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
     <link rel="apple-touch-icon" href="../resource/img/logo.webp">
     <link rel="stylesheet" href="../resource/css/style.min.css">
+    <style>
+      .notif-tabs { display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap; }
+      .notif-tab { padding:8px 16px; font-size:13px; font-weight:600;
+        border:1px solid var(--line-2); border-radius:var(--r-sm);
+        background:var(--surface); color:var(--text); cursor:pointer;
+        transition:all 0.2s; }
+      .notif-tab:hover { border-color:var(--fire); color:var(--fire); }
+      .notif-tab.active { background:var(--fire); color:#fff; border-color:var(--fire); }
+      .notif-item { cursor:pointer; }
+    </style>
 </head>
 <body>
     <header class="site-header">
@@ -30,6 +40,7 @@
                 <h1>通知</h1>
                 <button class="notif-mark-read" id="markAllReadPage" style="font-size:13px;padding:8px 16px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--surface);">全部已读</button>
             </div>
+            <div class="notif-tabs" id="notifTabs"></div>
             <div class="notif-list" id="notifList">
                 <div class="notif-empty">加载中…</div>
             </div>

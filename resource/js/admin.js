@@ -7,14 +7,23 @@ let adminRole = null;
 
 (function() {
   (async function() {
-    const checkResp = await fetch('/api/admin/check');
-    if (!checkResp.ok) {
-      document.getElementById('adminStatus').textContent = '\u9700\u8981\u7BA1\u7406\u5458\u6743\u9650';
-      document.getElementById('adminBody').innerHTML = '<div class="admin-placeholder"><p>\u4F60\u6CA1\u6709\u7BA1\u7406\u5458\u6743\u9650\u3002</p><p style="margin-top:12px;"><a href="../login/" style="color:var(--fire);">\u53BB\u767B\u5F55</a></p></div>';
-      return;
-    }
-    const checkData = await checkResp.json();
-    adminRole = checkData.user.role;
+    try {
+      const checkResp = await fetch('/api/admin/check');
+      if (!checkResp.ok) {
+        // 401 或 403 — 无权限
+        let msg = '\u9700\u8981\u7BA1\u7406\u5458\u6743\u9650';
+        if (checkResp.status === 401) msg = '\u8BF7\u5148\u767B\u5F55';
+        document.getElementById('adminStatus').textContent = msg;
+        document.getElementById('adminBody').innerHTML = '<div class="admin-placeholder"><p>' + msg + '</p><p style="margin-top:12px;"><a href="../login/" style="color:var(--fire);">\u53BB\u767B\u5F55</a></p></div>';
+        return;
+      }
+      const checkData = await checkResp.json();
+      if (!checkData.ok || !checkData.user) {
+        document.getElementById('adminStatus').textContent = '\u9A8C\u8BC1\u5931\u8D25';
+        document.getElementById('adminBody').innerHTML = '<div class="admin-placeholder"><p>\u8EAB\u4EFD\u9A8C\u8BC1\u5931\u8D25\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u91CD\u8BD5</p></div>';
+        return;
+      }
+      adminRole = checkData.user.role;
 
     const roleLabel = adminRole === 'admin' ? '\u8D85\u7EA7\u7BA1\u7406\u5458' : '\u526F\u7BA1\u7406\u5458';
     document.getElementById('adminStatus').innerHTML = '\u5DF2\u767B\u5F55 \u00B7 <span class="admin-badge ' + adminRole + '" style="background:var(--spring-soft, #e8f5e9);color:var(--spring, #2e7d32);">' + roleLabel + '</span>';
@@ -28,6 +37,11 @@ let adminRole = null;
         loadTab(tab.dataset.tab);
       });
     });
+  } catch(e) {
+    console.error('Admin init failed:', e);
+    document.getElementById('adminStatus').textContent = '\u52A0\u8F7D\u5931\u8D25';
+    document.getElementById('adminBody').innerHTML = '<div class="admin-placeholder"><p>\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u91CD\u8BD5</p><p style="font-size:12px;color:var(--faint);margin-top:8px;">' + window.escapeHtml(e.message || '') + '</p></div>';
+  }
   })();
 
   window.showToast = function(msg, type) {
@@ -64,7 +78,7 @@ let adminRole = null;
       const data = await resp.json();
       if (!data.ok) { body.innerHTML = '<p>\u52A0\u8F7D\u5931\u8D25</p>'; return; }
 
-      const html = '<table class="admin-table"><thead><tr><th>ID</th><th>\u90AE\u7BB1</th><th>\u7528\u6237\u540D</th><th>\u89D2\u8272</th><th>\u7B49\u7EA7</th><th>\u7ED1\u5B9A\u9009\u624B</th><th>\u6CE8\u518C\u65F6\u95F4</th><th>\u64CD\u4F5C</th></tr></thead><tbody>';
+      let html = '<table class="admin-table"><thead><tr><th>ID</th><th>\u90AE\u7BB1</th><th>\u7528\u6237\u540D</th><th>\u89D2\u8272</th><th>\u7B49\u7EA7</th><th>\u7ED1\u5B9A\u9009\u624B</th><th>\u6CE8\u518C\u65F6\u95F4</th><th>\u64CD\u4F5C</th></tr></thead><tbody>';
       data.users.forEach(function(u) {
         const buttons = [];
         if (adminRole === 'admin' && u.role === 'user' && u.level < 2) {
@@ -90,7 +104,8 @@ let adminRole = null;
       html += '</tbody></table>';
       body.innerHTML = html;
     } catch(e) {
-      body.innerHTML = '<p style="color:var(--flame);">\u52A0\u8F7D\u5931\u8D25</p>';
+console.error('loadUsers error:', e);
+      body.innerHTML = '<p style="color:var(--flame);">\u52A0\u8F7D\u5931\u8D25: ' + window.escapeHtml(e.message || '\u672A\u77E5\u9519\u8BEF') + '</p>';
     }
   }
 
@@ -139,7 +154,7 @@ let adminRole = null;
         body.innerHTML = '<div class="admin-placeholder"><p>\u6682\u65E0\u6587\u7AE0</p></div>';
         return;
       }
-      const html = '<table class="admin-table"><thead><tr><th>\u6807\u9898</th><th>\u4F5C\u8005</th><th>\u72B6\u6001</th><th>\u65F6\u95F4</th><th>\u64CD\u4F5C</th></tr></thead><tbody>';
+      let html = '<table class="admin-table"><thead><tr><th>\u6807\u9898</th><th>\u4F5C\u8005</th><th>\u72B6\u6001</th><th>\u65F6\u95F4</th><th>\u64CD\u4F5C</th></tr></thead><tbody>';
       data.articles.forEach(function(a) {
         let statusBadge = '';
         if (a.status === 'approved') statusBadge = '<span class="admin-badge" style="background:#e8f5e9;color:#2e7d32;">\u5DF2\u901A\u8FC7</span>';
@@ -164,7 +179,8 @@ let adminRole = null;
       html += '</tbody></table>';
       body.innerHTML = html;
     } catch(e) {
-      body.innerHTML = '<p style="color:var(--flame);">\u52A0\u8F7D\u5931\u8D25</p>';
+console.error('loadUsers error:', e);
+      body.innerHTML = '<p style="color:var(--flame);">\u52A0\u8F7D\u5931\u8D25: ' + window.escapeHtml(e.message || '\u672A\u77E5\u9519\u8BEF') + '</p>';
     }
   }
 
@@ -209,7 +225,7 @@ let adminRole = null;
       const users = resp[0].users || [];
       const players = resp[1].players || [];
 
-      const html = '<table class="admin-table"><thead><tr><th>\u7528\u6237</th><th>\u7ED1\u5B9A\u9009\u624B</th><th>\u64CD\u4F5C</th></tr></thead><tbody>';
+      let html = '<table class="admin-table"><thead><tr><th>\u7528\u6237</th><th>\u7ED1\u5B9A\u9009\u624B</th><th>\u64CD\u4F5C</th></tr></thead><tbody>';
       users.filter(function(u) { return u.role !== 'admin'; }).forEach(function(u) {
         const bound = u.bound_players || [];
         html += '<tr>'
@@ -236,7 +252,7 @@ let adminRole = null;
     const user = users.find(function(u) { return u.id === userId; });
     const boundSlugs = (user && user.bound_players) ? user.bound_players.slice() : [];
 
-    const checks = '';
+    let checks = '';
     players.forEach(function(p) {
       const checked = boundSlugs.indexOf(p.slug) !== -1 ? 'checked' : '';
       checks += '<label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;">'
@@ -279,7 +295,7 @@ let adminRole = null;
       const players = data.players || [];
       if (players.length === 0) { body.innerHTML = '<div class="admin-placeholder"><p>\u6682\u65E0\u9009\u624B</p></div>'; return; }
 
-      const html = '<table class="admin-table"><thead><tr><th>ID</th><th>\u5934\u50CF</th><th>\u59D3\u540D</th><th>\u89D2\u8272</th><th>\u5934\u50CF URL</th><th>\u64CD\u4F5C</th></tr></thead><tbody>';
+      let html = '<table class="admin-table"><thead><tr><th>ID</th><th>\u5934\u50CF</th><th>\u59D3\u540D</th><th>\u89D2\u8272</th><th>\u5934\u50CF URL</th><th>\u64CD\u4F5C</th></tr></thead><tbody>';
       players.forEach(function(p) {
         const avatarDisplay = p.avatar
           ? '<img src="' + window.escapeHtml(p.avatar) + '" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">'
@@ -321,7 +337,7 @@ let adminRole = null;
       const resp = await fetch('/api/admin/matches');
       const data = await resp.json();
       if (!data.ok) { body.innerHTML = '<p>\u52A0\u8F7D\u5931\u8D25</p>'; return; }
-      const html = '<div style="margin-bottom:16px;"><button class="admin-btn primary" onclick="showMatchForm(null)">+ \u65B0\u589E\u8D5B\u4E8B</button></div>'
+      let html = '<div style="margin-bottom:16px;"><button class="admin-btn primary" onclick="showMatchForm(null)">+ \u65B0\u589E\u8D5B\u4E8B</button></div>'
         + '<table class="admin-table"><thead><tr><th>\u8D5B\u4E8B</th><th>\u5BF9\u624B</th><th>\u65E5\u671F</th><th>\u7ED3\u679C</th><th>\u6BD4\u5206</th><th>\u9996\u9875\u5C55\u793A</th><th>\u64CD\u4F5C</th></tr></thead><tbody>';
       (data.matches || []).forEach(function(m) {
         const resultLabel = m.result === 'win' ? '\u80DC' : m.result === 'lose' ? '\u8D1F' : m.result === 'draw' ? '\u5E73' : '\u2014';
@@ -429,7 +445,7 @@ let adminRole = null;
       const data = await resp.json();
       if (!data.ok) { body.innerHTML = '<p>\u52A0\u8F7D\u5931\u8D25</p>'; return; }
       const secs = data.sections || [];
-      const html = '<h3 style="margin:0 0 16px;font-size:18px;color:var(--text);">\u9996\u9875\u533A\u5757\u7F16\u8F91</h3>'
+      let html = '<h3 style="margin:0 0 16px;font-size:18px;color:var(--text);">\u9996\u9875\u533A\u5757\u7F16\u8F91</h3>'
         + '<div style="display:grid;gap:14px;max-width:600px;">';
       secs.forEach(function(s) {
         const label = s.section_key === 'hero_title' ? '\u4E3B\u6807\u9898' : s.section_key === 'hero_subtitle' ? '\u526F\u6807\u9898' : s.section_key === 'about_text' ? '\u5173\u4E8E\u6211\u4EEC' : s.section_key;

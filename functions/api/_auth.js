@@ -54,23 +54,24 @@ function getClientIP(request) {
  * 创建通知
  * 自动检查用户的通知偏好，仅当 on_site=1 时写入
  */
-export async function createNotification(env, userId, type, title, body, link, articleId, commentId) {
-  // 先检查用户是否开启了对应类型的站内通知
-  const pref = await env.DB.prepare('SELECT * FROM notification_preferences WHERE user_id = ?').bind(userId).first();
-  if (pref && pref.on_site === 0) return null;
+export async function createNotification(env, userId, type, title, body, link, articleId, commentId, fromUserId) {
+  // 私信（private_message）不检查偏好，始终投递
+  if (type !== 'private_message') {
+    const pref = await env.DB.prepare('SELECT * FROM notification_preferences WHERE user_id = ?').bind(userId).first();
+    if (pref && pref.on_site === 0) return null;
 
-  // 检查对应子类型开关
-  if (pref) {
-    if (type === 'comment' && pref.on_comment === 0) return null;
-    if (type === 'reply' && pref.on_reply === 0) return null;
-    if ((type === 'like_article' || type === 'like_comment') && pref.on_like === 0) return null;
-    if ((type === 'article_approved' || type === 'article_rejected') && pref.on_article_status === 0) return null;
-    if (type === 'system' && pref.on_announcement === 0) return null;
+    if (pref) {
+      if (type === 'comment' && pref.on_comment === 0) return null;
+      if (type === 'reply' && pref.on_reply === 0) return null;
+      if ((type === 'like_article' || type === 'like_comment') && pref.on_like === 0) return null;
+      if ((type === 'article_approved' || type === 'article_rejected') && pref.on_article_status === 0) return null;
+      if (type === 'system' && pref.on_announcement === 0) return null;
+    }
   }
 
   const result = await env.DB.prepare(
-    'INSERT INTO notifications (user_id, type, title, body, link, related_article_id, related_comment_id) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).bind(userId, type, title, body || '', link || '', articleId || null, commentId || null).run();
+    'INSERT INTO notifications (user_id, type, title, body, link, related_article_id, related_comment_id, from_user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(userId, type, title, body || '', link || '', articleId || null, commentId || null, fromUserId || null).run();
   return result.meta.last_row_id;
 }
 

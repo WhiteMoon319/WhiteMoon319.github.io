@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>私信 - YHG电子竞技战队</title>
+    <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="../resource/img/logo.webp">
+    <link rel="stylesheet" href="../resource/css/style.min.css">
+    <style>
+      .msg-page { max-width:680px; margin:0 auto; padding:120px 22px 80px; }
+      .msg-page h1 { font-family:var(--display,serif); font-size:28px; color:var(--text,#1a1a2e); margin:0 0 24px; }
+      .msg-tabs { display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap; }
+      .msg-tab { padding:8px 16px; font-size:13px; font-weight:600;
+        border:1px solid var(--line-2); border-radius:var(--r-sm);
+        background:var(--surface); color:var(--text); cursor:pointer;
+        transition:all 0.2s; }
+      .msg-tab:hover { border-color:var(--fire); color:var(--fire); }
+      .msg-tab.active { background:var(--fire); color:#fff; border-color:var(--fire); }
+      .msg-list { border:1px solid var(--line-2,#ddd); border-radius:var(--r-lg,12px);
+        overflow:hidden; background:var(--surface,#fff); box-shadow:var(--shadow-sm); }
+      .msg-item { display:flex; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line,#e0dbd2);
+        cursor:pointer; transition:background 0.2s; text-decoration:none; color:inherit; align-items:flex-start; }
+      .msg-item:last-child { border-bottom:none; }
+      .msg-item:hover { background:rgba(194,58,48,0.04); }
+      .msg-item.unread { background:rgba(194,58,48,0.03); }
+      .msg-avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; background:var(--line-2,#ddd); flex-shrink:0; }
+      .msg-content { flex:1; min-width:0; }
+      .msg-sender { font-size:13px; font-weight:700; color:var(--text,#1a1a2e); }
+      .msg-preview { font-size:12px; color:var(--dim,#5c5c74); margin:2px 0 4px; line-height:1.4; word-break:break-word; }
+      .msg-time { font-size:10px; color:var(--faint,#8c8ca1); font-family:var(--mono,monospace); }
+      .msg-empty { padding:40px 20px; text-align:center; color:var(--dim,#5c5c74); font-size:13px; }
+      .msg-del-btn { background:none; border:none; color:var(--faint); cursor:pointer;
+        font-size:16px; padding:2px 6px; flex-shrink:0; opacity:0;
+        transition:opacity 0.2s; border-radius:4px; line-height:1; }
+      .msg-item:hover .msg-del-btn { opacity:1 !important; }
+      .msg-del-btn:hover { background:rgba(194,58,48,0.1); color:var(--fire); }
+
+      /* 发送私信 */
+      .msg-compose { border:1px solid var(--line-2,#ddd); border-radius:var(--r-lg,12px);
+        padding:20px; background:var(--surface,#fff); margin-bottom:20px; }
+      .msg-compose h3 { margin:0 0 14px; font-size:16px; color:var(--text); }
+      .msg-compose input, .msg-compose textarea { width:100%; padding:10px 14px; border:1px solid var(--line-2);
+        border-radius:var(--r-sm); background:var(--bg); color:var(--text); font-size:13px;
+        box-sizing:border-box; }
+      .msg-compose textarea { resize:vertical; min-height:80px; }
+      .msg-compose .form-row { margin-bottom:12px; }
+      .msg-compose .form-row label { display:block; font-size:12px; color:var(--dim); margin-bottom:4px; }
+      .msg-btn { padding:10px 28px; background:var(--fire,#c23630); color:#fff; border:none;
+        border-radius:var(--r-sm); cursor:pointer; font-size:13px; font-weight:700;
+        transition:background 0.2s; }
+      .msg-btn:hover { background:var(--flame,#e04840); }
+      .msg-btn:disabled { opacity:0.5; cursor:default; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="../" aria-label="返回首页">
+            <img src="../resource/img/logo.webp" alt="YHG战队标识">
+            <span>YHG</span>
+        </a>
+        <nav class="nav" aria-label="主导航">
+            <a href="../">HOME</a>
+            <a href="../about/">ABOUT</a>
+            <a href="../members/">ROSTER</a>
+            <a href="../matches/">MATCHES</a>
+            <a href="../news/">NEWS</a>
+        </nav>
+        <div id="authWidget" style="cursor:default;">私信</div>
+    </header>
+
+    <main>
+        <div class="msg-page">
+            <h1>私信</h1>
+            <!-- 发送私信 -->
+            <div class="msg-compose" id="msgCompose">
+                <h3>✉ 发送私信</h3>
+                <div class="form-row">
+                    <label>接收用户 ID</label>
+                    <input type="number" id="msgToUserId" placeholder="输入对方的用户 ID" min="1">
+                </div>
+                <div class="form-row">
+                    <label>消息内容</label>
+                    <textarea id="msgContent" placeholder="输入私信内容…" maxlength="500"></textarea>
+                </div>
+                <button class="msg-btn" id="sendMsgBtn">发送</button>
+                <span id="sendMsgResult" style="margin-left:12px;font-size:12px;color:var(--dim);"></span>
+            </div>
+
+            <div class="msg-tabs" id="msgTabs">
+                <button class="msg-tab active" data-view="inbox">收件箱</button>
+                <button class="msg-tab" data-view="sent">已发送</button>
+            </div>
+            <div class="msg-list" id="msgList">
+                <div class="msg-empty">加载中…</div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 YHG ESPORTS · Honor of Kings esports team</p>
+    </footer>
+
+    <script defer src="../resource/js/main.js"></script>
+    <script defer src="../resource/js/auth.js"></script>
+    <script defer src="../resource/js/messages.js"></script>
+</body>
+</html>
