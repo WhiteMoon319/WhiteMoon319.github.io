@@ -9,7 +9,7 @@
     var el = document.getElementById('dashContent');
     try {
       var resp = await fetch('/api/auth/me');
-      if (!resp.ok) { window.location.href = 'login.html'; return; }
+      if (!resp.ok) { window.location.href = '../login/'; return; }
       var data = await resp.json();
       currentUser = data.user;
     } catch(e) {
@@ -48,7 +48,7 @@
       '<div class="dash-section"><h2>\u64CD\u4F5C</h2>',
       '<div style="display:flex;gap:14px;flex-wrap:wrap;">' +
       ((u.level >= 2 || u.role === 'admin' || u.role === 'sub_admin')
-        ? '<a class="primary-btn" href="news/write.html" style="text-decoration:none;">\u270D \u5199\u6587\u7AE0</a>'
+        ? '<a class="primary-btn" href="../news/write.html" style="text-decoration:none;">\u270D \u5199\u6587\u7AE0</a>'
         : '') +
       '<button class="ghost-btn" id="logoutBtn" style="border-color:var(--line-hot);color:var(--fire);">\u9000\u51FA\u767B\u5F55</button></div></div>'
     ].join('');

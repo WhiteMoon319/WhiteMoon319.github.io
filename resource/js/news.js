@@ -62,7 +62,7 @@ var newsPage = 1;
           var safeTitle = window.escapeHtml(a.title);
           var safeAuthor = window.escapeHtml(a.username);
           var raw = a.summary || a.content;
-          var summary = window.escapeHtml(raw.replace(/<[^>]+>/g, '').substring(0, 60)) + '...';
+          var summary = window.escapeHtml(raw.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').substring(0, 60)) + '...';
           var likes = a.like_count ? '\u2764 ' + a.like_count : '';
           var delay = Math.min(i + 3, 6);
           html += '<a class="grid-card reveal" data-delay="' + delay + '" href="article.html?slug=' + a.slug + '">'

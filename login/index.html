@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - YHG电子竞技战队</title>
     <meta name="description" content="登录 YHG 战队账户">
-    <link rel="icon" type="image/webp" href="resource/img/logo.webp">
-    <link rel="apple-touch-icon" href="resource/img/logo.webp">
-    <link rel="stylesheet" href="resource/css/style.css">
+    <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="../resource/img/logo.webp">
+    <link rel="stylesheet" href="../resource/css/style.css">
     <style>
         .auth-wrap {
             min-height: calc(100vh - 140px);
@@ -136,13 +136,13 @@
             .auth-card { padding: 32px 24px; }
         }
     </style>
-  <script defer src="resource/js/main.js"></script>
-  <script defer src="resource/js/auth.js"></script>
+  <script defer src="../resource/js/main.js"></script>
+  <script defer src="../resource/js/auth.js"></script>
 </head>
 <body>
     <header class="site-header">
         <a class="brand" href="./" aria-label="返回首页">
-            <img src="resource/img/logo.webp" alt="YHG战队标识">
+            <img src="../resource/img/logo.webp" alt="YHG战队标识">
             <span>YHG</span>
         </a>
         <nav class="nav" aria-label="主导航">
@@ -173,10 +173,10 @@
                     <button class="auth-btn" type="submit" id="submitBtn">登录</button>
                 </form>
                 <div class="auth-link">
-                    还没有账户？<a href="register.html">注册</a>
+                    还没有账户？<a href="../register/">注册</a>
                 </div>
                 <div class="auth-link" style="margin-top:8px;">
-                    <a href="forgot-password.html" style="color:var(--dim);font-size:13px;">忘记密码？</a>
+                    <a href="../forgot-password/" style="color:var(--dim);font-size:13px;">忘记密码？</a>
                 </div>
             </div>
         </div>
@@ -192,7 +192,7 @@
             .then(r => r.ok ? r.json() : null)
             .then(data => {
                 if (data && data.ok) {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = '../dashboard/';
                 }
             })
             .catch(() => {});
@@ -222,7 +222,7 @@
                             <h1>欢迎回来</h1>
                             <p class="sub">${data.user.username}，登录成功</p>
                             <strong class="motto">野火烧不尽，春风吹又生</strong>
-                            <p style="margin-top:24px;"><a class="primary-btn" href="dashboard.html" style="text-decoration:none;">进入面板</a></p>
+                            <p style="margin-top:24px;"><a class="primary-btn" href="../dashboard/" style="text-decoration:none;">进入面板</a></p>
                         </div>
                     `;
                 } else {

@@ -36,7 +36,7 @@ window.escapeHtml = function(str) {
           border:1px solid var(--line);border-radius:999px;
           overflow:hidden;transition:border-color 0.25s;
         " onmouseenter="this.style.borderColor='var(--line-hot)'" onmouseleave="this.style.borderColor='var(--line)'">
-          <a href="/dashboard.html" style="
+          <a href="/dashboard/" style="
             display:inline-flex;align-items:center;gap:6px;
             padding:4px 14px 4px 12px;
             font-family:var(--mono);font-size:12px;font-weight:700;
@@ -65,11 +65,11 @@ window.escapeHtml = function(str) {
     } else {
       // 未登录
       container.innerHTML = `
-        <a href="/login.html" style="
+        <a href="/login/" style="
           padding:6px 14px;color:var(--dim);font-family:var(--mono);font-size:12px;font-weight:700;
           letter-spacing:0.1em;text-decoration:none;transition:color 0.25s;
         " onmouseover="this.style.color='var(--fire)'" onmouseout="this.style.color='var(--dim)'">登录</a>
-        <a href="/register.html" style="
+        <a href="/register/" style="
           display:inline-flex;align-items:center;justify-content:center;
           min-width:92px;height:34px;padding:0 16px;
           color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;

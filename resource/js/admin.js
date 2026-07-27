@@ -10,7 +10,7 @@ var adminRole = null;
     var checkResp = await fetch('/api/admin/check');
     if (!checkResp.ok) {
       document.getElementById('adminStatus').textContent = '\u9700\u8981\u7BA1\u7406\u5458\u6743\u9650';
-      document.getElementById('adminBody').innerHTML = '<div class="admin-placeholder"><p>\u4F60\u6CA1\u6709\u7BA1\u7406\u5458\u6743\u9650\u3002</p><p style="margin-top:12px;"><a href="../login.html" style="color:var(--fire);">\u53BB\u767B\u5F55</a></p></div>';
+      document.getElementById('adminBody').innerHTML = '<div class="admin-placeholder"><p>\u4F60\u6CA1\u6709\u7BA1\u7406\u5458\u6743\u9650\u3002</p><p style="margin-top:12px;"><a href="../login/" style="color:var(--fire);">\u53BB\u767B\u5F55</a></p></div>';
       return;
     }
     var checkData = await checkResp.json();

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>用户面板 - YHG电子竞技战队</title>
-    <link rel="icon" type="image/webp" href="resource/img/logo.webp">
-    <link rel="apple-touch-icon" href="resource/img/logo.webp">
-    <link rel="stylesheet" href="resource/css/style.css">
+    <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="../resource/img/logo.webp">
+    <link rel="stylesheet" href="../resource/css/style.css">
     <style>
         .dash-wrap { max-width: 680px; margin: 0 auto; padding: 120px 22px 80px; }
         .dash-card { padding: 44px 38px; background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
@@ -45,7 +45,7 @@
 <body>
     <div class="toast" id="toast"></div>
     <header class="site-header">
-        <a class="brand" href="./"><img src="resource/img/logo.webp" alt="YHG"><span>YHG</span></a>
+        <a class="brand" href="./"><img src="../resource/img/logo.webp" alt="YHG"><span>YHG</span></a>
         <nav class="nav">
             <a href="./">HOME</a><a href="about/">ABOUT</a><a href="members/">ROSTER</a><a href="matches/">MATCHES</a><a href="news/">NEWS</a>
         </nav>
@@ -57,13 +57,13 @@
         </div>
     </main>
     <footer><p>© 2026 YHG ESPORTS</p></footer>
-  <script defer src="resource/js/main.js"></script>
-    <script defer src="resource/js/auth.js"></script>
-    <script defer src="resource/js/dashboard.js"></script>
+  <script defer src="../resource/js/main.js"></script>
+    <script defer src="../resource/js/auth.js"></script>
+    <script defer src="../resource/js/dashboard.js"></script>
 
         try {
             const resp = await fetch('/api/auth/me');
-            if (!resp.ok) { window.location.href = 'login.html'; return; }
+            if (!resp.ok) { window.location.href = '../login/'; return; }
             const data = await resp.json();
             currentUser = data.user;
         } catch(e) {

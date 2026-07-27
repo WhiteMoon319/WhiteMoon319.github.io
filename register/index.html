@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册 - YHG电子竞技战队</title>
     <meta name="description" content="注册 YHG 战队账户">
-    <link rel="icon" type="image/webp" href="resource/img/logo.webp">
-    <link rel="apple-touch-icon" href="resource/img/logo.webp">
-    <link rel="stylesheet" href="resource/css/style.css">
+    <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
+    <link rel="apple-touch-icon" href="../resource/img/logo.webp">
+    <link rel="stylesheet" href="../resource/css/style.css">
     <style>
         .auth-wrap {
             min-height: calc(100vh - 140px);
@@ -167,13 +167,13 @@
             .auth-card { padding: 32px 24px; }
         }
     </style>
-  <script defer src="resource/js/main.js"></script>
-  <script defer src="resource/js/auth.js"></script>
+  <script defer src="../resource/js/main.js"></script>
+  <script defer src="../resource/js/auth.js"></script>
 </head>
 <body>
     <header class="site-header">
         <a class="brand" href="./" aria-label="返回首页">
-            <img src="resource/img/logo.webp" alt="YHG战队标识">
+            <img src="../resource/img/logo.webp" alt="YHG战队标识">
             <span>YHG</span>
         </a>
         <nav class="nav" aria-label="主导航">
@@ -221,7 +221,7 @@
                     <button class="auth-btn" type="submit" id="submitBtn">注册</button>
                 </form>
                 <div class="auth-link">
-                    已有账户？<a href="login.html">登录</a>
+                    已有账户？<a href="../login/">登录</a>
                 </div>
             </div>
         </div>
@@ -335,7 +335,7 @@
                             <p style="margin-top:16px; color:var(--dim);">即将跳转到登录页…</p>
                         </div>
                     `;
-                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                    setTimeout(() => { window.location.href = '../login/'; }, 2000);
                 } else {
                     showMsg(data.error || '注册失败', 'error');
                     submitBtn.disabled = false;

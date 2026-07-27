@@ -40,7 +40,7 @@
       '  <span>\uD83D\uDCC5 ' + created + '</span>',
       '  <span id="likeDisplay">\u2764 ' + (a.like_count || 0) + '</span>',
       '</div>',
-      '<div class="article-body">' + a.content.replace(/<[^>]+>/g, '').replace(/\n/g, '<br>') + '</div>',
+      '<div class="article-body">' + a.content.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/\n/g, '<br>') + '</div>',
       '<div class="article-actions">',
       '  <button class="like-btn' + (a.liked_by_me ? ' liked' : '') + '" id="likeBtn">',
       '    <span class="heart">' + (a.liked_by_me ? '\u2764' : '\u2661') + '</span>',
@@ -57,7 +57,7 @@
         '    <input type="text" id="commentInput" placeholder="\u5199\u4E0B\u4F60\u7684\u8BC4\u8BBA\u2026" maxlength="500">',
         '    <button id="commentSubmit">\u53D1\u8868</button>',
         '  </div>'
-      ].join('\n') : '<p style="color:var(--dim);font-size:13px;margin-bottom:16px;"><a href="../login.html" style="color:var(--fire);">\u767B\u5F55</a>\u540E\u53EF\u4EE5\u8BC4\u8BBA</p>'),
+      ].join('\n') : '<p style="color:var(--dim);font-size:13px;margin-bottom:16px;"><a href="../login/" style="color:var(--fire);">\u767B\u5F55</a>\u540E\u53EF\u4EE5\u8BC4\u8BBA</p>'),
       '  <div id="commentList"><div class="comment-placeholder">\u52A0\u8F7D\u8BC4\u8BBA\u4E2D\u2026</div></div>',
       '</div>'
     ].filter(Boolean).join('\n');
@@ -77,7 +77,7 @@
       });
     } else {
       likeBtn.addEventListener('click', function() {
-        window.location.href = '../login.html';
+        window.location.href = '../login/';
       });
     }
 
