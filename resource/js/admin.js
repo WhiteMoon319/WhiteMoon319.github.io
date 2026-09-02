@@ -61,6 +61,7 @@ let adminRole = null;
   }
 
   // 用户管理
+// ---- [用户管理] loadUsers / deleteUser / promoteSubAdmin / setLevel ----
   async function loadUsers(body) {
     body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
@@ -135,6 +136,7 @@ let adminRole = null;
   };
 
   // 文章管理
+// ---- [文章管理] loadArticles / approve / reject / deleteArticle ----
   async function loadArticles(body) {
     body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
@@ -207,6 +209,7 @@ let adminRole = null;
   // 选手绑定
   let bindDialogUser = null;
 
+// ---- [选手绑定] loadBindings / showBindDialog / saveBindings ----
   async function loadBindings(body) {
     body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
@@ -278,6 +281,7 @@ let adminRole = null;
   };
 
   // 选手管理
+// ---- [选手管理] loadPlayers / savePlayerAvatar ----
   async function loadPlayers(body) {
     body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
@@ -323,6 +327,7 @@ let adminRole = null;
   // 赛事管理
   let editingMatchId = null;
 
+// ---- [赛事管理] loadMatches / showMatchForm / saveMatch / deleteMatch ----
   async function loadMatches(body) {
     body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
@@ -430,6 +435,7 @@ let adminRole = null;
   };
 
   // 首页管理
+// ---- [首页内容] loadHome / saveHomeSections ----
   async function loadHome(body) {
     body.innerHTML = '<div class="skeleton-admin-table"><div class="skeleton skeleton-line" style="width:100px;height:20px;margin-bottom:12px;"></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div><div class="skeleton-table-row"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div></div>';
     try {
@@ -466,6 +472,7 @@ let adminRole = null;
   };
 
   // 公告管理
+// ---- [公告管理] loadAnnouncement / loadAnnList / 公告增删改 ----
   async function loadAnnouncement(body) {
     body.innerHTML = ''
       + '<div style="max-width:700px;">'
