@@ -1858,7 +1858,8 @@ footer p {
 
 @media (max-width: 860px) {
     .nav-toggle {
-        display: inline-flex;
+        display: grid;
+        place-content: center;
     }
     /* 移动端隐藏顶部 authWidget，登录/注册收进汉堡菜单 */
     #authWidget,
