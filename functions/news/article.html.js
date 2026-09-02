@@ -50,14 +50,27 @@ function renderArticleHtml(a, slug) {
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../resource/css/style.css">
     <style>
-        .article-wrap { max-width: 720px; margin: 0 auto; padding: 120px 22px 80px; }
-        .article-card { padding: 52px 44px; background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+        .article-wrap { max-width: 960px; margin: 0 auto; padding: 120px 24px 80px; }
+        .article-card { padding: 56px 56px; background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
         .article-card::before { content:""; position:absolute; top:0; left:0; right:0; height:3px; background: var(--flame-grad); }
-        .article-card h1 { font-family: var(--display); font-size: 32px; color: var(--text); margin: 0 0 8px; }
+        .article-card h1 { font-family: var(--display); font-size: 34px; color: var(--text); margin: 0 0 8px; }
         .article-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--faint); margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
         .article-meta span { display: flex; align-items: center; gap: 6px; }
-        .article-body { font-size: 16px; line-height: 2; color: var(--text); }
-        .article-body p { margin: 0 0 1.2em; }
+        .article-body { font-size: 1.06rem; line-height: 2.1; color: var(--text); word-break: break-word; }
+        .article-body > *:first-child { margin-top: 0; }
+        .article-body h2, .article-body h3, .article-body h4 { font-family: var(--display); font-weight: 700; letter-spacing: 0.04em; color: var(--text); line-height: 1.45; }
+        .article-body h2 { font-size: 1.55rem; margin: 2.2em 0 0.8em; padding-bottom: 0.3em; border-bottom: 1px solid var(--line-2); }
+        .article-body h3 { font-size: 1.3rem; margin: 2em 0 0.7em; }
+        .article-body h4 { font-size: 1.12rem; margin: 1.8em 0 0.6em; }
+        .article-body p { margin: 0 0 1.4em; text-align: justify; }
+        .article-body a { color: var(--fire); text-decoration: underline; text-underline-offset: 3px; }
+        .article-body strong { color: var(--text); font-weight: 700; }
+        .article-body ul, .article-body ol { margin: 0 0 1.4em; padding-left: 1.6em; }
+        .article-body li { margin: 0.35em 0; line-height: 1.9; }
+        .article-body img { max-width: 100%; height: auto; border-radius: 8px; margin: 1.2em 0; }
+        .article-body table { margin: 1.6em 0; width: 100%; border-collapse: collapse; font-size: 0.95rem; line-height: 1.7; overflow-x: auto; display: block; }
+        .article-body th, .article-body td { padding: 0.5em 0.9em; border: 1px solid var(--line-2); text-align: left; }
+        .article-body th { background: var(--surface-2); font-weight: 700; color: var(--text); }
         .article-body br { display: block; content:""; margin: 0.6em 0; }
         .article-actions { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
         .like-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; font-size: 14px; font-weight: 600; border-radius: 99px; cursor: pointer; transition: all 0.25s var(--ease); border: 1px solid var(--line-2); background: transparent; color: var(--dim); }
@@ -101,6 +114,14 @@ function renderArticleHtml(a, slug) {
         .empty-state { text-align: center; padding: 60px 20px; color: var(--dim); }
         .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
         .empty-state a { color: var(--fire); }
+        /* 移动端阅读适配：收窄卡片内边距，正文字号微调 */
+        @media (max-width: 640px) {
+            .article-wrap { padding: 88px 14px 60px; }
+            .article-card { padding: 30px 20px; }
+            .article-card h1 { font-size: 26px; }
+            .article-body { font-size: 1rem; line-height: 2; }
+            .article-body p { margin: 0 0 1.2em; }
+        }
     </style>
 </head>
 <body>
