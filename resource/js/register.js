@@ -123,6 +123,6 @@
   });
 
   function showMsg(text, type) {
-    msgArea.innerHTML = '<div class="' + (type === 'error' ? 'auth-error' : 'auth-success') + '">' + text + '</div>';
+    msgArea.innerHTML = '<div class="' + (type === 'error' ? 'auth-error' : 'auth-success') + '">' + window.escapeHtml(text) + '</div>';
   }
 })();

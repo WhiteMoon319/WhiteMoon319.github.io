@@ -45,6 +45,8 @@ export async function onRequest(context) {
     ).bind(email, code).first();
 
     if (!vcode) {
+      // 按邮箱限次：失败即消耗，10 分钟最多 5 次，换 IP 无法绕过
+      await checkRateLimit(request, env, 'vcode-register', 5, 10, email);
       return new Response(JSON.stringify({ error: '验证码无效或已过期' }), { status: 400, headers });
     }
 

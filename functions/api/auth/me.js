@@ -20,7 +20,7 @@ export async function onRequest(context) {
     SELECT u.id, u.email, u.username, u.role, u.level, u.player_slug, u.avatar, u.created_at
     FROM sessions s
     JOIN users u ON u.id = s.user_id
-    WHERE s.token = ?
+    WHERE s.token = ? AND (s.expires_at IS NULL OR s.expires_at > datetime('now'))
   `).bind(token).first();
 
   if (!row) {

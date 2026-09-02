@@ -50,7 +50,7 @@
         if (meResp2.ok) {
           const meData = await meResp2.json();
           const bound = meData.user.bound_players || [];
-          canEdit = bound.indexOf(slug) !== -1;
+          canEdit = meData.user.player_slug === slug || bound.includes(slug);
         }
       } catch(e) {}
     }
@@ -103,7 +103,7 @@
     if (statGrid) {
       statKeys.forEach(function(k) {
         const val = stats[k] || '';
-        statGrid.innerHTML += '<div class="stat-item"><label style="font-family:var(--mono);font-size:11px;color:var(--dim);display:block;margin-bottom:4px;">' + k + '</label><input type="number" class="stat-input" data-key="' + k + '" value="' + val + '" min="1" max="20"></div>';
+        statGrid.innerHTML += '<div class="stat-item"><label style="font-family:var(--mono);font-size:11px;color:var(--dim);display:block;margin-bottom:4px;">' + k + '</label><input type="number" class="stat-input" data-key="' + k + '" value="' + eh(val) + '" min="1" max="20"></div>';
       });
     }
 

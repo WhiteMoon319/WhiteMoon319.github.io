@@ -87,16 +87,17 @@ export async function notifyAllUsers(env, type, title, body, link) {
 }
 
 /**
- * 检查 IP 频率限制
+ * 检查频率限制（默认按 IP，可传 key 按其他维度如邮箱）
  * @param {Request} request
  * @param {object} env
  * @param {string} endpoint - 端点标识，如 'login', 'register'
  * @param {number} [maxAttempts=10] - 窗口内最大尝试次数
  * @param {number} [windowMinutes=1] - 时间窗口（分钟）
+ * @param {string} [key] - 可选，自定义限次键（如 email），替代 IP
  * @returns {Promise<{ok:boolean, remaining:number, error?:string}>}
  */
-export async function checkRateLimit(request, env, endpoint, maxAttempts = 10, windowMinutes = 1) {
-  const ip = getClientIP(request);
+export async function checkRateLimit(request, env, endpoint, maxAttempts = 10, windowMinutes = 1, key = '') {
+  const ip = key || getClientIP(request);
   const now = new Date();
   const windowStart = new Date(now.getTime() - windowMinutes * 60000).toISOString().slice(0, 19).replace('T', ' ');
 

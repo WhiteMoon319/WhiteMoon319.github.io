@@ -78,7 +78,7 @@ async function handleCreate(request, env, headers) {
     return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
   }
 
-  const session = await env.DB.prepare('SELECT s.user_id, u.role, u.level FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ?').bind(token).first();
+  const session = await env.DB.prepare('SELECT s.user_id, u.role, u.level FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND (s.expires_at IS NULL OR s.expires_at > datetime(\'now\'))').bind(token).first();
   if (!session) {
     return new Response(JSON.stringify({ error: '会话已过期' }), { status: 401, headers });
   }

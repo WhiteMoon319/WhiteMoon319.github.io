@@ -4,6 +4,7 @@
  */
 const BLOCKED_PATHS = [
   '/_private',
+  '/.pai',
   '/.wrangler',
   '/node_modules',
   '/wrangler.jsonc',

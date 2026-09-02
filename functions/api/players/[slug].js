@@ -38,7 +38,7 @@ async function handlePut(slug, request, env, headers) {
   }
 
   const user = await env.DB.prepare(
-    'SELECT u.id, u.role, u.player_slug FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ?'
+    'SELECT u.id, u.role, u.player_slug FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND (s.expires_at IS NULL OR s.expires_at > datetime(\'now\'))'
   ).bind(token).first();
   if (!user) {
     return new Response(JSON.stringify({ error: '会话已过期' }), { status: 401, headers });

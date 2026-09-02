@@ -44,7 +44,8 @@ export async function onRequest(context) {
       return new Response(JSON.stringify({ error: '邮箱或密码错误' }), { status: 401, headers });
     }
 
-    // 生成 session（7天有效期）
+    // 生成 session（7天有效期），先作废旧会话防会话固定
+    await env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id).run();
     const token = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
     await env.DB.prepare(

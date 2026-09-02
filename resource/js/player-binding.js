@@ -18,7 +18,8 @@
     if (!meData.ok) return;
 
     const isAdmin = await checkAdmin();
-    const isBound = meData.user.player_slug === slug;
+    const boundPlayers = meData.user.bound_players || [];
+    const isBound = meData.user.player_slug === slug || boundPlayers.includes(slug);
 
     if (!isAdmin && !isBound) return;
 

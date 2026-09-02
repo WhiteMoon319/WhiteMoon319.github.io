@@ -6,7 +6,7 @@
  * DELETE /api/news/:slug/comments/:id       — 删除评论
  * POST   /api/news/:slug/comments/:id/like  — 切换评论点赞
  */
-import { getAuthUser, createNotification } from '../../../_auth.js';
+import { getAuthUser, createNotification, checkRateLimit } from '../../../_auth.js';
 
 export async function onRequest(context) {
   const { request, env, params } = context;
@@ -100,6 +100,12 @@ async function handleCreate(article, request, env, headers) {
     return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
   }
 
+  // 限流：每分钟最多 10 条评论
+  const limit = await checkRateLimit(request, env, 'create-comment', 10, 1);
+  if (!limit.ok) {
+    return new Response(JSON.stringify({ error: limit.error }), { status: 429, headers });
+  }
+
   try {
     const body = await request.json();
     const content = (body.content || '').trim();
@@ -187,6 +193,12 @@ async function handleToggleCommentLike(article, commentId, request, env, headers
   const user = await getAuthUser(request, env);
   if (!user) {
     return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
+  }
+
+  // 限流：每分钟最多 30 次评论点赞
+  const limit = await checkRateLimit(request, env, 'like-comment', 30, 1);
+  if (!limit.ok) {
+    return new Response(JSON.stringify({ error: limit.error }), { status: 429, headers });
   }
 
   const comment = await env.DB.prepare(

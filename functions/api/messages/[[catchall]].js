@@ -5,7 +5,7 @@
  * GET  /api/messages        — 收到的私信列表
  * GET  /api/messages/sent   — 发出的私信列表
  */
-import { getAuthUser, createNotification } from '../_auth.js';
+import { getAuthUser, createNotification, checkRateLimit } from '../_auth.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -22,6 +22,12 @@ export async function onRequest(context) {
   // POST /api/messages/send
   if (request.method === 'POST' && last === 'send') {
     try {
+      // 限流：每分钟最多 20 条私信
+      const limit = await checkRateLimit(request, env, 'send-message', 20, 1);
+      if (!limit.ok) {
+        return new Response(JSON.stringify({ error: limit.error }), { status: 429, headers });
+      }
+
       const body = await request.json();
       const toUserId = parseInt(body.to_user_id);
       const content = (body.content || '').trim();

@@ -57,9 +57,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 静态资源：缓存优先
+  // 静态资源：先返回缓存（离线可用），同时后台拉新（部署后下次访问即更新）
   if (/\.(css|js|webp|png|jpg|svg|woff2?)$/.test(path)) {
-    event.respondWith(cacheFirst(request));
+    event.respondWith(staleWhileRevalidate(request));
     return;
   }
 
@@ -81,6 +81,22 @@ async function cacheFirst(request) {
     const response = await fetch(request);
     if (response.ok) {
       const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (e) {
+    return new Response('Offline', { status: 503 });
+  }
+}
+
+// 缓存优先 + 后台更新策略：立即返回缓存，同时网络拉新并更新缓存
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
       cache.put(request, response.clone());
     }
     return response;

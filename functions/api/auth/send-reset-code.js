@@ -38,7 +38,7 @@ export async function onRequest(context) {
     const user = await env.DB.prepare('SELECT id, username FROM users WHERE email = ?').bind(email).first();
     if (!user) {
       // 不泄露邮箱是否注册，统一返回成功
-      return new Response(JSON.stringify({ ok: true, message: '若该邮箱已注册，验证码已发送' }), { status: 200, headers });
+      return new Response(JSON.stringify({ ok: true, message: '验证码已发送到邮箱' }), { status: 200, headers });
     }
 
     // 防刷：60秒内不能重复发

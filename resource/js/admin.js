@@ -223,7 +223,7 @@ let adminRole = null;
         html += '<tr>'
           + '<td>' + window.escapeHtml(u.username) + ' (' + window.escapeHtml(u.email) + ')</td>'
           + '<td style="font-size:12px;color:var(--dim);">' + (bound.length ? bound.join(', ') : '\u672A\u7ED1\u5B9A') + '</td>'
-          + '<td><button class="admin-btn" onclick="showBindDialog(' + u.id + ', \'' + window.escapeHtml(u.username) + '\')">\u7BA1\u7406\u7ED1\u5B9A</button></td>'
+          + '<td><button class="admin-btn" data-action="showBind" data-user-id="' + u.id + '" data-username="' + window.escapeHtml(u.username) + '">\u7BA1\u7406\u7ED1\u5B9A</button></td>'
           + '</tr>';
       });
       html += '</tbody></table>';
@@ -657,6 +657,10 @@ let adminRole = null;
     // 默认支持 loadTab：<button data-action="loadTab" data-tab="users">
     if (action === 'loadTab') {
       loadTab(btn.dataset.tab);
+    }
+    // 选手绑定：<button data-action="showBind" data-user-id data-username>
+    if (action === 'showBind') {
+      showBindDialog(parseInt(btn.dataset.userId, 10), btn.dataset.username || '');
     }
   });
 })();
