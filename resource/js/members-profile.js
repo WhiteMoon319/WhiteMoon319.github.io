@@ -25,6 +25,8 @@
       let stats = {};
       try { stats = JSON.parse(p.stats || '{}'); } catch(e) {}
 
+      const eh = window.escapeHtml || function(s) { return s || ''; };
+
       const statKeys = ['智商', '情商', '实力', '颜值', '素质', '运气'];
       const maxValues = { '实力': 20, '智商': 20, '情商': 20, '颜值': 20, '素质': 20, '运气': 20 };
 
@@ -50,8 +52,6 @@
       const picPath = 'members_pic.webp';
       const picUrl = '../resource/img/' + slug + '/' + picPath;
       const updated = p.updated_at ? new Date(p.updated_at + 'Z').toLocaleDateString('zh-CN') : '';
-
-      const eh = window.escapeHtml || function(s) { return s || ''; };
 
       main.innerHTML =
         '<section class="page-hero member-hero">' +
