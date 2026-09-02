@@ -4,7 +4,7 @@
  *
  * 点赞时向文章作者发送通知
  */
-import { getToken, createNotification, checkRateLimit } from '../../_auth.js';
+import { getToken, getUserFromToken, createNotification, checkRateLimit } from '../../_auth.js';
 
 export async function onRequest(context) {
   const { request, env, params } = context;
@@ -36,9 +36,7 @@ async function handleGetLike(articleId, request, env, headers) {
   let likedByMe = false;
   const t = getToken(request);
   if (t) {
-    const user = await env.DB.prepare(
-      'SELECT u.id FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND (s.expires_at IS NULL OR s.expires_at > datetime(\'now\'))'
-    ).bind(t).first();
+    const user = await getUserFromToken(t, env);
     if (user) {
       const liked = await env.DB.prepare(
         'SELECT 1 FROM article_likes WHERE article_id = ? AND user_id = ?'
@@ -57,9 +55,7 @@ async function handleToggleLike(article, request, env, headers) {
     return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
   }
 
-  const user = await env.DB.prepare(
-    'SELECT u.id, u.username FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND (s.expires_at IS NULL OR s.expires_at > datetime(\'now\'))'
-  ).bind(token).first();
+  const user = await getUserFromToken(token, env);
   if (!user) {
     return new Response(JSON.stringify({ error: '会话已过期' }), { status: 401, headers });
   }

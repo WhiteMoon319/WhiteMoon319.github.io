@@ -2,7 +2,7 @@
  * GET  /api/news          — 获取已审核文章列表（支持搜索 q= 和分页 page=&limit=）
  * POST /api/news          — 创建文章（需登录，普通用户为 pending，staff 为 approved）
  */
-import { getToken } from '../_auth.js';
+import { getToken, getUserFromToken } from '../_auth.js';
 import { createPasswordHash } from '../auth/crypto.js';
 
 export async function onRequest(context) {
@@ -78,7 +78,7 @@ async function handleCreate(request, env, headers) {
     return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
   }
 
-  const session = await env.DB.prepare('SELECT s.user_id, u.role, u.level FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND (s.expires_at IS NULL OR s.expires_at > datetime(\'now\'))').bind(token).first();
+  const session = await getUserFromToken(token, env);
   if (!session) {
     return new Response(JSON.stringify({ error: '会话已过期' }), { status: 401, headers });
   }
@@ -106,7 +106,7 @@ async function handleCreate(request, env, headers) {
 
     await env.DB.prepare(
       'INSERT INTO articles (user_id, title, summary, content, slug, status) VALUES (?, ?, ?, ?, ?, ?)'
-    ).bind(session.user_id, title, summary || '', content.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, ''), slug, status).run();
+    ).bind(session.id, title, summary || '', content.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, ''), slug, status).run();
 
     return new Response(JSON.stringify({ ok: true, slug, status }), { status: 201, headers });
   } catch (e) {

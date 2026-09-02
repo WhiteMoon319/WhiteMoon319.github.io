@@ -4,7 +4,7 @@
  *   username 不可与已有用户重复
  *   avatar 可以是 https:// URL 或 data:image/(png|jpeg|webp) base64
  */
-import { getToken } from '../_auth.js';
+import { getToken, getUserFromToken } from '../_auth.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -19,9 +19,7 @@ export async function onRequest(context) {
     return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
   }
 
-  const user = await env.DB.prepare(
-    'SELECT u.id, u.username FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND (s.expires_at IS NULL OR s.expires_at > datetime(\'now\'))'
-  ).bind(token).first();
+  const user = await getUserFromToken(token, env);
   if (!user) {
     return new Response(JSON.stringify({ error: '会话已过期' }), { status: 401, headers });
   }

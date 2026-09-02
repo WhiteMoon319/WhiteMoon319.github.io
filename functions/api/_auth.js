@@ -21,7 +21,7 @@ export function getToken(request) {
 export async function getUserFromToken(token, env) {
   if (!token) return null;
   return await env.DB.prepare(
-    "SELECT u.id, u.email, u.username, u.role, u.level FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND (s.expires_at IS NULL OR s.expires_at > datetime('now'))"
+    "SELECT u.id, u.email, u.username, u.role, u.level, u.player_slug FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND (s.expires_at IS NULL OR s.expires_at > datetime('now'))"
   ).bind(token).first();
 }
 

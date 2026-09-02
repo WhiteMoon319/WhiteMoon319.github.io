@@ -2,7 +2,7 @@
  * GET    /api/players/:slug — 选手详情
  * PUT    /api/players/:slug — 更新选手资料（需绑定或admin）
  */
-import { getToken } from '../_auth.js';
+import { getToken, getUserFromToken } from '../_auth.js';
 
 export async function onRequest(context) {
   const { request, env, params } = context;
@@ -37,9 +37,7 @@ async function handlePut(slug, request, env, headers) {
     return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
   }
 
-  const user = await env.DB.prepare(
-    'SELECT u.id, u.role, u.player_slug FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND (s.expires_at IS NULL OR s.expires_at > datetime(\'now\'))'
-  ).bind(token).first();
+  const user = await getUserFromToken(token, env);
   if (!user) {
     return new Response(JSON.stringify({ error: '会话已过期' }), { status: 401, headers });
   }
