@@ -117,16 +117,9 @@
     }
   })();
 
-  // 清洗文章内容
+  // 正文渲染：保留原文 HTML 结构（<p>/<br> 等），供排版 CSS 处理
   function cleanContent(content) {
-    return content
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/p>/gi, '\n')
-      .replace(/<p\s*\/?>/gi, '')
-      .replace(/<\/?div\s*[^>]*>/gi, '\n')
-      .replace(/<[^>]+>/g, '')
-      .replace(/\n{3,}/g, '\n\n')
-      .replace(/\n/g, '<br>');
+    return content || '';
   }
   window._cleanContent = cleanContent;
 

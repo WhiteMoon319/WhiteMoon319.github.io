@@ -12,16 +12,10 @@ function eh(str) {
   });
 }
 
-/** 与前端 article.js 的 cleanContent 一致 */
+/** 正文渲染：保留原文 HTML 结构（<p>/<br> 等），供排版 CSS 处理
+ * 内容由管理员后台写入，为受控来源；此处不再剥标签避免段落结构丢失 */
 function cleanContent(content) {
-  return content
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<p\s*\/?>/gi, '')
-    .replace(/<\/?div\s*[^>]*>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .replace(/\n/g, '<br>');
+  return content || '';
 }
 
 function renderArticleHtml(a, slug) {

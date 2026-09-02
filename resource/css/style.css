@@ -2343,3 +2343,90 @@ a.hover-line:hover::after {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* ===== 文章正文排版（classic 风格，保留原字体体系） ===== */
+.article-body {
+    font-size: 1.06rem;
+    line-height: 2.1;
+    color: var(--text);
+    word-break: break-word;
+}
+.article-body > *:first-child {
+    margin-top: 0;
+}
+.article-body h2,
+.article-body h3,
+.article-body h4 {
+    font-family: var(--display);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    line-height: 1.45;
+}
+.article-body h2 {
+    font-size: 1.55rem;
+    margin: 2.2em 0 0.8em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--line-2);
+}
+.article-body h3 {
+    font-size: 1.3rem;
+    margin: 2em 0 0.7em;
+}
+.article-body h4 {
+    font-size: 1.12rem;
+    margin: 1.8em 0 0.6em;
+}
+.article-body p {
+    margin: 0 0 1.4em;
+    text-align: justify;
+}
+.article-body a {
+    color: var(--fire);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.article-body strong {
+    color: var(--text);
+    font-weight: 700;
+}
+.article-body ul,
+.article-body ol {
+    margin: 0 0 1.4em;
+    padding-left: 1.6em;
+}
+.article-body li {
+    margin: 0.35em 0;
+    line-height: 1.9;
+}
+.article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.2em 0;
+}
+.article-body table {
+    margin: 1.6em 0;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    display: block;
+}
+.article-body th,
+.article-body td {
+    padding: 0.5em 0.9em;
+    border: 1px solid var(--line-2);
+    text-align: left;
+}
+.article-body th {
+    background: var(--surface-2);
+    font-weight: 700;
+    color: var(--text);
+}
+@media (max-width: 640px) {
+    .article-body {
+        font-size: 1rem;
+    }
+}
