@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://yhg-7su.pages.dev/</loc>
+    <loc>https://yhg.whitemoon319.xyz/</loc>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://yhg-7su.pages.dev/about/</loc>
+    <loc>https://yhg.whitemoon319.xyz/about/</loc>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://yhg-7su.pages.dev/members/</loc>
+    <loc>https://yhg.whitemoon319.xyz/members/</loc>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://yhg-7su.pages.dev/matches/</loc>
+    <loc>https://yhg.whitemoon319.xyz/matches/</loc>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://yhg-7su.pages.dev/news/</loc>
+    <loc>https://yhg.whitemoon319.xyz/news/</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://yhg-7su.pages.dev/login/</loc>
+    <loc>https://yhg.whitemoon319.xyz/login/</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://yhg-7su.pages.dev/register/</loc>
+    <loc>https://yhg.whitemoon319.xyz/register/</loc>
     <priority>0.4</priority>
   </url>
 </urlset>

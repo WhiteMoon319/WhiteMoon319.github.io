@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://yhg-7su.pages.dev/sitemap.xml
+Sitemap: https://yhg.whitemoon319.xyz/sitemap.xml
