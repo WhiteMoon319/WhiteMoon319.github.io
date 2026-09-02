@@ -282,15 +282,20 @@ async function renderNotifBell(container) {
     const resp = await fetch('/api/auth/me');
     const data = resp.ok ? await resp.json() : null;
 
-    // 找 #authWidget 容器，没有就创建
+    // 找 #authWidget 容器；dashboard/login 等页面用 authStateBtn 静态占位，复用避免桌面端重复显示
     let container = document.getElementById('authWidget');
     if (!container) {
-      container = document.createElement('div');
-      container.id = 'authWidget';
-      container.style.cssText = 'display:flex;align-items:center;gap:10px;flex-shrink:0;';
-      const nav = document.querySelector('.site-header .nav');
-      if (nav) nav.after(container);
-      else document.querySelector('.site-header')?.appendChild(container);
+      container = document.getElementById('authStateBtn');
+      if (container) {
+        container.id = 'authWidget'; // 复用占位元素，避免「用户」文本与真实 pill 并存
+      } else {
+        container = document.createElement('div');
+        container.id = 'authWidget';
+        container.style.cssText = 'display:flex;align-items:center;gap:10px;flex-shrink:0;';
+        const nav = document.querySelector('.site-header .nav');
+        if (nav) nav.after(container);
+        else document.querySelector('.site-header')?.appendChild(container);
+      }
     }
 
     // 汉堡菜单内的 auth 区块（移动端显示，桌面端 CSS 隐藏）
@@ -344,8 +349,10 @@ async function renderNotifBell(container) {
 
       // 移动端菜单内：已登录状态
       if (navAuth) {
+        const isStaff = u.role === 'admin' || u.role === 'sub_admin';
         navAuth.innerHTML = `
           <a href="/dashboard/" style="color:var(--text);font-weight:700;">${escapeHtml(u.username)}</a>
+          ${isStaff ? '<a href="/admin/">管理后台</a>' : ''}
           <a href="/notifications/">通知</a>
           <span class="nav-auth-logout" data-slug="">退出</span>
         `;
