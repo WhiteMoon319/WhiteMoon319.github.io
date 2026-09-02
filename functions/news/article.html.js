@@ -1,18 +1,52 @@
-<!DOCTYPE html>
+/**
+ * /news/article.html — 服务端渲染（SSR）
+ * 替代原静态空壳：从 D1 查文章，渲染标题/正文/点赞数，爬虫可直接索引
+ * 前端 article.js 检测到 SSR 标记后只加载评论与绑定事件
+ */
+const SITE = 'https://yhg.whitemoon319.xyz';
+
+function eh(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+/** 与前端 article.js 的 cleanContent 一致 */
+function cleanContent(content) {
+  return content
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<p\s*\/?>/gi, '')
+    .replace(/<\/?div\s*[^>]*>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\n/g, '<br>');
+}
+
+function renderArticleHtml(a, slug) {
+  const title = a.title || '文章';
+  const desc = (a.content || '').replace(/<[^>]+>/g, '').slice(0, 80) || 'YHG 战队新闻文章';
+  const date = a.created_at ? String(a.created_at).split('T')[0] : '';
+  const contentHtml = cleanContent(a.content || '');
+  const likeCount = a.like_count || 0;
+
+  return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文章 - YHG电子竞技战队</title>
+    <title>${eh(title)} - YHG电子竞技战队</title>
     <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
     <link rel="apple-touch-icon" href="../resource/img/logo.webp">
-    <meta name="description" content="YHG 战队新闻文章详情。">
+    <meta name="description" content="${eh(desc)}">
+    <link rel="canonical" href="${SITE}/news/article.html?slug=${encodeURIComponent(slug)}">
     <meta property="og:type" content="article">
     <meta property="og:locale" content="zh_CN">
-    <meta property="og:title" content="文章 - YHG电子竞技战队">
-    <meta property="og:description" content="YHG 战队新闻文章详情。">
-    <meta property="og:url" content="https://yhg-7su.pages.dev/news/">
-    <meta property="og:image" content="https://yhg-7su.pages.dev/resource/img/logo.webp">
+    <meta property="og:title" content="${eh(title)} - YHG电子竞技战队">
+    <meta property="og:description" content="${eh(desc)}">
+    <meta property="og:url" content="${SITE}/news/article.html?slug=${encodeURIComponent(slug)}">
+    <meta property="og:image" content="${SITE}/resource/img/logo.webp">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#ea580c">
@@ -31,19 +65,10 @@
         .article-body { font-size: 16px; line-height: 2; color: var(--text); }
         .article-body p { margin: 0 0 1.2em; }
         .article-body br { display: block; content:""; margin: 0.6em 0; }
-        .article-loading { text-align: center; padding: 60px 0; color: var(--dim); }
         .article-actions { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
-        .btn-del { padding: 8px 18px; font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--flame); background: transparent; border: 1px solid var(--line-hot); border-radius: var(--r-sm); cursor: pointer; transition: all 0.25s var(--ease); }
-        .btn-del:hover { background: rgba(239,68,68,0.08); border-color: var(--flame); }
-
-        /* 点赞按钮 */
         .like-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; font-size: 14px; font-weight: 600; border-radius: 99px; cursor: pointer; transition: all 0.25s var(--ease); border: 1px solid var(--line-2); background: transparent; color: var(--dim); }
         .like-btn:hover { border-color: var(--fire); color: var(--fire); }
         .like-btn.liked { background: var(--fire-soft, #fff0f0); border-color: var(--fire); color: var(--fire); }
-        .like-btn .heart { transition: transform 0.2s; }
-        .like-btn.liked .heart { transform: scale(1.15); }
-
-        /* 评论区 */
         .comment-section { margin-top: 32px; }
         .comment-section h3 { font-family: var(--display); font-size: 18px; color: var(--text); margin: 0 0 16px; }
         .comment-form { display: flex; gap: 10px; margin-bottom: 24px; }
@@ -51,6 +76,7 @@
         .comment-form input:focus { border-color: var(--fire); }
         .comment-form button { padding: 10px 22px; font-family: var(--mono); font-size: 12px; font-weight: 700; background: var(--flame-grad); color: #fff; border: none; border-radius: var(--r-sm); cursor: pointer; white-space: nowrap; }
         .comment-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .comment-placeholder { text-align: center; padding: 30px 0; color: var(--dim); font-size: 14px; }
         .comment-item { padding: 12px 0; border-bottom: 1px solid var(--line); display: flex; gap: 12px; align-items: flex-start; }
         .comment-item:last-child { border-bottom: none; }
         .comment-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--surface-2); flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--dim); }
@@ -61,9 +87,6 @@
         .comment-text { font-size: 14px; color: var(--text); margin: 4px 0 0; line-height: 1.5; }
         .comment-del { font-size: 11px; color: var(--flame); cursor: pointer; background: none; border: none; padding: 2px 6px; float: right; }
         .comment-del:hover { text-decoration: underline; }
-        .comment-placeholder { text-align: center; padding: 30px 0; color: var(--dim); font-size: 14px; }
-
-        /* 评论增强：点赞 + 回复 */
         .comment-actions { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
         .comment-like-btn { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; font-size: 12px; color: var(--faint); background: transparent; border: 1px solid var(--line); border-radius: 99px; cursor: pointer; transition: all 0.2s; }
         .comment-like-btn:hover { border-color: var(--fire); color: var(--fire); }
@@ -78,54 +101,106 @@
         .reply-form-inner button { padding: 8px 14px; font-family: var(--mono); font-size: 11px; font-weight: 700; border-radius: var(--r-sm); cursor: pointer; white-space: nowrap; }
         .reply-submit { background: var(--flame-grad); color: #fff; border: none; }
         .reply-submit:disabled { opacity: 0.5; }
-        .reply-cancel { background: transparent; color: var(--faint); border: 1px solid var(--line); }
-
-        /* 回复折叠 & 小字号 */
-        .comment-reply .comment-text { font-size: 13px; }
-        .comment-reply .comment-author { font-size: 12px; }
-        .comment-reply .comment-avatar { width: 24px; height: 24px; font-size: 11px; }
-        .comment-reply .comment-item { padding: 6px 0; }
-        .comment-replies-toggle { font-size: 12px; color: var(--fire); cursor: pointer;
-          padding: 6px 0 6px 72px; font-weight: 600; }
+        .reply-cancel { background: transparent; border: 1px solid var(--line-2); color: var(--dim); }
+        .comment-replies-toggle { font-size: 12px; color: var(--spring-3); cursor: pointer; margin: 6px 0 0 44px; }
         .comment-replies-toggle:hover { text-decoration: underline; }
-
-        @media (max-width: 480px) {
-            .article-card { padding: 28px 22px; }
-            .article-card h1 { font-size: 24px; }
-            .comment-form { flex-direction: column; }
-        }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--dim); }
+        .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+        .empty-state a { color: var(--fire); }
     </style>
 </head>
 <body>
     <header class="site-header">
-        <a class="brand" href="../" aria-label="返回首页">
-            <img src="../resource/img/logo.webp" alt="YHG战队标识">
-            <span>YHG</span>
-        </a>
+        <a class="brand" href="../" aria-label="返回首页"><img src="../resource/img/logo.webp" alt="YHG"><span>YHG</span></a>
         <nav class="nav" aria-label="主导航">
             <a href="../">HOME</a>
             <a href="../about/">ABOUT</a>
             <a href="../members/">ROSTER</a>
             <a href="../matches/">MATCHES</a>
-            <a class="active" href="./">NEWS</a>
+            <a class="active" href="../news/">NEWS</a>
         </nav>
-        <div id="authWidget" style="cursor:default;">文章</div>
+        <span id="authWidget" style="cursor:default;">新闻</span>
     </header>
 
     <main>
-        <div class="article-wrap">
-            <div class="article-card reveal in" data-delay="1" id="articleContent">
-                <div class="article-loading">加载中…</div>
+        <section class="page-hero">
+            <div class="embers" aria-hidden="true">${'<i></i>'.repeat(12)}</div>
+            <div class="page-hero-content">
+                <div class="eyebrow reveal in" data-delay="1">TEAM NEWS</div>
+                <h1 class="reveal in" data-delay="2">文章<strong>详情</strong></h1>
             </div>
-        </div>
+        </section>
+
+        <section class="section article-section">
+            <div class="article-wrap" data-ssr="1" data-article-id="${a.id}">
+                <div class="article-card reveal in" data-delay="1">
+                    <h1>${eh(title)}</h1>
+                    <div class="article-meta">
+                        <span>发布者 ${eh(a.username || '匿名')} · ${date}</span>
+                        <span>${a.view_count || 0} 次阅读</span>
+                    </div>
+                    <div class="article-body">${contentHtml}</div>
+                    <div class="article-actions">
+                        <button class="like-btn" id="likeBtn">
+                            <span class="heart">♡</span>
+                            <span id="likeCount">${likeCount}</span>
+                        </button>
+                    </div>
+                    <div class="comment-section">
+                        <h3>评论</h3>
+                        <div class="comment-form">
+                            <input type="text" id="commentInput" placeholder="输入评论…">
+                            <button id="submitComment">发送</button>
+                        </div>
+                        <div id="commentList"><p class="comment-placeholder">加载中…</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <footer>
-        <p>© 2026 YHG ESPORTS · Honor of Kings esports team</p>
-    </footer>
+    <footer><p>© 2026 YHG ESPORTS</p></footer>
 
     <script defer src="../resource/js/main.js"></script>
     <script defer src="../resource/js/auth.js"></script>
     <script defer src="../resource/js/article.js"></script>
 </body>
-</html>
+</html>`;
+}
+
+export async function onRequest(context) {
+  const { request, env } = context;
+  const url = new URL(request.url);
+  const slug = url.searchParams.get('slug');
+  const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' };
+
+  if (!slug) {
+    return new Response('<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>缺少文章标识</title></head><body><p>缺少文章标识</p></body></html>', { status: 400, headers });
+  }
+
+  const article = await env.DB.prepare(
+    'SELECT a.*, u.username FROM articles a JOIN users u ON u.id = a.user_id WHERE a.slug = ?'
+  ).bind(slug).first();
+
+  if (!article) {
+    return new Response('<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>文章不存在</title></head><body><p>文章不存在</p></body></html>', { status: 404, headers });
+  }
+
+  // 与 API 一致：非 approved 仅作者/staff 可见
+  if (article.status !== 'approved') {
+    const { getAuthUser } = await import('../api/_auth.js');
+    const user = await getAuthUser(request, env);
+    const isStaff = user && (user.role === 'admin' || user.role === 'sub_admin');
+    const isAuthor = user && user.id === article.user_id;
+    if (!isAuthor && !isStaff) {
+      return new Response('<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>文章待审核</title></head><body><p>文章待审核</p></body></html>', { status: 403, headers });
+    }
+  }
+
+  const likeCount = await env.DB.prepare(
+    'SELECT COUNT(*) as cnt FROM article_likes WHERE article_id = ?'
+  ).bind(article.id).first();
+  article.like_count = likeCount ? likeCount.cnt : 0;
+
+  return new Response(renderArticleHtml(article, slug), { status: 200, headers });
+}

@@ -9,6 +9,29 @@
   const slug = params.get('slug');
   const main = document.getElementById('mainContent');
 
+  // SSR 模式：正文已由服务端渲染（functions/members/profile.html.js），
+  // 此处只做交互增强（编辑按钮），不再重复拉取渲染
+  if (main && main.dataset.ssr === '1') {
+    (async function() {
+      try {
+        const meResp = await fetch('/api/auth/me');
+        if (!meResp.ok) return;
+        const meData = await meResp.json();
+        const adminResp = await fetch('/api/admin/check');
+        const canEdit = adminResp.ok || (meData.user && meData.user.player_slug === slug);
+        if (!canEdit) return;
+        const hero = main.querySelector('.page-hero-content');
+        if (!hero) return;
+        const actions = document.createElement('div');
+        actions.style.cssText = 'margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;';
+        actions.innerHTML =
+          '<a class="primary-btn" href="edit.html?slug=' + encodeURIComponent(slug || '') + '" style="text-decoration:none;">✏ 编辑资料</a>';
+        hero.appendChild(actions);
+      } catch(e) {}
+    })();
+    return;
+  }
+
   if (!slug) {
     if (main) main.innerHTML = '<section class="section"><div class="empty-state"><div class="empty-icon">🔍</div><p>缺少选手标识</p></div></section>';
     return;

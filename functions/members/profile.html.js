@@ -1,19 +1,100 @@
-<!DOCTYPE html>
+/**
+ * /members/profile.html — 服务端渲染（SSR）
+ * 替代原静态空壳：从 D1 查选手数据，渲染完整正文，爬虫可直接索引
+ * 前端 members-profile.js 降级为增强模式（补编辑按钮/交互）
+ */
+const SITE = 'https://yhg.whitemoon319.xyz';
+
+/** HTML 转义（与服务端一致，防 XSS） */
+function eh(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+/** 选手详情页完整 HTML */
+function renderProfileHtml(p, slug) {
+  const stats = (() => { try { return JSON.parse(p.stats || '{}'); } catch(e) { return {}; } })();
+  const statKeys = ['智商', '情商', '实力', '颜值', '素质', '运气'];
+  const maxValues = { '实力': 20, '智商': 20, '情商': 20, '颜值': 20, '素质': 20, '运气': 20 };
+
+  let statsHtml = '';
+  statKeys.forEach(function(k) {
+    const val = stats[k] || 0;
+    const max = maxValues[k] || 20;
+    const pct = Math.min(100, Math.round((val / max) * 100));
+    statsHtml += '<div class="attribute"><span>' + eh(k) + ' <b>' + eh(String(val)) + '</b></span><i style="--value:' + pct + '%"></i></div>';
+  });
+
+  const picUrl = SITE + '/resource/img/' + slug + '/members_pic.webp';
+  const updated = p.updated_at ? new Date(p.updated_at.replace(' ', 'T') + 'Z').toLocaleDateString('zh-CN') : '';
+
+  const hero =
+    '<section class="page-hero member-hero">' +
+      '<div class="embers" aria-hidden="true">' + '<i></i>'.repeat(12) + '</div>' +
+      '<div class="page-hero-content">' +
+        '<div class="eyebrow reveal in" data-delay="1">' + eh(p.role ? p.role.toUpperCase() : '') + ' · ' + eh(p.titles || '选手') + '</div>' +
+        '<h1 class="reveal in" data-delay="2">' + eh(p.id_name) + '</h1>' +
+        '<p class="reveal in" data-delay="3" style="max-width:600px;">' + eh(p.bio || '暂无简介') + '</p>' +
+        '<div style="margin-top:16px;"><a class="ghost-btn" href="' + eh(slug) + '/">查看详情</a></div>' +
+      '</div>' +
+    '</section>';
+
+  const body =
+    '<section class="section list-section">' +
+      '<div class="member-layout">' +
+        '<aside class="member-portrait reveal in" data-delay="2">' +
+          '<div class="member-portrait-content">' +
+            '<img class="member-portrait-pic" src="' + picUrl + '" alt="' + eh(p.name) + '" onerror="this.src=\'' + SITE + '/resource/img/default_members_pic.webp\'">' +
+            '<div class="role">' + eh(p.id_name) + ' / ' + eh(p.role) + '</div>' +
+            '<h2>' + eh(p.name) + '</h2>' +
+            '<p>' + eh(p.bio || '') + '</p>' +
+          '</div>' +
+        '</aside>' +
+        '<div class="member-info">' +
+          '<article class="info-panel reveal in" data-delay="3">' +
+            '<h3>基础资料</h3>' +
+            '<div class="info-grid">' +
+              '<div class="info-cell" data-field="姓名"><span>姓名</span><b>' + eh(p.name) + '</b></div>' +
+              '<div class="info-cell" data-field="ID"><span>ID</span><b>' + eh(p.id_name) + '</b></div>' +
+              '<div class="info-cell" data-field="年龄"><span>年龄</span><b>' + eh(p.age || '—') + '</b></div>' +
+              '<div class="info-cell" data-field="分路"><span>分路</span><b>' + eh(p.role) + '</b></div>' +
+              '<div class="info-cell" data-field="荣誉"><span>荣誉</span><b>' + eh(p.titles || '—') + '</b></div>' +
+              '<div class="info-cell"><span>资料更新</span><b>' + updated + '</b></div>' +
+            '</div>' +
+          '</article>' +
+          '<article class="info-panel reveal in" data-delay="4">' +
+            '<h3>属性</h3>' +
+            '<div class="attribute-grid">' + statsHtml + '</div>' +
+          '</article>' +
+          (p.personality ? '<article class="info-panel reveal in" data-delay="5"><h3>性格</h3><p>' + eh(p.personality) + '</p></article>' : '') +
+          (p.experience ? '<article class="info-panel reveal in" data-delay="6"><h3>经历</h3><p>' + eh(p.experience) + '</p></article>' : '') +
+          (p.anchor ? '<article class="info-panel reveal in" data-delay="7"><h3>锚点</h3><p>' + eh(p.anchor) + '</p></article>' : '') +
+          '<a class="back-link" href="../members/">返回队员阵容</a>' +
+        '</div>' +
+      '</div>' +
+    '</section>';
+
+  const title = (p.id_name || '选手') + ' - YHG电子竞技战队';
+  const desc = (p.bio || p.id_name + ' - YHG战队选手资料');
+
+  return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>选手资料 - YHG电子竞技战队</title>
+    <title>${title}</title>
     <link rel="icon" type="image/webp" href="../resource/img/logo.webp">
     <link rel="apple-touch-icon" href="../resource/img/logo.webp">
-    <meta name="description" content="YHG 战队选手资料编辑 — 管理选手信息与照片。">
-    <meta name="robots" content="noindex, nofollow">
-    <meta property="og:type" content="website">
+    <meta name="description" content="${eh(desc)}">
+    <link rel="canonical" href="${SITE}/members/profile.html?slug=${encodeURIComponent(slug)}">
+    <meta property="og:type" content="profile">
     <meta property="og:locale" content="zh_CN">
-    <meta property="og:title" content="选手资料 - YHG电子竞技战队">
-    <meta property="og:description" content="YHG 战队选手资料编辑 — 管理选手信息与照片。">
-    <meta property="og:url" content="https://yhg-7su.pages.dev/members/">
-    <meta property="og:image" content="https://yhg-7su.pages.dev/resource/img/logo.webp">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${eh(desc)}">
+    <meta property="og:url" content="${SITE}/members/profile.html?slug=${encodeURIComponent(slug)}">
+    <meta property="og:image" content="${picUrl}">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#ea580c">
@@ -69,8 +150,9 @@
         <span id="authWidget" style="cursor:default;">选手</span>
     </header>
 
-    <main id="mainContent">
-        <div class="loading" style="padding:160px 0;">加载选手资料…</div>
+    <main id="mainContent" data-ssr="1">
+        ${hero}
+        ${body}
     </main>
 
     <footer><p>© 2026 YHG ESPORTS</p></footer>
@@ -79,4 +161,25 @@
     <script defer src="../resource/js/auth.js"></script>
     <script defer src="../resource/js/members-profile.js"></script>
 </body>
-</html>
+</html>`;
+}
+
+export async function onRequest(context) {
+  const { request, env } = context;
+  const url = new URL(request.url);
+  const slug = url.searchParams.get('slug');
+
+  const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' };
+
+  if (!slug) {
+    return new Response(renderProfileHtml({ id_name: '缺少选手标识' }, ''), { status: 200, headers });
+  }
+
+  const player = await env.DB.prepare('SELECT * FROM players WHERE slug = ?').bind(slug).first();
+  if (!player) {
+    const notFound = renderProfileHtml({ id_name: '选手不存在', bio: '未找到该选手资料' }, slug);
+    return new Response(notFound, { status: 404, headers });
+  }
+
+  return new Response(renderProfileHtml(player, slug), { status: 200, headers });
+}

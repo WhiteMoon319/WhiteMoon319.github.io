@@ -28,6 +28,30 @@
   (async function() {
     await fetchCurrentUser();
 
+    // SSR 模式：正文已由服务端渲染（functions/news/article.html.js），
+    // 此处只加载评论、绑定点赞/评论事件，不再重复拉取渲染
+    if (wrap && wrap.dataset.ssr === '1') {
+      const articleId = parseInt(wrap.dataset.articleId || '0', 10);
+      if (articleId) {
+        loadComments(articleId);
+
+        document.getElementById('likeBtn')?.addEventListener('click', function() {
+          toggleLike(articleId);
+        });
+
+        document.getElementById('submitComment')?.addEventListener('click', function() {
+          submitComment(articleId, null);
+        });
+
+        document.getElementById('commentInput')?.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            submitComment(articleId, null);
+          }
+        });
+      }
+      return;
+    }
+
     try {
       const resp = await fetch('/api/news/' + encodeURIComponent(slug));
       const data = await resp.json();
