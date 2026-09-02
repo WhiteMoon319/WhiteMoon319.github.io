@@ -1860,6 +1860,43 @@ footer p {
     .nav-toggle {
         display: inline-flex;
     }
+    /* 移动端隐藏顶部 authWidget，登录/注册收进汉堡菜单 */
+    #authWidget,
+    #authStateBtn {
+        display: none;
+    }
+    /* 汉堡菜单内的 auth 区块 */
+    .nav-auth {
+        display: block;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+    }
+    .nav-auth a,
+    .nav-auth .nav-auth-logout {
+        display: block;
+        padding: 12px 24px;
+        font-size: 14px;
+        border-left: 2px solid transparent;
+        color: var(--dim);
+    }
+    .nav-auth a:hover,
+    .nav-auth .nav-auth-logout:hover {
+        background: rgba(194, 58, 48, 0.06);
+        border-left-color: var(--fire);
+        color: var(--fire);
+        cursor: pointer;
+    }
+    .nav-auth .nav-auth-logout {
+        color: var(--faint);
+    }
+}
+
+/* 桌面端隐藏菜单内 auth 区块 */
+@media (min-width: 861px) {
+    .nav-auth {
+        display: none;
+    }
 }
 
 /* ===== Toast 提示系统（样式类版） ===== */

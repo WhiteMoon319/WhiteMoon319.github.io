@@ -293,6 +293,16 @@ async function renderNotifBell(container) {
       else document.querySelector('.site-header')?.appendChild(container);
     }
 
+    // 汉堡菜单内的 auth 区块（移动端显示，桌面端 CSS 隐藏）
+    const navEl = document.querySelector('.site-header .nav');
+    let navAuth = document.getElementById('navAuth');
+    if (navEl && !navAuth) {
+      navAuth = document.createElement('div');
+      navAuth.id = 'navAuth';
+      navAuth.className = 'nav-auth';
+      navEl.appendChild(navAuth);
+    }
+
     if (data && data.ok) {
       // 已登录：一体化 pill
       const u = data.user;
@@ -331,6 +341,19 @@ async function renderNotifBell(container) {
 
       // 添加通知铃铛
       renderNotifBell(container);
+
+      // 移动端菜单内：已登录状态
+      if (navAuth) {
+        navAuth.innerHTML = `
+          <a href="/dashboard/" style="color:var(--text);font-weight:700;">${escapeHtml(u.username)}</a>
+          <a href="/notifications/">通知</a>
+          <span class="nav-auth-logout" data-slug="">退出</span>
+        `;
+        navAuth.querySelector('.nav-auth-logout')?.addEventListener('click', async () => {
+          await fetch('/api/auth/logout', { method: 'POST' });
+          window.location.reload();
+        });
+      }
     } else {
       // 未登录
       container.innerHTML = `
@@ -349,6 +372,13 @@ async function renderNotifBell(container) {
           transition:transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
         " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 26px var(--fire-glow-2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">注册</a>
       `;
+      // 移动端菜单内：未登录显示登录/注册
+      if (navAuth) {
+        navAuth.innerHTML = `
+          <a href="/login/">登录</a>
+          <a href="/register/">注册</a>
+        `;
+      }
     }
   } catch (e) {
     // 静默失败，不影响页面
