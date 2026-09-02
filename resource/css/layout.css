@@ -1,3 +1,11 @@
+/* =========================================================
+   layout.css — 页面布局与组件
+   内容：Header / Floating motes / Hero / Page hero / Section /
+         Big content cards / Card grid / Spirit / Philosophy /
+         Profile grid / Timeline / Member detail / Footer
+   来源：原 style.css 136-1503 行（拆分时未改动任何规则）
+   ========================================================= */
+
 /* ===================== Header ===================== */
 .site-header {
     position: fixed;
