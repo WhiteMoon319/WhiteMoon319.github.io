@@ -52,6 +52,7 @@ function renderArticleHtml(a, slug) {
     <style>
         .article-wrap { max-width: 960px; margin: 0 auto; padding: 120px 24px 80px; }
         .article-card { padding: 56px 56px; background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+        .article-card::before { content:""; position:absolute; top:0; left:0; right:0; height:3px; background: var(--flame-grad); }
         .article-card h1 { font-family: var(--display); font-size: 34px; color: var(--text); margin: 0 0 8px; }
         .article-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--faint); margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
         .article-meta span { display: flex; align-items: center; gap: 6px; }
@@ -118,6 +119,7 @@ function renderArticleHtml(a, slug) {
             .article-section { padding-left: 0; padding-right: 0; }
             .article-wrap { max-width: none; padding: 88px 0 60px; }
             .article-card { padding: 0 16px; background: transparent; border: none; box-shadow: none; border-radius: 0; }
+            .article-card::before { display: none; }
             .article-card h1 { font-size: 26px; }
             .article-body { font-size: 1rem; line-height: 2; }
             .article-body p { margin: 0 0 1.2em; }
