@@ -1,0 +1,135 @@
+/* =========================================================
+   YHG ESPORTS — "SPRING WIND" design system
+   Warm ivory × flame gradient × spring green.
+   Light, editorial, airy. Wildfire = flame + rebirth.
+   野火烧不尽 · 春风吹又生
+   ========================================================= */
+
+/* Fonts: loaded via <link> in HTML head with display=swap for optimal performance */
+/* Space Grotesk, Rajdhani, Noto Sans SC — Google Fonts */
+
+:root {
+    /* surfaces — warm layered ivories */
+    --bg: #faf6ef;
+    --bg-1: #f4ecdf;
+    --bg-2: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #fdfaf4;
+    --surface-3: #f7f0e4;
+    --glass: rgba(255, 255, 255, 0.62);
+
+    /* lines — soft warm */
+    --line: rgba(58, 45, 30, 0.10);
+    --line-2: rgba(58, 45, 30, 0.16);
+    --line-hot: rgba(234, 88, 12, 0.42);
+    --line-spring: rgba(77, 124, 15, 0.40);
+
+    /* text — warm near-black, never pure */
+    --text: #2a241d;
+    --dim: #6e6557;
+    --faint: #9a9082;
+
+    /* flame palette — rich multi-hue gradient (the wildfire) */
+    --amber: #fbbf24;
+    --ember: #f59e0b;
+    --fire: #ea580c;
+    --fire-2: #f97316;
+    --fire-3: #c2410c;
+    --flame: #ef4444;
+    --rose: #f43f5e;
+    --ember-deep: #b45309;
+    --fire-soft: rgba(249, 115, 22, 0.12);
+    --fire-glow: rgba(249, 115, 22, 0.32);
+    --fire-glow-2: rgba(234, 88, 12, 0.42);
+    /* signature flame gradient */
+    --flame-grad: linear-gradient(135deg, #fbbf24 0%, #f97316 38%, #ef4444 72%, #f43f5e 100%);
+
+    /* spring palette — rebirth accent (春风吹又生) */
+    --spring: #4d7c0f;
+    --spring-2: #65a30d;
+    --spring-3: #3f6212;
+    --spring-soft: rgba(101, 163, 13, 0.12);
+    --spring-glow: rgba(101, 163, 13, 0.30);
+
+    /* type */
+    --sans: "Noto Sans SC", system-ui, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    --mono: "Rajdhani", "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+    --display: "Space Grotesk", "PingFang SC", "Microsoft YaHei", sans-serif;
+
+    /* shape */
+    --r-sm: 8px;
+    --r: 14px;
+    --r-lg: 22px;
+    --cut: polygon(0 14px, 14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+
+    /* shadow — warm, soft, layered */
+    --shadow-sm: 0 4px 14px rgba(120, 80, 30, 0.07), 0 1px 3px rgba(120, 80, 30, 0.04);
+    --shadow: 0 14px 34px rgba(120, 80, 30, 0.11), 0 2px 6px rgba(120, 80, 30, 0.04);
+    --shadow-lg: 0 30px 60px rgba(120, 80, 30, 0.16), 0 4px 12px rgba(120, 80, 30, 0.05);
+
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* 固定 header 高度补偿，防止锚点跳转被遮挡 */
+section[id],
+[id] {
+    scroll-margin-top: 80px;
+}
+
+body {
+    min-height: 100vh;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.75;
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+}
+
+/* layered ambient: warm flame mesh top-right, spring green bottom-left */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+        radial-gradient(50% 45% at 92% 4%, rgba(251, 191, 36, 0.16), transparent 60%),
+        radial-gradient(42% 42% at 78% 26%, rgba(239, 68, 68, 0.10), transparent 60%),
+        radial-gradient(40% 40% at 8% 92%, rgba(101, 163, 13, 0.10), transparent 60%),
+        linear-gradient(180deg, #faf6ef, #f6efe2 60%, #f2eadb);
+}
+
+/* faint paper grain */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(58, 45, 30, 0.015) 0 1px, transparent 1px 4px);
+    opacity: 0.6;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+::selection {
+    background: var(--fire-2);
+    color: #fff;
+}
+
