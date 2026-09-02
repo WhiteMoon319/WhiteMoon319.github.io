@@ -61,18 +61,27 @@
 <body>
     <div class="toast" id="toast"></div>
     <header class="site-header">
-        <a class="brand" href="./"><img src="../resource/img/logo.webp" alt="YHG"><span>YHG</span></a>
-        <nav class="nav">
-            <a href="../">HOME</a><a href="../about/">ABOUT</a><a href="../members/">ROSTER</a><a href="../matches/">MATCHES</a><a href="../news/">NEWS</a>
+        <a class="brand" href="./">
+            <img src="../resource/img/logo.webp" alt="YHG">
+            <span>YHG</span>
+        </a>
+        <nav class="nav" aria-label="主导航">
+            <a href="../">HOME</a>
+            <a href="../about/">ABOUT</a>
+            <a href="../members/">ROSTER</a>
+            <a href="../matches/">MATCHES</a>
+            <a href="../news/">NEWS</a>
         </nav>
-        <span id="authStateBtn" style="cursor:default;">用户</span>
+        <div id="authStateBtn" style="cursor:default;">用户</div>
     </header>
     <main>
         <div class="dash-wrap reveal in" data-delay="1">
             <div class="dash-card" id="dashContent"><div class="loading">加载中…</div></div>
         </div>
     </main>
-    <footer><p>© 2026 YHG ESPORTS</p></footer>
+    <footer>
+        <p>© 2026 YHG ESPORTS</p>
+    </footer>
   <script defer src="../resource/js/main.js"></script>
     <script defer src="../resource/js/auth.js"></script>
     <script defer src="../resource/js/dashboard.js"></script>
