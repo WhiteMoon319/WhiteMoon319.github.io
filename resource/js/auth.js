@@ -1,6 +1,19 @@
 /**
  * YHG Auth — 全局导航栏认证状态 + 通知铃铛
+ *
+ * 分区索引：
+ *   1. 通知铃铛样式（自动注入 <style>）
+ *   2. 通知铃铛组件（renderNotifBell：铃铛/角标/下拉/已读）
+ *   3. 主流程（登录态渲染：authWidget / authStateBtn / navAuth）
+ *   4. 移动端导航菜单（汉堡按钮 toggle）
+ * 说明：保持 IIFE 分区结构不拆文件；共享工具（handleLogout）在本文件内定义
  */
+
+/** 退出登录：POST /api/auth/logout 后刷新 */
+async function handleLogout() {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  window.location.reload();
+}
 
 // ===== 通知铃铛样式（自动注入） =====
 (function() {
@@ -339,10 +352,7 @@ async function renderNotifBell(container) {
           " onmouseenter="this.style.color='var(--flame)'" onmouseleave="this.style.color='var(--faint)'">退出</span>
         </div>
       `;
-      container.querySelector('.auth-logout')?.addEventListener('click', async () => {
-        await fetch('/api/auth/logout', { method: 'POST' });
-        window.location.reload();
-      });
+      container.querySelector('.auth-logout')?.addEventListener('click', handleLogout);
 
       // 添加通知铃铛
       renderNotifBell(container);
@@ -356,10 +366,7 @@ async function renderNotifBell(container) {
           <a href="/notifications/">通知</a>
           <span class="nav-auth-logout" data-slug="">退出</span>
         `;
-        navAuth.querySelector('.nav-auth-logout')?.addEventListener('click', async () => {
-          await fetch('/api/auth/logout', { method: 'POST' });
-          window.location.reload();
-        });
+        navAuth.querySelector('.nav-auth-logout')?.addEventListener('click', handleLogout);
       }
     } else {
       // 未登录
