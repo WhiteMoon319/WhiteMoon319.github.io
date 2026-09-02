@@ -523,38 +523,12 @@ let adminRole = null;
           + '<td style="padding:10px 14px;color:var(--dim);font-size:12px;">' + window.escapeHtml(a.creator_name || '') + '</td>'
           + '<td style="padding:10px 14px;font-size:11px;color:var(--faint);font-family:var(--mono);">' + time + '</td>'
           + '<td style="padding:10px 14px;text-align:center;white-space:nowrap;">'
-          + '<button class="ann-edit-btn" data-id="' + a.id + '" style="background:none;border:1px solid var(--line-2);border-radius:var(--r-sm);padding:4px 12px;font-size:11px;cursor:pointer;color:var(--text);margin-right:6px;">编辑</button>'
-          + '<button class="ann-del-btn" data-id="' + a.id + '" data-title="' + window.escapeHtml(a.title) + '" style="background:none;border:1px solid var(--flame);border-radius:var(--r-sm);padding:4px 12px;font-size:11px;cursor:pointer;color:var(--flame);">删除</button>'
+          + '<button class="ann-edit-btn admin-btn" data-action="ann-edit" data-id="' + a.id + '" style="background:none;border:1px solid var(--line-2);border-radius:var(--r-sm);padding:4px 12px;font-size:11px;cursor:pointer;color:var(--text);margin-right:6px;">编辑</button>'
+          + '<button class="ann-del-btn admin-btn" data-action="ann-del" data-id="' + a.id + '" data-title="' + window.escapeHtml(a.title) + '" style="background:none;border:1px solid var(--flame);border-radius:var(--r-sm);padding:4px 12px;font-size:11px;cursor:pointer;color:var(--flame);">删除</button>'
           + '</td></tr>';
       });
       html += '</tbody></table></div>';
       container.innerHTML = html;
-
-      // 编辑
-      container.querySelectorAll('.ann-edit-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          const id = parseInt(this.dataset.id);
-          if (id) showAnnForm(id);
-        });
-      });
-
-      // 删除
-      container.querySelectorAll('.ann-del-btn').forEach(function(btn) {
-        btn.addEventListener('click', async function() {
-          const id = parseInt(this.dataset.id);
-          const title = this.dataset.title;
-          if (!id) return;
-          if (!await window.showConfirm('确定要删除公告「' + title + '」吗？\n所有用户的该通知将被同时删除。')) return;
-          const resp = await fetch('/api/admin/announcements/' + id, { method: 'DELETE' });
-          const data = await resp.json();
-          if (data.ok) {
-            showToast('公告已删除', 'ok');
-            await loadAnnList();
-          } else {
-            showToast(data.error || '删除失败', 'err');
-          }
-        });
-      });
     } catch(e) {
       container.innerHTML = '<p style="color:var(--flame);font-size:13px;">加载失败</p>';
     }
@@ -668,6 +642,28 @@ let adminRole = null;
     // 选手绑定：<button data-action="showBind" data-user-id data-username>
     if (action === 'showBind') {
       showBindDialog(parseInt(btn.dataset.userId, 10), btn.dataset.username || '');
+    }
+    // 公告编辑：<button data-action="ann-edit" data-id>
+    if (action === 'ann-edit') {
+      const id = parseInt(btn.dataset.id, 10);
+      if (id) showAnnForm(id);
+    }
+    // 公告删除：<button data-action="ann-del" data-id data-title>
+    if (action === 'ann-del') {
+      const id = parseInt(btn.dataset.id, 10);
+      const title = btn.dataset.title || '';
+      if (!id) return;
+      window.showConfirm('确定要删除公告「' + title + '」吗？\n所有用户的该通知将被同时删除。').then(async function(ok) {
+        if (!ok) return;
+        const resp = await fetch('/api/admin/announcements/' + id, { method: 'DELETE' });
+        const data = await resp.json();
+        if (data.ok) {
+          window.showToast('公告已删除', 'ok');
+          await loadAnnList();
+        } else {
+          window.showToast(data.error || '删除失败', 'err');
+        }
+      });
     }
   });
 })();
