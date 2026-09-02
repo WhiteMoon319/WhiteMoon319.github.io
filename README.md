@@ -98,14 +98,14 @@ python -m http.server 8000
 生产环境为 Cloudflare Pages 项目 `yhg`（生产分支 `main`）。推送 `main` 后：
 
 ```bash
-# 若已配置 Git 集成，push 自动触发构建
-git push origin master:main
-
-# 否则手动部署
-npx wrangler pages deploy . --project-name yhg --branch main
+git push          # 自动触发 GitHub Actions 部署
 ```
 
-> 注意：仓库默认分支为 `master`，远端 `main` 为生产分支，推送时须显式指定 `master:main`。
+手动部署（绕过 CI）：
+
+```bash
+npx wrangler pages deploy . --project-name yhg --branch main
+```
 
 ### 环境变量
 
