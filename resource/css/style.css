@@ -1856,6 +1856,14 @@ footer p {
     flex-shrink: 0;
 }
 
+/* authWidget 容器布局（桌面 flex；移动端由下方媒体查询隐藏） */
+#authWidget {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
 @media (max-width: 860px) {
     .nav-toggle {
         display: grid;
@@ -1865,8 +1873,7 @@ footer p {
     #authWidget,
     #authStateBtn {
         display: none;
-    }
-    /* 汉堡菜单内的 auth 区块 */
+    }    /* 汉堡菜单内的 auth 区块 */
     .nav-auth {
         display: block;
         margin-top: 10px;

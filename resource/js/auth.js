@@ -291,7 +291,7 @@ async function renderNotifBell(container) {
       } else {
         container = document.createElement('div');
         container.id = 'authWidget';
-        container.style.cssText = 'display:flex;align-items:center;gap:10px;flex-shrink:0;';
+        // display 布局由 style.css 的 #authWidget 规则控制（桌面 flex / 移动端隐藏）
         const nav = document.querySelector('.site-header .nav');
         if (nav) nav.after(container);
         else document.querySelector('.site-header')?.appendChild(container);
