@@ -114,10 +114,11 @@ function renderArticleHtml(a, slug) {
         .empty-state { text-align: center; padding: 60px 20px; color: var(--dim); }
         .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
         .empty-state a { color: var(--fire); }
-        /* 移动端阅读适配：收窄卡片内边距，正文字号微调 */
+        /* 移动端阅读适配：满宽占满两侧，收窄卡片内边距 */
         @media (max-width: 640px) {
-            .article-wrap { padding: 88px 14px 60px; }
-            .article-card { padding: 30px 20px; }
+            .article-section { padding-left: 0; padding-right: 0; }
+            .article-wrap { max-width: none; padding: 88px 0 60px; }
+            .article-card { padding: 30px 20px; border-radius: 0; border-left: none; border-right: none; }
             .article-card h1 { font-size: 26px; }
             .article-body { font-size: 1rem; line-height: 2; }
             .article-body p { margin: 0 0 1.2em; }
