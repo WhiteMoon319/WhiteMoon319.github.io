@@ -32,6 +32,10 @@ jobs:
         run: |
           for f in $(find resource/js -name "*.js") sw.js; do node --check "$f"; done
 
+      - name: Verify HTML template consistency
+        run: |
+          python scripts/build-html.py --check
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:

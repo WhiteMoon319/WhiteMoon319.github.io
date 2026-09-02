@@ -173,7 +173,10 @@ def main():
             print(' ', e)
         return 1
     if check_only:
-        print('--- check 模式未落盘；如需写入请运行: python scripts/build-html.py')
+        if changed:
+            print('--- 差异！请运行: python scripts/build-html.py 后提交生成结果')
+            return 1
+        print('--- check 通过：模板与仓库一致')
     return 0
 
 
