@@ -3,26 +3,27 @@
  * PUT /api/admin/home     — 更新首页区块 { sections: [{ section_key, content }] }
  */
 import { isStaff } from './check.js';
+import {json, err, handleAsync} from '../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
 
   const staff = await isStaff(request, env);
   if (!staff) {
-    return new Response(JSON.stringify({ error: '需要管理员权限' }), { status: 403, headers });
+    return err('需要管理员权限', 403);
   }
 
   if (request.method === 'GET') {
     const sections = await env.DB.prepare('SELECT * FROM home_sections ORDER BY id').all();
-    return new Response(JSON.stringify({ ok: true, sections: sections.results }), { status: 200, headers });
+    return json({ ok: true, sections: sections.results });
   }
 
   if (request.method === 'PUT') {
     try {
       const body = await request.json();
       if (!Array.isArray(body.sections)) {
-        return new Response(JSON.stringify({ error: '需要 sections 数组' }), { status: 400, headers });
+        return err('需要 sections 数组', 400);
       }
       for (const s of body.sections) {
         if (s.section_key && s.content !== undefined) {
@@ -31,11 +32,11 @@ export async function onRequest(context) {
           ).bind(s.section_key, s.content, s.content).run();
         }
       }
-      return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+      return json({ ok: true });
     } catch (e) {
-      return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+      return err('请求数据无效', 400);
     }
   }
 
-  return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
-}
+  return err('方法不允许', 405);
+});

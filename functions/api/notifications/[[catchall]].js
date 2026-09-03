@@ -9,16 +9,16 @@
  * PUT    /api/notifications/preferences         — 更新通知偏好
  * DELETE /api/notifications/:id                 — 删除单条通知
  */
-import { getAuthUser } from '../_auth.js';
+import {getAuthUser, json, err, handleAsync} from '../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
   const url = new URL(request.url);
 
   const user = await getAuthUser(request, env);
   if (!user) {
-    return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
+    return err('请先登录', 401);
   }
 
   const path = url.pathname.replace(/\/$/, '');
@@ -39,10 +39,10 @@ export async function onRequest(context) {
       on_like: 1, on_article_status: 1, on_announcement: 1
     };
 
-    return new Response(JSON.stringify({
+    return json({
       ok: true,
       preferences: pref || defaults
-    }), { status: 200, headers });
+    }, 200);
   }
 
   // PUT /api/notifications/preferences
@@ -76,10 +76,10 @@ export async function onRequest(context) {
         ).bind(...params).run();
       }
 
-      return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+      return json({ ok: true });
     } catch (e) {
       console.error(e);
-      return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+      return err('请求数据无效', 400);
     }
   }
 
@@ -98,9 +98,9 @@ export async function onRequest(context) {
           'UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0'
         ).bind(user.id).run();
       }
-      return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+      return json({ ok: true });
     } catch (e) {
-      return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+      return err('请求数据无效', 400);
     }
   }
 
@@ -114,14 +114,14 @@ export async function onRequest(context) {
       'SELECT id, user_id FROM notifications WHERE id = ?'
     ).bind(id).first();
     if (!notif) {
-      return new Response(JSON.stringify({ error: '通知不存在' }), { status: 404, headers });
+      return err('通知不存在', 404);
     }
     const isStaff = user.role === 'admin' || user.role === 'sub_admin';
     if (notif.user_id !== user.id && !isStaff) {
-      return new Response(JSON.stringify({ error: '无权删除' }), { status: 403, headers });
+      return err('无权删除', 403);
     }
     await env.DB.prepare('DELETE FROM notifications WHERE id = ?').bind(id).run();
-    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+    return json({ ok: true });
   }
 
   // ===== 未读计数 =====
@@ -131,7 +131,7 @@ export async function onRequest(context) {
     const row = await env.DB.prepare(
       'SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0'
     ).bind(user.id).first();
-    return new Response(JSON.stringify({ ok: true, unread_count: row ? row.count : 0 }), { status: 200, headers });
+    return json({ ok: true, unread_count: row ? row.count : 0 });
   }
 
   // ===== 列表（支持 ?type= 筛选） =====
@@ -173,14 +173,14 @@ export async function onRequest(context) {
       LIMIT ? OFFSET ?
     `).bind(...params, limit, offset).all();
 
-    return new Response(JSON.stringify({
+    return json({
       ok: true,
       notifications: rows.results,
       unread_count: unreadRow ? unreadRow.count : 0,
       page,
       limit
-    }), { status: 200, headers });
+    }, 200);
   }
 
-  return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
-}
+  return err('方法不允许', 405);
+});

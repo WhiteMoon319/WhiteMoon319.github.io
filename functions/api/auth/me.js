@@ -2,18 +2,15 @@
  * GET /api/auth/me
  * 获取当前登录用户信息（含多选手绑定列表）
  */
-import { getToken } from '../_auth.js';
+import {getToken, json, err, handleAsync} from '../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = {
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-store'
-  };
+
 
   const token = getToken(request);
   if (!token) {
-    return new Response(JSON.stringify({ error: '未登录' }), { status: 401, headers });
+    return err('未登录', 401);
   }
 
   const row = await env.DB.prepare(`
@@ -24,7 +21,7 @@ export async function onRequest(context) {
   `).bind(token).first();
 
   if (!row) {
-    return new Response(JSON.stringify({ error: '会话已过期' }), { status: 401, headers });
+    return err('会话已过期', 401);
   }
 
   // 查多选手绑定
@@ -33,5 +30,5 @@ export async function onRequest(context) {
   ).bind(row.id).all();
   row.bound_players = (bindings.results || []).map(b => b.player_slug);
 
-  return new Response(JSON.stringify({ ok: true, user: row }), { status: 200, headers });
-}
+  return json({ ok: true, user: row });
+});

@@ -5,14 +5,15 @@
  * DELETE /api/admin/matches/:id   — 删除赛事
  */
 import { isStaff } from '../check.js';
+import {json, err, handleAsync} from '../../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
 
   const staff = await isStaff(request, env);
   if (!staff) {
-    return new Response(JSON.stringify({ error: '需要管理员权限' }), { status: 403, headers });
+    return err('需要管理员权限', 403);
   }
 
   const url = new URL(request.url);
@@ -21,31 +22,31 @@ export async function onRequest(context) {
   const hasId = !isNaN(targetId);
 
   if (request.method === 'GET') {
-    return handleList(env, headers);
+    return handleList(env);
   }
   if (request.method === 'POST' && !hasId) {
-    return handleCreate(request, env, headers);
+    return handleCreate(request, env);
   }
   if (request.method === 'PUT' && hasId) {
-    return handleUpdate(targetId, request, env, headers);
+    return handleUpdate(targetId, request, env);
   }
   if (request.method === 'DELETE' && hasId) {
-    return handleDelete(targetId, env, headers);
+    return handleDelete(targetId, env);
   }
 
-  return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
-}
+  return err('方法不允许', 405);
+});
 
-async function handleList(env, headers) {
+async function handleList(env) {
   const matches = await env.DB.prepare('SELECT * FROM matches ORDER BY match_date DESC').all();
-  return new Response(JSON.stringify({ ok: true, matches: matches.results }), { status: 200, headers });
+  return json({ ok: true, matches: matches.results });
 }
 
-async function handleCreate(request, env, headers) {
+async function handleCreate(request, env) {
   try {
     const body = await request.json();
     if (!body.title || !body.opponent || !body.match_date) {
-      return new Response(JSON.stringify({ error: '缺少必填字段: title, opponent, match_date' }), { status: 400, headers });
+      return err('缺少必填字段: title, opponent, match_date', 400);
     }
     const result = await env.DB.prepare(
       'INSERT INTO matches (title, opponent, match_date, result, score, description, featured) VALUES (?, ?, ?, ?, ?, ?, ?)'
@@ -54,13 +55,13 @@ async function handleCreate(request, env, headers) {
       body.result || '', body.score || '', body.description || '',
       body.featured ? 1 : 0
     ).run();
-    return new Response(JSON.stringify({ ok: true, id: result.meta.last_row_id }), { status: 201, headers });
+    return json({ ok: true, id: result.meta.last_row_id }, 201);
   } catch (e) {
-    return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+    return err('请求数据无效', 400);
   }
 }
 
-async function handleUpdate(id, request, env, headers) {
+async function handleUpdate(id, request, env) {
   try {
     const body = await request.json();
     const fields = [];
@@ -74,7 +75,7 @@ async function handleUpdate(id, request, env, headers) {
     }
 
     if (fields.length === 0) {
-      return new Response(JSON.stringify({ error: '没有要更新的字段' }), { status: 400, headers });
+      return err('没有要更新的字段', 400);
     }
 
     fields.push('updated_at = datetime(\'now\')');
@@ -84,13 +85,13 @@ async function handleUpdate(id, request, env, headers) {
       `UPDATE matches SET ${fields.join(', ')} WHERE id = ?`
     ).bind(...values).run();
 
-    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+    return json({ ok: true });
   } catch (e) {
-    return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+    return err('请求数据无效', 400);
   }
 }
 
-async function handleDelete(id, env, headers) {
+async function handleDelete(id, env) {
   await env.DB.prepare('DELETE FROM matches WHERE id = ?').bind(id).run();
-  return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+  return json({ ok: true });
 }

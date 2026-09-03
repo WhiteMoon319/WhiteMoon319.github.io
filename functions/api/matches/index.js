@@ -1,17 +1,18 @@
+
+import {json, err, handleAsync} from '../_auth.js';
 /**
  * GET /api/matches — 公开赛事列表（按日期倒序）
  */
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' };
 
   if (request.method !== 'GET') {
-    return new Response(JSON.stringify({ error: '仅支持 GET' }), { status: 405, headers });
+    return err('仅支持 GET', 405);
   }
 
   const matches = await env.DB.prepare(
     'SELECT * FROM matches ORDER BY match_date DESC'
   ).all();
 
-  return new Response(JSON.stringify({ ok: true, matches: matches.results }), { status: 200, headers });
-}
+  return json({ ok: true, matches: matches.results });
+});

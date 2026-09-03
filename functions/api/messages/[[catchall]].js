@@ -5,18 +5,18 @@
  * GET  /api/messages        — 收到的私信列表
  * GET  /api/messages/sent   — 发出的私信列表
  */
-import { getAuthUser, createNotification, checkRateLimit } from '../_auth.js';
+import {getAuthUser, createNotification, checkRateLimit, json, err, handleAsync} from '../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/$/, '');
   const last = path.split('/').pop();
 
   const user = await getAuthUser(request, env);
   if (!user) {
-    return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
+    return err('请先登录', 401);
   }
 
   // POST /api/messages/send
@@ -25,7 +25,7 @@ export async function onRequest(context) {
       // 限流：每分钟最多 20 条私信
       const limit = await checkRateLimit(request, env, 'send-message', 20, 1);
       if (!limit.ok) {
-        return new Response(JSON.stringify({ error: limit.error }), { status: 429, headers });
+        return err(limit.error, 429);
       }
 
       const body = await request.json();
@@ -33,19 +33,19 @@ export async function onRequest(context) {
       const content = (body.content || '').trim();
 
       if (!toUserId || isNaN(toUserId)) {
-        return new Response(JSON.stringify({ error: '接收用户 ID 无效' }), { status: 400, headers });
+        return err('接收用户 ID 无效', 400);
       }
       if (!content) {
-        return new Response(JSON.stringify({ error: '消息内容不能为空' }), { status: 400, headers });
+        return err('消息内容不能为空', 400);
       }
       if (toUserId === user.id) {
-        return new Response(JSON.stringify({ error: '不能给自己发私信' }), { status: 400, headers });
+        return err('不能给自己发私信', 400);
       }
 
       // 检查目标用户存在
       const target = await env.DB.prepare('SELECT id, username FROM users WHERE id = ?').bind(toUserId).first();
       if (!target) {
-        return new Response(JSON.stringify({ error: '用户不存在' }), { status: 404, headers });
+        return err('用户不存在', 404);
       }
 
       // 创建通知（type = private_message）
@@ -57,10 +57,10 @@ export async function onRequest(context) {
         null, null, user.id
       );
 
-      return new Response(JSON.stringify({ ok: true, message: '私信已发送' }), { status: 201, headers });
+      return json({ ok: true, message: '私信已发送' }, 201);
     } catch (e) {
       console.error(e);
-      return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+      return err('请求数据无效', 400);
     }
   }
 
@@ -76,7 +76,7 @@ export async function onRequest(context) {
       LIMIT 50
     `).bind(user.id).all();
 
-    return new Response(JSON.stringify({ ok: true, messages: rows.results }), { status: 200, headers });
+    return json({ ok: true, messages: rows.results });
   }
 
   // GET /api/messages — 收到的私信
@@ -99,13 +99,13 @@ export async function onRequest(context) {
       LIMIT ? OFFSET ?
     `).bind(user.id, limit, offset).all();
 
-    return new Response(JSON.stringify({
+    return json({
       ok: true,
       messages: rows.results,
       unread_count: unreadRow ? unreadRow.count : 0,
       page, limit
-    }), { status: 200, headers });
+    }, 200);
   }
 
-  return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
-}
+  return err('方法不允许', 405);
+});

@@ -2,44 +2,44 @@
  * GET    /api/players/:slug — 选手详情
  * PUT    /api/players/:slug — 更新选手资料（需绑定或admin）
  */
-import { getToken, getUserFromToken } from '../_auth.js';
+import {getToken, getUserFromToken, json, err, handleAsync} from '../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env, params } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
   const slug = params.slug;
 
   if (!slug) {
-    return new Response(JSON.stringify({ error: '缺少 slug' }), { status: 400, headers });
+    return err('缺少 slug', 400);
   }
 
   if (request.method === 'GET') {
-    return handleGet(slug, env, headers);
+    return handleGet(slug, env);
   }
   if (request.method === 'PUT') {
-    return handlePut(slug, request, env, headers);
+    return handlePut(slug, request, env);
   }
 
-  return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
-}
+  return err('方法不允许', 405);
+});
 
-async function handleGet(slug, env, headers) {
+async function handleGet(slug, env) {
   const player = await env.DB.prepare('SELECT * FROM players WHERE slug = ?').bind(slug).first();
   if (!player) {
-    return new Response(JSON.stringify({ error: '选手不存在' }), { status: 404, headers });
+    return err('选手不存在', 404);
   }
-  return new Response(JSON.stringify({ ok: true, player }), { status: 200, headers });
+  return json({ ok: true, player });
 }
 
-async function handlePut(slug, request, env, headers) {
+async function handlePut(slug, request, env) {
   const token = getToken(request);
   if (!token) {
-    return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
+    return err('请先登录', 401);
   }
 
   const user = await getUserFromToken(token, env);
   if (!user) {
-    return new Response(JSON.stringify({ error: '会话已过期' }), { status: 401, headers });
+    return err('会话已过期', 401);
   }
 
   // 查多选手绑定
@@ -53,7 +53,7 @@ async function handlePut(slug, request, env, headers) {
   const isBound = user.player_slug === slug || boundSlugs.includes(slug);
 
   if (!isAdmin && !isBound) {
-    return new Response(JSON.stringify({ error: '没有编辑权限' }), { status: 403, headers });
+    return err('没有编辑权限', 403);
   }
 
   try {
@@ -70,7 +70,7 @@ async function handlePut(slug, request, env, headers) {
     });
 
     if (updates.length === 0) {
-      return new Response(JSON.stringify({ error: '没有可更新的字段' }), { status: 400, headers });
+      return err('没有可更新的字段', 400);
     }
 
     updates.push("updated_at = datetime('now')");
@@ -80,9 +80,9 @@ async function handlePut(slug, request, env, headers) {
       `UPDATE players SET ${updates.join(', ')} WHERE slug = ?`
     ).bind(...values).run();
 
-    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+    return json({ ok: true });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: '服务器错误' }), { status: 500, headers });
+    return err('服务器错误', 500);
   }
 }

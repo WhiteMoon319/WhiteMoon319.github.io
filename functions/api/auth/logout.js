@@ -1,16 +1,15 @@
+
+import {json, err, handleAsync} from '../_auth.js';
 /**
  * POST /api/auth/logout
  * 登出，清除 session
  */
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = {
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-store'
-  };
+
 
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
+    return err('方法不允许', 405);
   }
 
   // 取 cookie
@@ -25,8 +24,5 @@ export async function onRequest(context) {
   // 清除 cookie
   const clearCookie = 'yhg_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0';
 
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: { ...headers, 'Set-Cookie': clearCookie }
-  });
-}
+  return json({ ok: true }, 200, { 'Set-Cookie': clearCookie  });
+});

@@ -7,15 +7,15 @@
  * POST   /api/admin/articles/announcement         — 发布系统公告（发送给所有用户）
  */
 import { isStaff } from '../check.js';
-import { createNotification, notifyAllUsers } from '../../_auth.js';
+import {createNotification, notifyAllUsers, json, err, handleAsync} from '../../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
 
   const staff = await isStaff(request, env);
   if (!staff) {
-    return new Response(JSON.stringify({ error: '需要管理员权限' }), { status: 403, headers });
+    return err('需要管理员权限', 403);
   }
 
   const url = new URL(request.url);
@@ -27,38 +27,38 @@ export async function onRequest(context) {
 
   // POST /api/admin/articles/announcement — 发布公告
   if (request.method === 'POST' && pathParts[pathParts.length - 1] === 'announcement') {
-    return handleAnnouncement(request, env, headers, staff);
+    return handleAnnouncement(request, env, staff);
   }
 
   if (request.method === 'GET') {
-    return handleList(env, headers);
+    return handleList(env);
   }
 
   // PUT /api/admin/articles/:slug/status — 审核
   if (request.method === 'PUT' && action === 'status' && slug) {
-    return handleStatusUpdate(slug, request, env, headers);
+    return handleStatusUpdate(slug, request, env);
   }
 
   // DELETE /api/admin/articles/:slug — 删除
   if (request.method === 'DELETE' && slug) {
-    return handleDelete(slug, env, headers);
+    return handleDelete(slug, env);
   }
 
-  return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
-}
+  return err('方法不允许', 405);
+});
 
-async function handleList(env, headers) {
+async function handleList(env) {
   const articles = await env.DB.prepare(
     "SELECT a.id, a.title, a.slug, a.status, a.created_at, u.username FROM articles a JOIN users u ON u.id = a.user_id ORDER BY a.created_at DESC"
   ).all();
-  return new Response(JSON.stringify({ ok: true, articles: articles.results }), { status: 200, headers });
+  return json({ ok: true, articles: articles.results });
 }
 
-async function handleStatusUpdate(slug, request, env, headers) {
+async function handleStatusUpdate(slug, request, env) {
   try {
     const body = await request.json();
     if (!['approved', 'rejected'].includes(body.status)) {
-      return new Response(JSON.stringify({ error: '状态仅支持 approved 或 rejected' }), { status: 400, headers });
+      return err('状态仅支持 approved 或 rejected', 400);
     }
 
     // 获取文章信息（含作者）
@@ -67,7 +67,7 @@ async function handleStatusUpdate(slug, request, env, headers) {
     ).bind(slug).first();
 
     if (!article) {
-      return new Response(JSON.stringify({ error: '文章不存在' }), { status: 404, headers });
+      return err('文章不存在', 404);
     }
 
     await env.DB.prepare(
@@ -88,31 +88,31 @@ async function handleStatusUpdate(slug, request, env, headers) {
       article.id
     );
 
-    return new Response(JSON.stringify({ ok: true, status: body.status }), { status: 200, headers });
+    return json({ ok: true, status: body.status });
   } catch (e) {
-    return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+    return err('请求数据无效', 400);
   }
 }
 
-async function handleDelete(slug, env, headers) {
+async function handleDelete(slug, env) {
   await env.DB.prepare('DELETE FROM articles WHERE slug = ?').bind(slug).run();
-  return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+  return json({ ok: true });
 }
 
-async function handleAnnouncement(request, env, headers, staff) {
+async function handleAnnouncement(request, env, staff) {
   try {
     const body = await request.json();
     const title = (body.title || '').trim();
     const content = (body.content || '').trim();
 
     if (!title) {
-      return new Response(JSON.stringify({ error: '公告标题不能为空' }), { status: 400, headers });
+      return err('公告标题不能为空', 400);
     }
 
     // 校验 link 必须为空或以 https:// 或 / 开头
     const link = (body.link || '').trim();
     if (link && !link.startsWith('https://') && !link.startsWith('/')) {
-      return new Response(JSON.stringify({ error: '链接必须以 https:// 开头或为站内路径' }), { status: 400, headers });
+      return err('链接必须以 https:// 开头或为站内路径', 400);
     }
 
     // 写入 announcements 表
@@ -123,9 +123,9 @@ async function handleAnnouncement(request, env, headers, staff) {
     // 发送给所有用户
     await notifyAllUsers(env, 'system', title, content, link);
 
-    return new Response(JSON.stringify({ ok: true, id: result.meta.last_row_id, message: '公告已发布' }), { status: 200, headers });
+    return json({ ok: true, id: result.meta.last_row_id, message: '公告已发布' });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+    return err('请求数据无效', 400);
   }
 }

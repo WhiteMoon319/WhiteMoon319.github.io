@@ -130,3 +130,41 @@ export async function checkRateLimit(request, env, endpoint, maxAttempts = 10, w
 
   return { ok: true, remaining: maxAttempts - currentCount - 1 };
 }
+
+/**
+ * 统一 JSON 响应（自动携带标准头）
+ * @param {*} data - 响应体（自动 JSON.stringify）
+ * @param {number} [status=200]
+ * @param {object} [extraHeaders]
+ */
+export function json(data, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...extraHeaders },
+  });
+}
+
+/**
+ * 统一错误响应
+ * @param {string} message
+ * @param {number} [status=400]
+ * @param {object} [extraHeaders]
+ */
+export function err(message, status = 400, extraHeaders = {}) {
+  return json({ error: message }, status, extraHeaders);
+}
+
+/**
+ * 包装 async 处理器：捕获异常统一返回 500，消灭裸异常
+ * @param {(ctx) => Promise<Response>} handler
+ */
+export function handleAsync(handler) {
+  return async (context) => {
+    try {
+      return await handler(context);
+    } catch (e) {
+      console.error('[api error]', context?.request?.url || '', e);
+      return json({ error: '服务器错误' }, 500);
+    }
+  };
+}

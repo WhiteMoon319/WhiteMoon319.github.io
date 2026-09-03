@@ -4,44 +4,39 @@
  * Body: { email, password }
  */
 import { verifyPassword } from './crypto.js';
-import { checkRateLimit } from '../_auth.js';
+import {checkRateLimit, json, err, handleAsync} from '../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = {
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-store'
-  };
+
 
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
+    return err('方法不允许', 405);
   }
 
   // IP 频率限制：每分钟最多 10 次登录尝试
   const limit = await checkRateLimit(request, env, 'login', 10, 1);
   if (!limit.ok) {
-    return new Response(JSON.stringify({ error: limit.error }), {
-      status: 429, headers: { ...headers, 'Retry-After': '60' }
-    });
+    return err(limit.error, 429, { 'Retry-After': '60' });
   }
 
   try {
     const { email, password } = await request.json();
 
     if (!email || !password) {
-      return new Response(JSON.stringify({ error: '请输入邮箱和密码' }), { status: 400, headers });
+      return err('请输入邮箱和密码', 400);
     }
 
     // 查找用户
     const user = await env.DB.prepare('SELECT id, username, password_hash FROM users WHERE email = ?').bind(email).first();
     if (!user) {
-      return new Response(JSON.stringify({ error: '邮箱或密码错误' }), { status: 401, headers });
+      return err('邮箱或密码错误', 401);
     }
 
     // 验证密码
     const valid = await verifyPassword(password, user.password_hash);
     if (!valid) {
-      return new Response(JSON.stringify({ error: '邮箱或密码错误' }), { status: 401, headers });
+      return err('邮箱或密码错误', 401);
     }
 
     // 生成 session（7天有效期），支持多设备同时在线
@@ -57,18 +52,9 @@ export async function onRequest(context) {
 
     const cookie = `yhg_session=${token}; Path=/; HttpOnly; SameSite=Strict${isSecure ? '; Secure' : ''}; Max-Age=604800`;
 
-    return new Response(JSON.stringify({
-      ok: true,
-      user: { id: user.id, username: user.username, email }
-    }), {
-      status: 200,
-      headers: {
-        ...headers,
-        'Set-Cookie': cookie
-      }
-    });
+    return json({ ok: true, user: { id: user.id, username: user.username, email } }, 200, { 'Set-Cookie': cookie });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: '服务器错误' }), { status: 500, headers });
+    return err('服务器错误', 500);
   }
-}
+});

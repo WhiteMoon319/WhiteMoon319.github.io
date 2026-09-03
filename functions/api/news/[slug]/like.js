@@ -4,31 +4,31 @@
  *
  * 点赞时向文章作者发送通知
  */
-import { getToken, getUserFromToken, createNotification, checkRateLimit } from '../../_auth.js';
+import {getToken, getUserFromToken, createNotification, checkRateLimit, json, err, handleAsync} from '../../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env, params } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
   const slug = params.slug;
 
   // 先查文章 ID 和作者
   const article = await env.DB.prepare('SELECT id, user_id, title, slug FROM articles WHERE slug = ?').bind(slug).first();
   if (!article) {
-    return new Response(JSON.stringify({ error: '文章不存在' }), { status: 404, headers });
+    return err('文章不存在', 404);
   }
 
   if (request.method === 'GET') {
-    return handleGetLike(article.id, request, env, headers);
+    return handleGetLike(article.id, request, env);
   }
 
   if (request.method === 'POST') {
-    return handleToggleLike(article, request, env, headers);
+    return handleToggleLike(article, request, env);
   }
 
-  return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
-}
+  return err('方法不允许', 405);
+});
 
-async function handleGetLike(articleId, request, env, headers) {
+async function handleGetLike(articleId, request, env) {
   const count = await env.DB.prepare(
     'SELECT COUNT(*) as cnt FROM article_likes WHERE article_id = ?'
   ).bind(articleId).first();
@@ -45,25 +45,25 @@ async function handleGetLike(articleId, request, env, headers) {
     }
   }
 
-  return new Response(JSON.stringify({ ok: true, like_count: count.cnt, liked_by_me: likedByMe }), { status: 200, headers });
+  return json({ ok: true, like_count: count.cnt, liked_by_me: likedByMe });
 }
 
-async function handleToggleLike(article, request, env, headers) {
+async function handleToggleLike(article, request, env) {
   // 登录检查
   const token = getToken(request);
   if (!token) {
-    return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
+    return err('请先登录', 401);
   }
 
   const user = await getUserFromToken(token, env);
   if (!user) {
-    return new Response(JSON.stringify({ error: '会话已过期' }), { status: 401, headers });
+    return err('会话已过期', 401);
   }
 
   // 限流：每分钟最多 30 次点赞
   const limit = await checkRateLimit(request, env, 'like-article', 30, 1);
   if (!limit.ok) {
-    return new Response(JSON.stringify({ error: limit.error }), { status: 429, headers });
+    return err(limit.error, 429);
   }
 
   // 检查是否已点赞
@@ -77,7 +77,7 @@ async function handleToggleLike(article, request, env, headers) {
       'DELETE FROM article_likes WHERE article_id = ? AND user_id = ?'
     ).bind(article.id, user.id).run();
     const count = await env.DB.prepare('SELECT COUNT(*) as cnt FROM article_likes WHERE article_id = ?').bind(article.id).first();
-    return new Response(JSON.stringify({ ok: true, liked: false, like_count: count.cnt }), { status: 200, headers });
+    return json({ ok: true, liked: false, like_count: count.cnt });
   } else {
     // 点赞
     await env.DB.prepare(
@@ -96,6 +96,6 @@ async function handleToggleLike(article, request, env, headers) {
       );
     }
 
-    return new Response(JSON.stringify({ ok: true, liked: true, like_count: count.cnt }), { status: 200, headers });
+    return json({ ok: true, liked: true, like_count: count.cnt });
   }
 }

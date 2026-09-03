@@ -4,7 +4,7 @@
  * Body: { email }
  */
 import nodemailer from 'nodemailer';
-import { checkRateLimit } from '../_auth.js';
+import {checkRateLimit, json, err, handleAsync} from '../_auth.js';
 
 function generateCode() {
   const arr = new Uint32Array(1);
@@ -12,33 +12,31 @@ function generateCode() {
   return String(100000 + (arr[0] % 900000));
 }
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
 
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
+    return err('方法不允许', 405);
   }
 
   try {
     const { email } = await request.json();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return new Response(JSON.stringify({ error: '请输入有效的邮箱地址' }), { status: 400, headers });
+      return err('请输入有效的邮箱地址', 400);
     }
 
     // IP 频率限制：每 10 分钟最多 5 次发信请求
     const ipLimit = await checkRateLimit(request, env, 'send-reset-code', 5, 10);
     if (!ipLimit.ok) {
-      return new Response(JSON.stringify({ error: ipLimit.error }), {
-        status: 429, headers: { ...headers, 'Retry-After': '600' }
-      });
+      return err(ipLimit.error, 429, { 'Retry-After': '600' });
     }
 
     // 检查邮箱是否已注册
     const user = await env.DB.prepare('SELECT id, username FROM users WHERE email = ?').bind(email).first();
     if (!user) {
       // 不泄露邮箱是否注册，统一返回成功
-      return new Response(JSON.stringify({ ok: true, message: '验证码已发送到邮箱' }), { status: 200, headers });
+      return json({ ok: true, message: '验证码已发送到邮箱' });
     }
 
     // 防刷：60秒内不能重复发
@@ -46,7 +44,7 @@ export async function onRequest(context) {
       "SELECT id FROM verification_codes WHERE email = ? AND used = 0 AND expires_at > datetime('now', '+5 minutes') AND created_at > datetime('now', '-1 minute')"
     ).bind(email).first();
     if (recent) {
-      return new Response(JSON.stringify({ error: '验证码已发送，请稍后再试' }), { status: 429, headers });
+      return err('验证码已发送，请稍后再试', 429);
     }
 
     const code = generateCode();
@@ -92,9 +90,9 @@ export async function onRequest(context) {
       `
     });
 
-    return new Response(JSON.stringify({ ok: true, message: '验证码已发送到邮箱' }), { status: 200, headers });
+    return json({ ok: true, message: '验证码已发送到邮箱' });
   } catch (e) {
     console.error('send-reset-code error:', e);
-    return new Response(JSON.stringify({ error: '发送失败，请稍后重试' }), { status: 500, headers });
+    return err('发送失败，请稍后重试', 500);
   }
-}
+});

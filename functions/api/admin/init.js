@@ -4,13 +4,14 @@
  * 首次初始化后自动禁用本端点（通过 home_sections 标记），不可重放
  */
 import { createPasswordHash } from '../auth/crypto.js';
+import {json, err, handleAsync} from '../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
 
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
+    return err('方法不允许', 405);
   }
 
   // 检查是否已初始化（即使 admin 用户被删也不可重放）
@@ -18,20 +19,20 @@ export async function onRequest(context) {
     "SELECT id FROM home_sections WHERE section_key = ?"
   ).bind('init_complete').first();
   if (initFlag) {
-    return new Response(JSON.stringify({ error: '初始化已完成，本端点已永久禁用' }), { status: 410, headers });
+    return err('初始化已完成，本端点已永久禁用', 410);
   }
 
   // 检查是否已有 admin（双重防护）
   const existing = await env.DB.prepare('SELECT id FROM users WHERE role = ?').bind('admin').first();
   if (existing) {
-    return new Response(JSON.stringify({ error: '管理员已存在' }), { status: 400, headers });
+    return err('管理员已存在', 400);
   }
 
   const adminEmail = env.ADMIN_EMAIL;
   const adminPassword = env.ADMIN_PASSWORD;
 
   if (!adminEmail || !adminPassword) {
-    return new Response(JSON.stringify({ error: '请在 Cloudflare Pages 环境变量中设置 ADMIN_EMAIL 和 ADMIN_PASSWORD' }), { status: 500, headers });
+    return err('请在 Cloudflare Pages 环境变量中设置 ADMIN_EMAIL 和 ADMIN_PASSWORD', 500);
   }
 
   const hash = await createPasswordHash(adminPassword);
@@ -44,5 +45,5 @@ export async function onRequest(context) {
     'INSERT INTO home_sections (section_key, content) VALUES (?, ?)'
   ).bind('init_complete', '1').run();
 
-  return new Response(JSON.stringify({ ok: true, message: '管理员账号已创建，初始化端点已自动永久禁用' }), { status: 201, headers });
-}
+  return json({ ok: true, message: '管理员账号已创建，初始化端点已自动永久禁用' }, 201);
+});

@@ -1,12 +1,13 @@
+
+import {json, err, handleAsync} from './_auth.js';
 /**
  * GET /api/home — 公开首页数据（首页区块 + 精选比赛）
  */
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' };
 
   if (request.method !== 'GET') {
-    return new Response(JSON.stringify({ error: '仅支持 GET' }), { status: 405, headers });
+    return err('仅支持 GET', 405);
   }
 
   // 读取所有首页区块
@@ -21,9 +22,9 @@ export async function onRequest(context) {
     "SELECT * FROM matches WHERE featured = 1 ORDER BY match_date DESC LIMIT 1"
   ).first();
 
-  return new Response(JSON.stringify({
+  return json({
     ok: true,
     sections: data,
     featured_match: match || null
-  }), { status: 200, headers });
-}
+  }, 200);
+});

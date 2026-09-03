@@ -8,15 +8,15 @@
  * DELETE /api/admin/announcements/:id    — 删除公告（同时删除所有用户通知）
  */
 import { isStaff } from '../check.js';
-import { createNotification, notifyAllUsers } from '../../_auth.js';
+import {createNotification, notifyAllUsers, json, err, handleAsync} from '../../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
 
   const staff = await isStaff(request, env);
   if (!staff) {
-    return new Response(JSON.stringify({ error: '需要管理员权限' }), { status: 403, headers });
+    return err('需要管理员权限', 403);
   }
 
   const url = new URL(request.url);
@@ -36,7 +36,7 @@ export async function onRequest(context) {
       ORDER BY a.created_at DESC
     `).all();
 
-    return new Response(JSON.stringify({ ok: true, announcements: rows.results || [] }), { status: 200, headers });
+    return json({ ok: true, announcements: rows.results || [] });
   }
 
   // GET /api/admin/announcements/:id — 单条
@@ -49,9 +49,9 @@ export async function onRequest(context) {
     `).bind(annId).first();
 
     if (!ann) {
-      return new Response(JSON.stringify({ error: '公告不存在' }), { status: 404, headers });
+      return err('公告不存在', 404);
     }
-    return new Response(JSON.stringify({ ok: true, announcement: ann }), { status: 200, headers });
+    return json({ ok: true, announcement: ann });
   }
 
   // POST /api/admin/announcements — 创建
@@ -60,13 +60,13 @@ export async function onRequest(context) {
       const body = await request.json();
       const title = (body.title || '').trim();
       if (!title) {
-        return new Response(JSON.stringify({ error: '公告标题不能为空' }), { status: 400, headers });
+        return err('公告标题不能为空', 400);
       }
 
       // 校验 link 必须为空或以 https:// 或 / 开头
       const link = (body.link || '').trim();
       if (link && !link.startsWith('https://') && !link.startsWith('/')) {
-        return new Response(JSON.stringify({ error: '链接必须以 https:// 开头或为站内路径' }), { status: 400, headers });
+        return err('链接必须以 https:// 开头或为站内路径', 400);
       }
 
       // 写入 announcements 表
@@ -79,10 +79,10 @@ export async function onRequest(context) {
       // 通知所有用户
       await notifyAllUsers(env, 'system', title, body.content || '', link);
 
-      return new Response(JSON.stringify({ ok: true, id: newId, message: '公告已发布' }), { status: 201, headers });
+      return json({ ok: true, id: newId, message: '公告已发布' }, 201);
     } catch (e) {
       console.error(e);
-      return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+      return err('请求数据无效', 400);
     }
   }
 
@@ -92,19 +92,19 @@ export async function onRequest(context) {
       const body = await request.json();
       const title = (body.title || '').trim();
       if (!title) {
-        return new Response(JSON.stringify({ error: '公告标题不能为空' }), { status: 400, headers });
+        return err('公告标题不能为空', 400);
       }
 
       // 校验 link
       const link = (body.link || '').trim();
       if (link && !link.startsWith('https://') && !link.startsWith('/')) {
-        return new Response(JSON.stringify({ error: '链接必须以 https:// 开头或为站内路径' }), { status: 400, headers });
+        return err('链接必须以 https:// 开头或为站内路径', 400);
       }
 
       // 检查公告存在（查询全部字段用于后续更新通知）
       const existing = await env.DB.prepare('SELECT id, title, body, link FROM announcements WHERE id = ?').bind(annId).first();
       if (!existing) {
-        return new Response(JSON.stringify({ error: '公告不存在' }), { status: 404, headers });
+        return err('公告不存在', 404);
       }
 
       // 更新 announcements 表
@@ -117,10 +117,10 @@ export async function onRequest(context) {
         "UPDATE notifications SET title = ?, body = ?, link = ? WHERE type = 'system' AND title = ? AND body = ? AND link = ?"
       ).bind(title, body.content || '', link, existing.title || '', existing.body || '', existing.link || '').run();
 
-      return new Response(JSON.stringify({ ok: true, message: '公告已更新' }), { status: 200, headers });
+      return json({ ok: true, message: '公告已更新' });
     } catch (e) {
       console.error(e);
-      return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+      return err('请求数据无效', 400);
     }
   }
 
@@ -129,7 +129,7 @@ export async function onRequest(context) {
     // 获取公告信息
     const ann = await env.DB.prepare('SELECT id, title, body, link FROM announcements WHERE id = ?').bind(annId).first();
     if (!ann) {
-      return new Response(JSON.stringify({ error: '公告不存在' }), { status: 404, headers });
+      return err('公告不存在', 404);
     }
 
     // 删除所有相关的用户通知
@@ -140,8 +140,8 @@ export async function onRequest(context) {
     // 删除公告记录
     await env.DB.prepare('DELETE FROM announcements WHERE id = ?').bind(annId).run();
 
-    return new Response(JSON.stringify({ ok: true, message: '公告已删除' }), { status: 200, headers });
+    return json({ ok: true, message: '公告已删除' });
   }
 
-  return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
-}
+  return err('方法不允许', 405);
+});

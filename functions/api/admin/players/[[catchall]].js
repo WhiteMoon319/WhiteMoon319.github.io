@@ -3,14 +3,15 @@
  * PUT  /api/admin/players/:slug    — 更新选手资料（头像等）
  */
 import { isStaff } from '../check.js';
+import {json, err, handleAsync} from '../../_auth.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env, params } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
 
   const staff = await isStaff(request, env);
   if (!staff) {
-    return new Response(JSON.stringify({ error: '需要管理员权限' }), { status: 403, headers });
+    return err('需要管理员权限', 403);
   }
 
   const url = new URL(request.url);
@@ -18,22 +19,22 @@ export async function onRequest(context) {
   const last = segments[segments.length - 1];
 
   if (request.method === 'GET') {
-    return handleList(env, headers);
+    return handleList(env);
   }
 
   if (request.method === 'PUT' && last && last !== 'players') {
-    return handleUpdate(last, request, env, headers);
+    return handleUpdate(last, request, env);
   }
 
-  return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
-}
+  return err('方法不允许', 405);
+});
 
-async function handleList(env, headers) {
+async function handleList(env) {
   const players = await env.DB.prepare('SELECT * FROM players ORDER BY slug').all();
-  return new Response(JSON.stringify({ ok: true, players: players.results }), { status: 200, headers });
+  return json({ ok: true, players: players.results });
 }
 
-async function handleUpdate(slug, request, env, headers) {
+async function handleUpdate(slug, request, env) {
   try {
     const body = await request.json();
     // 允许更新的字段
@@ -47,15 +48,15 @@ async function handleUpdate(slug, request, env, headers) {
       }
     }
     if (updates.length === 0) {
-      return new Response(JSON.stringify({ error: '没有可更新的字段' }), { status: 400, headers });
+      return err('没有可更新的字段', 400);
     }
     updates.push("updated_at = datetime('now')");
     values.push(slug);
     await env.DB.prepare(
       'UPDATE players SET ' + updates.join(', ') + ' WHERE slug = ?'
     ).bind(...values).run();
-    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+    return json({ ok: true });
   } catch (e) {
-    return new Response(JSON.stringify({ error: '请求数据无效' }), { status: 400, headers });
+    return err('请求数据无效', 400);
   }
 }

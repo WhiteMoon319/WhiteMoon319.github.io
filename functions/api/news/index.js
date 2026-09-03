@@ -2,27 +2,27 @@
  * GET  /api/news          — 获取已审核文章列表（支持搜索 q= 和分页 page=&limit=）
  * POST /api/news          — 创建文章（需登录，普通用户为 pending，staff 为 approved）
  */
-import { getToken, getUserFromToken } from '../_auth.js';
+import {getToken, getUserFromToken, json, err, handleAsync} from '../_auth.js';
 import { createPasswordHash } from '../auth/crypto.js';
 
-export async function onRequest(context) {
+export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
-  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+
   const url = new URL(request.url);
 
   if (request.method === 'GET') {
-    return handleList(url, env, headers);
+    return handleList(url, env);
   }
 
   if (request.method === 'POST') {
-    return handleCreate(request, env, headers);
+    return handleCreate(request, env);
   }
 
-  return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405, headers });
-}
+  return err('方法不允许', 405);
+});
 
 // 列出已审核文章（搜索+分页）
-async function handleList(url, env, headers) {
+async function handleList(url, env) {
   const q = (url.searchParams.get('q') || '').trim();
   const page = Math.max(1, parseInt(url.searchParams.get('page')) || 1);
   const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit')) || 10));
@@ -61,42 +61,42 @@ async function handleList(url, env, headers) {
     a.like_count = likes ? likes.cnt : 0;
   }
 
-  return new Response(JSON.stringify({
+  return json({
     ok: true,
     articles: rows.results,
     total,
     page,
     limit,
     totalPages
-  }), { status: 200, headers });
+  }, 200);
 }
 
 // 创建文章
-async function handleCreate(request, env, headers) {
+async function handleCreate(request, env) {
   const token = getToken(request);
   if (!token) {
-    return new Response(JSON.stringify({ error: '请先登录' }), { status: 401, headers });
+    return err('请先登录', 401);
   }
 
   const session = await getUserFromToken(token, env);
   if (!session) {
-    return new Response(JSON.stringify({ error: '会话已过期' }), { status: 401, headers });
+    return err('会话已过期', 401);
   }
 
   // 等级检查：level >= 2 或 staff 才能发文章
   const isStaff = session.role === 'admin' || session.role === 'sub_admin';
   if (!isStaff && (session.level || 0) < 2) {
-    return new Response(JSON.stringify({ error: '需要 Lv.2 以上才能发文章，请联系管理员提升等级' }), { status: 403, headers });
+    return err('需要 Lv.2 以上才能发文章，请联系管理员提升等级', 403);
   }
 
   try {
     const { title, summary, content } = await request.json();
 
     if (!title || !content) {
-      return new Response(JSON.stringify({ error: '标题和内容不能为空' }), { status: 400, headers });
+      return err('标题和内容不能为空', 400);
     }
     if (title.length > 120) {
-      return new Response(JSON.stringify({ error: '标题最长120字' }), { status: 400, headers });
+      return err('标题最长120字', 400);
     }
 
     const slug = 'article-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
@@ -108,9 +108,9 @@ async function handleCreate(request, env, headers) {
       'INSERT INTO articles (user_id, title, summary, content, slug, status) VALUES (?, ?, ?, ?, ?, ?)'
     ).bind(session.id, title, summary || '', content.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, ''), slug, status).run();
 
-    return new Response(JSON.stringify({ ok: true, slug, status }), { status: 201, headers });
+    return json({ ok: true, slug, status }, 201);
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: '服务器错误' }), { status: 500, headers });
+    return err('服务器错误', 500);
   }
 }
