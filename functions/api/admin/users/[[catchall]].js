@@ -5,8 +5,8 @@
  * 
  * admin 拥有全部权限，sub_admin 只能查看和绑定，不能删除用户
  */
-import { isStaff, getAuthUser } from '../check.js';
-import {json, err, handleAsync} from '../../_auth.js';
+;
+import {isStaff, getAuthUser, json, err, handleAsync} from '../../_auth.js';
 
 export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;

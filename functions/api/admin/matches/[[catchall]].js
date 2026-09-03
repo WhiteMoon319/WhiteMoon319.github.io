@@ -4,8 +4,8 @@
  * PUT    /api/admin/matches/:id   — 更新赛事
  * DELETE /api/admin/matches/:id   — 删除赛事
  */
-import { isStaff } from '../check.js';
-import {json, err, handleAsync} from '../../_auth.js';
+;
+import {isStaff, json, err, handleAsync} from '../../_auth.js';
 
 export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;

@@ -7,8 +7,8 @@
  * PUT    /api/admin/announcements/:id    — 编辑公告（同时更新用户通知）
  * DELETE /api/admin/announcements/:id    — 删除公告（同时删除所有用户通知）
  */
-import { isStaff } from '../check.js';
-import {createNotification, notifyAllUsers, json, err, handleAsync} from '../../_auth.js';
+;
+import {isStaff, createNotification, notifyAllUsers, json, err, handleAsync} from '../../_auth.js';
 
 export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;

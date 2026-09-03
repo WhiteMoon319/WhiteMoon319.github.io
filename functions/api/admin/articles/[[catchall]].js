@@ -6,8 +6,8 @@
  * PUT    /api/admin/articles/:slug/status         — 审核文章（approved/rejected）
  * POST   /api/admin/articles/announcement         — 发布系统公告（发送给所有用户）
  */
-import { isStaff } from '../check.js';
-import {createNotification, notifyAllUsers, json, err, handleAsync} from '../../_auth.js';
+;
+import {isStaff, createNotification, notifyAllUsers, json, err, handleAsync} from '../../_auth.js';
 
 export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;

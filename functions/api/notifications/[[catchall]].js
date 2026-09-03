@@ -9,7 +9,7 @@
  * PUT    /api/notifications/preferences         — 更新通知偏好
  * DELETE /api/notifications/:id                 — 删除单条通知
  */
-import {getAuthUser, json, err, handleAsync} from '../_auth.js';
+import {getAuthUser, json, err, handleAsync, parsePagination} from '../_auth.js';
 
 export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
@@ -138,9 +138,7 @@ export const onRequest = handleAsync(async (context) => {
 
   // GET /api/notifications
   if (request.method === 'GET') {
-    const page = Math.max(1, parseInt(url.searchParams.get('page')) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit')) || 20));
-    const offset = (page - 1) * limit;
+    const { page, limit, offset } = parsePagination(url, 20, 50);
     const typeFilter = url.searchParams.get('type') || '';
 
     let whereClause = 'WHERE n.user_id = ?';

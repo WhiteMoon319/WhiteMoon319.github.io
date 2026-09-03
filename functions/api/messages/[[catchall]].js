@@ -5,7 +5,7 @@
  * GET  /api/messages        — 收到的私信列表
  * GET  /api/messages/sent   — 发出的私信列表
  */
-import {getAuthUser, createNotification, checkRateLimit, json, err, handleAsync} from '../_auth.js';
+import {getAuthUser, createNotification, checkRateLimit, json, err, handleAsync, parsePagination} from '../_auth.js';
 
 export const onRequest = handleAsync(async (context) => {
   const { request, env } = context;
@@ -81,9 +81,7 @@ export const onRequest = handleAsync(async (context) => {
 
   // GET /api/messages — 收到的私信
   if (request.method === 'GET') {
-    const page = Math.max(1, parseInt(url.searchParams.get('page')) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit')) || 20));
-    const offset = (page - 1) * limit;
+    const { page, limit, offset } = parsePagination(url, 20, 50);
 
     const unreadRow = await env.DB.prepare(
       "SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND type = 'private_message' AND is_read = 0"

@@ -2,7 +2,7 @@
  * GET  /api/news          — 获取已审核文章列表（支持搜索 q= 和分页 page=&limit=）
  * POST /api/news          — 创建文章（需登录，普通用户为 pending，staff 为 approved）
  */
-import {getToken, getUserFromToken, json, err, handleAsync} from '../_auth.js';
+import {getToken, getUserFromToken, json, err, handleAsync, parsePagination} from '../_auth.js';
 import { createPasswordHash } from '../auth/crypto.js';
 
 export const onRequest = handleAsync(async (context) => {
@@ -24,9 +24,7 @@ export const onRequest = handleAsync(async (context) => {
 // 列出已审核文章（搜索+分页）
 async function handleList(url, env) {
   const q = (url.searchParams.get('q') || '').trim();
-  const page = Math.max(1, parseInt(url.searchParams.get('page')) || 1);
-  const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit')) || 10));
-  const offset = (page - 1) * limit;
+  const { page, limit, offset } = parsePagination(url, 10, 50);
 
   let where = "a.status = 'approved'";
   let bindParams = [];

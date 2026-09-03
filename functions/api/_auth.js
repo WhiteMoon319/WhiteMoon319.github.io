@@ -168,3 +168,17 @@ export function handleAsync(handler) {
     }
   };
 }
+
+/**
+ * 解析分页参数（统一 page/limit/offset 解析）
+ * @param {URL} url
+ * @param {number} [defaultLimit=10]
+ * @param {number} [maxLimit=50]
+ * @returns {{page:number, limit:number, offset:number}}
+ */
+export function parsePagination(url, defaultLimit = 10, maxLimit = 50) {
+  const page = Math.max(1, parseInt(url.searchParams.get('page')) || 1);
+  const limit = Math.min(maxLimit, Math.max(1, parseInt(url.searchParams.get('limit')) || defaultLimit));
+  const offset = (page - 1) * limit;
+  return { page, limit, offset };
+}

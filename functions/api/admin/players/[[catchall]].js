@@ -2,8 +2,8 @@
  * GET  /api/admin/players          — 选手列表
  * PUT  /api/admin/players/:slug    — 更新选手资料（头像等）
  */
-import { isStaff } from '../check.js';
-import {json, err, handleAsync} from '../../_auth.js';
+;
+import {isStaff, json, err, handleAsync} from '../../_auth.js';
 
 export const onRequest = handleAsync(async (context) => {
   const { request, env, params } = context;
