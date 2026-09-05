@@ -1,0 +1,5 @@
+# Cloudflare Pages 静态资源缓存策略
+# 不带 hash 的静态文件用 1 天缓存，配合 SW stale-while-revalidate
+# 保证部署后更新及时可见。
+/resource/*
+  Cache-Control: public, max-age=86400
