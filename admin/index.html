@@ -18,7 +18,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#ea580c">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Rajdhani:wght@600;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
@@ -35,8 +35,8 @@
         .admin-header p { color: var(--dim); font-size: 14px; margin: 6px 0 0; }
         .admin-tabs { display: flex; gap: 2px; padding: 0 36px; background: var(--surface-2); }
         .admin-tab { padding: 14px 22px; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--dim); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; background: transparent; border-top: none; border-left: none; border-right: none; }
-        .admin-tab:hover { color: var(--fire); }
-        .admin-tab.active { color: var(--fire); border-bottom-color: var(--fire); }
+        .admin-tab:hover { color:var(--fire-text); }
+        .admin-tab.active { color:var(--fire-text); border-bottom-color:var(--fire-text); }
         .admin-body { padding: 28px 36px 36px; min-height: 200px; }
         .admin-placeholder { text-align: center; padding: 60px 0; color: var(--dim); }
         .admin-table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -44,11 +44,11 @@
         .admin-table th { font-family: var(--mono); font-size: 11px; color: var(--faint); letter-spacing: 0.08em; text-transform: uppercase; }
         .admin-table td { color: var(--text); }
         .admin-badge { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; }
-        .admin-badge.admin { background: var(--fire-soft); color: var(--fire); }
+        .admin-badge.admin { background: var(--fire-soft); color:var(--fire-text); }
         .admin-badge.user { background: var(--spring-soft); color: var(--spring); }
         .admin-badge.sub_admin { background: #e8f5e9; color: #2e7d32; }
         .admin-btn { padding: 6px 14px; font-family: var(--mono); font-size: 11px; font-weight: 700; border-radius: var(--r-sm); cursor: pointer; border: 1px solid var(--line-2); background: transparent; color: var(--dim); transition: all 0.2s; }
-        .admin-btn:hover { border-color: var(--fire); color: var(--fire); }
+        .admin-btn:hover { border-color:var(--fire-text); color:var(--fire-text); }
         .admin-btn.danger:hover { border-color: var(--flame); color: var(--flame); }
         .admin-btn.primary { background: var(--flame-grad); color: #fff; border: none; }
         .admin-btn.primary:hover { filter: brightness(1.05); }

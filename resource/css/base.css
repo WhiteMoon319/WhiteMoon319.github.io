@@ -27,7 +27,7 @@
     /* text — warm near-black, never pure */
     --text: #2a241d;
     --dim: #6e6557;
-    --faint: #9a9082;
+    --faint: #8a7f6f;
 
     /* flame palette — rich multi-hue gradient (the wildfire) */
     --amber: #fbbf24;
@@ -38,6 +38,8 @@
     --flame: #ef4444;
     --rose: #f43f5e;
     --ember-deep: #b45309;
+    /* 文字专用火色：浅色下用深橙保对比度（--fire 仅用于边框/渐变/装饰） */
+    --fire-text: #c2410c;
     --fire-soft: rgba(249, 115, 22, 0.12);
     --fire-glow: rgba(249, 115, 22, 0.32);
     --fire-glow-2: rgba(234, 88, 12, 0.42);

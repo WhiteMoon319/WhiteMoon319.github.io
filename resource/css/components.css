@@ -73,12 +73,12 @@
     .nav-auth a:hover,
     .nav-auth .nav-auth-logout:hover {
         background: rgba(194, 58, 48, 0.06);
-        border-left-color: var(--fire);
-        color: var(--fire);
+        border-left-color: var(--fire-text);
+        color: var(--fire-text);
         cursor: pointer;
     }
     .nav-auth .nav-auth-logout {
-        color: var(--faint);
+        color: var(--dim);
     }
 }
 
@@ -196,8 +196,8 @@
     transition: border-color 0.2s, color 0.2s;
 }
 .confirm-cancel:hover {
-    border-color: var(--fire);
-    color: var(--fire);
+    border-color: var(--fire-text);
+    color: var(--fire-text);
 }
 
 /* ===== 骨架屏加载动画 ===== */
@@ -272,7 +272,7 @@
 }
 /* 导航项激活态强化 */
 .site-header:has(.nav .active) .nav .active {
-    color: var(--fire);
+    color: var(--fire-text);
 }
 
 /* ===== 原生 <dialog> 确认弹框 ===== */
@@ -330,8 +330,8 @@
     transition: border-color 0.2s, color 0.2s;
 }
 .confirm-dialog .confirm-cancel:hover {
-    border-color: var(--fire);
-    color: var(--fire);
+    border-color: var(--fire-text);
+    color: var(--fire-text);
 }
 
 /* ===== 页面加载进度条 ===== */
@@ -398,7 +398,7 @@
     border: 1px solid var(--line-2);
     border-radius: 50%;
     box-shadow: var(--shadow);
-    color: var(--fire);
+    color: var(--fire-text);
     font-size: 18px;
     cursor: pointer;
     opacity: 0;
@@ -497,14 +497,14 @@ a.hover-line:hover::after {
     max-width: 320px;
 }
 .empty-state a {
-    color: var(--fire);
+    color: var(--fire-text);
     font-weight: 600;
     text-decoration: none;
     border-bottom: 1px solid var(--line-hot);
     transition: border-color 0.2s;
 }
 .empty-state a:hover {
-    border-color: var(--fire);
+    border-color: var(--fire-text);
 }
 
 /* ===== View Transitions ===== */
@@ -564,7 +564,7 @@ a.hover-line:hover::after {
     text-align: justify;
 }
 .article-body a {
-    color: var(--fire);
+    color: var(--fire-text);
     text-decoration: underline;
     text-underline-offset: 3px;
 }

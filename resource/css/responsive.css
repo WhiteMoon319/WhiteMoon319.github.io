@@ -227,6 +227,7 @@
         --text: #ece3d8;
         --dim: #b5a99a;
         --faint: #887e72;
+        --fire-text: #f97316;
         --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15);
         --shadow: 0 14px 34px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.15);
         --shadow-lg: 0 30px 60px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -326,5 +327,6 @@
         background: var(--surface) !important;
         color: var(--text) !important;
     }
+
 }
 
