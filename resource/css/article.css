@@ -1,0 +1,36 @@
+/* =========================================================
+   article.css — 文章详情页布局
+   原 6 篇文章页内联 <style> 的公共部分，提取为共享文件。
+   依赖 base.css 的设计令牌（--glass/--line-2/--r-lg 等）。
+   ========================================================= */
+
+.article-section {
+    padding-top: clamp(64px, 8vw, 96px);
+}
+
+.article-card {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: clamp(30px, 5vw, 56px);
+    background: var(--glass);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+.article-body {
+    color: var(--text);
+    font-size: clamp(17px, 2vw, 19px);
+    line-height: 2.05;
+}
+
+.article-body p + p {
+    margin-top: 1.15em;
+}
+
+.article-actions {
+    max-width: 920px;
+    margin: 34px auto 0;
+}
