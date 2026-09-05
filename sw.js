@@ -2,12 +2,15 @@
  * YHG Service Worker v1
  * 缓存策略：运行时缓存静态资源 + 网络优先 API
  */
-const CACHE_NAME = 'yhg-v1';
+const CACHE_NAME = 'yhg-v2';
 
 // 需要预缓存的资源
 const PRECACHE_URLS = [
   '/',
-  '/resource/css/style.css',
+  '/resource/css/base.css',
+  '/resource/css/layout.css',
+  '/resource/css/responsive.css',
+  '/resource/css/components.css',
   '/resource/js/main.js',
   '/resource/js/auth.js',
   '/resource/img/logo.webp',
@@ -72,22 +75,6 @@ self.addEventListener('fetch', (event) => {
   // 其他：网络优先
   event.respondWith(networkFirst(request));
 });
-
-// 缓存优先策略
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (e) {
-    return new Response('Offline', { status: 503 });
-  }
-}
 
 // 缓存优先 + 后台更新策略：立即返回缓存，同时网络拉新并更新缓存
 async function staleWhileRevalidate(request) {
