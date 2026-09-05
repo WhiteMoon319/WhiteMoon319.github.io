@@ -70,7 +70,7 @@ def build_header(base, active, auth, brand_alt, auth_state_text='用户', brand_
     lines = [
         '    <header class="site-header">',
         f'        <a class="brand" href="{brand_href}"' + (' aria-label="返回首页"' if brand_aria else '') + '>',
-        f'            <img src="{base}resource/img/logo.webp" alt="{brand_alt}">',
+        f'            <img src="{base}resource/img/logo.webp" alt="{brand_alt}" width="34" height="34">',
         '            <span>YHG</span>',
         '        </a>',
         '        <nav class="nav" aria-label="主导航">',
