@@ -328,5 +328,10 @@
         color: var(--text) !important;
     }
 
+    /* footer：原浅色米底硬编码，深色下改为暗面 */
+    footer {
+        background: #241e1a;
+        border-top-color: var(--line);
+    }
 }
 
